@@ -2,7 +2,7 @@
 id: 004
 title: How should Warp be modelled and Band identities assigned?
 labels: [wayfinder:prototype]
-status: open
+status: closed
 assignee: robsyme
 blocked-by: []
 ---
@@ -13,4 +13,13 @@ Given band centres per lane (hand-marked is fine — this ticket does not depend
 
 ## Assets
 
-- [warp-model-demo.html](../../prototypes/warp-model-demo.html) — double-clickable single-file demo comparing three warp models on the example plates (built by `prototypes/build_demo.py` from `prototypes/extract_bands.py` output). Awaiting user reaction.
+- [warp-model-demo.html](../../prototypes/warp-model-demo.html) — double-clickable single-file demo comparing three warp models on the example plates (built by `prototypes/build_demo.py` from `prototypes/extract_bands.py` output).
+
+## Resolution
+
+Decided (user-confirmed on the prototype, 2026-08-20): **scaled shared warp, greedy row-linking as initializer, manual add/remove/rename as the correction floor.**
+
+- The Warp model is `y = offset_row + amplitude_row * d(x)`: one smooth drift shape `d(x)` per Plate (local linear regression across lanes), with a per-row amplitude. The examples prove per-row amplitude is required, not optional: on Gel 4B the standards ladder curves hard while the top Compound Row stays flat, so a single shared displacement field misassigns, and purely independent rows fragment (8 rows instead of 4 on Gel 5A) and extrapolate wildly across gaps.
+- Fitting: greedy strongest-first band linking across lanes seeds the rows; alternating least squares refines drift, offsets, and amplitudes; near-coincident rows are merged; each band is assigned to the nearest row curve within a tolerance (default ±3.5% of plate height) or left unassigned. Stable under missing bands (walkthrough 2) and identifies a lone faint band via the plate-wide drift (walkthrough 3).
+- Correction loop confirmed good by the user: click to remove a band, click a lane to add one, rename rows to Compound names. Added on review: lane x positions must also be Operator-correctable (drag handles in the demo) because auto-detected lanes are sometimes wrong — this carries into [What is the Operator's step-by-step workflow?](008-operator-workflow.md) and is evidence for [Can lanes and bands be auto-detected well enough to assist?](003-band-autodetection-feasibility.md).
+- The `WarpAssign` module inside the demo is pure (no DOM) and written to lift directly into the real tool.

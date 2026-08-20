@@ -9,7 +9,7 @@
 - **Band** — one dark spot in one Lane: the signal of one Compound in that Lane's sample.
 - **Compound** — a named isoflavone of interest. Names are supplied by the Operator per Plate (configuration or interactively). A Plate typically shows two or three Compounds.
 - **Compound Row** — all Bands of one Compound across the Lanes of a Plate. Because of Warp, a Compound Row is a curve, not a horizontal line.
-- **Warp** — the smooth vertical drift of Compound Rows across a Plate (solvent-front distortion). Warp is modelled so Bands can be assigned to the correct Compound; it is not itself a quantity of interest.
+- **Warp** — the smooth vertical drift of Compound Rows across a Plate (solvent-front distortion). Rows on the same Plate share the drift's shape but warp by different amounts — drift grows with migration distance, so a row near the solvent front curves more than one near the origin. Warp is modelled so Bands can be assigned to the correct Compound; it is not itself a quantity of interest.
 - **Dilution Series** — the Operator-specified amounts of each Compound in the Standard Lanes (e.g. 0.25, 0.5, 1, 1.5, 2, 3, 4 of some unit). Units are recorded as a label, not interpreted.
 - **Calibration Curve** — per Compound, the fitted relationship between Band intensity and amount, derived from that Compound's Bands in the Standard Lanes. Used to convert Sample Lane Band intensities to calibrated quantities.
 - **Analysis File** — a saved, reloadable record of everything the Operator did to one Plate (labels, band positions, corrections) plus the results. Also the provenance record.
