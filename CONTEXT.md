@@ -12,5 +12,8 @@
 - **Warp** — the smooth vertical drift of Compound Rows across a Plate (solvent-front distortion). Rows on the same Plate share the drift's shape but warp by different amounts — drift grows with migration distance, so a row near the solvent front curves more than one near the origin. Warp is modelled so Bands can be assigned to the correct Compound; it is not itself a quantity of interest.
 - **Dilution Series** — the Operator-specified amounts of each Compound in the Standard Lanes (e.g. 0.25, 0.5, 1, 1.5, 2, 3, 4 of some unit). Units are recorded as a label, not interpreted.
 - **Calibration Curve** — per Compound, the fitted relationship between Band intensity and amount, derived from that Compound's Bands in the Standard Lanes. Used to convert Sample Lane Band intensities to calibrated quantities.
-- **Analysis File** — a saved, reloadable record of everything the Operator did to one Plate (labels, band positions, corrections) plus the results. Also the provenance record.
+- **Rectification** — perspective correction of a Photo from four Operator-marked plate corners; happens before any analysis so lanes are vertical and rows comparable.
+- **Baseline** — the line subtracted beneath a Band's profile peak before integration (valley-to-valley: a straight line between the flanking minima). The method used is always recorded.
+- **Bracketed** — a sample Band whose signal falls within the range spanned by the detected Standard Lanes' amounts. Values above the top standard are reported censored ("> top amount"), never extrapolated; values below the bottom standard are reported but flagged.
+- **Analysis File** — a saved, reloadable record of everything the Operator did to one Plate (labels, band positions, corrections) plus the results. Also the provenance record: it names the baseline method, signal transform, and calibration fit behind every number.
 - **Operator** — the scientist using the tool. Not a developer; works in a browser.
