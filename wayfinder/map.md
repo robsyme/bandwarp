@@ -27,12 +27,12 @@ A working, fully client-side browser tool the Operator (a scientist, no dev envi
 - [How should Warp be modelled and Band identities assigned?](tickets/004-warp-model-and-identity-assignment.md) — scaled shared warp (one drift shape per plate, per-row amplitude), greedy row-linking as initializer, manual add/remove/rename plus draggable lane positions as the correction floor; user-confirmed on the prototype, and the demo's pure `WarpAssign` module lifts into the tool.
 - [Can lanes and bands be auto-detected well enough to assist?](tickets/003-band-autodetection-feasibility.md) — yes, user-confirmed: origin-anchored lanes unioned with band-mass peaks (no pitch grid), 2D flat-field, noise-adaptive thresholds, warp-guided rescue with rescued bands flagged; faintest standards may go undetected since calibration anchors on the stronger levels.
 - [What is the exact pixel-to-quantity pipeline?](tickets/006-pixel-to-quantity-pipeline.md) — sRGB-linearized green channel as log-ratio OD against a fitted local background; corner-marking rectification first; 1D lane-profile area between valley bounds with a visible valley-to-valley baseline; per-compound linear + Michaelis-Menten calibration auto-selected by fit, censored ("> top") above the top standard; fixed QC flag set with provenance recorded.
+- [How will we validate that quantification is accurate?](tickets/005-validation-of-quantification-accuracy.md) — internal validation (no external ground truth exists): standards-as-unknowns leave-one-out plus replicate-lane agreement on the existing photos, ±15% recovery / <=10% RSD to pass, screening-grade labelling; future plates carry outer-lane standards for per-plate self-validation; execution charted as [Run the validation protocol on the example plates](tickets/009-run-validation-protocol.md).
 
 ## Not yet specified
 
 - Analysis File JSON schema and results CSV column layout — waits on the data model settling through the pipeline and workflow tickets.
-- The build itself: implementation tickets get charted once the workflow, pipeline, and stack decisions close.
-- Validation protocol details — waits on the accuracy grilling.
+- The build itself: implementation tickets get charted once the workflow and stack decisions close; when they are, wire them as blockers of [Run the validation protocol on the example plates](tickets/009-run-validation-protocol.md).
 
 ## Out of scope
 
