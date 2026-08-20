@@ -65,9 +65,11 @@
   <div id="wrap"><canvas id="cv"></canvas></div>
   <p class="hint">Click a dot to remove that band. Click anywhere else on a lane
   to add a band there. Drag the small handle at the top of a lane to correct the
-  lane's position (handles turn purple once moved; "Restore" resets them too).
-  The fit re-runs on every change. Click a row's name below to rename it
-  (e.g. "Genistein").</p>
+  lane's position (handles turn purple once moved); click empty space in the
+  handle strip to add a whole lane. Dots with a dark ring were found by the
+  warp-guided rescue pass — faint bands hunted where the row curves predicted
+  them — and deserve a second look. The fit re-runs on every change. Click a
+  row's name below to rename it (e.g. "Genistein").</p>
 
   <div class="cols">
     <div class="panel">
@@ -258,7 +260,7 @@ function currentBands() {
   p.lanes.forEach((ln, li) => ln.bands.forEach(b => {
     const key = `d${li}:${b.y}`;
     if (!state.removed[state.plate].has(key))
-      out.push({ id: key, lane: li, y: b.y, strength: b.strength });
+      out.push({ id: key, lane: li, y: b.y, strength: b.strength, rescued: b.rescued });
     id++;
   }));
   state.added[state.plate].forEach(b => {
@@ -314,7 +316,9 @@ function draw() {
     g.fillStyle = c;
     r.members.forEach(b => {
       g.beginPath(); g.arc(lanes[b.lane].x, b.y, 7, 0, 7); g.fill();
-      g.strokeStyle = '#fff'; g.lineWidth = 1.5; g.stroke();
+      g.strokeStyle = b.rescued ? '#111' : '#fff';
+      g.lineWidth = b.rescued ? 2.5 : 1.5;
+      g.stroke();
     });
   });
   g.fillStyle = '#999';
@@ -378,12 +382,26 @@ window.addEventListener('mouseup', () => {
   else drag = null;
 });
 
+function addLane(x) {
+  const p = DATA[state.plate];
+  const idx = p.lanes.findIndex(ln => ln.x > x);
+  p.lanes.splice(idx < 0 ? p.lanes.length : idx, 0, { x, bands: [] });
+  // lane indices shifted: clear per-index correction state for this plate
+  state.removed[state.plate] = new Set();
+  state.added[state.plate] = [];
+  state.laneShift[state.plate] = {};
+  refit();
+}
+
 document.getElementById('cv').addEventListener('click', ev => {
   if (drag) return;
   const p = DATA[state.plate];
   const lanes = effLanes();
   const { x, y } = canvasPos(ev);
-  if (y < 30) return; // handle strip — clicks there are lane drags, not bands
+  if (y < 30) { // handle strip: click on empty space = add a lane there
+    if (lanes.every(ln => Math.abs(ln.x - x) > 20)) addLane(x);
+    return;
+  }
   // near an existing band? remove it
   for (const b of currentBands()) {
     if ((lanes[b.lane].x - x) ** 2 + (b.y - y) ** 2 < 14 ** 2) {

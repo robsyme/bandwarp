@@ -12,24 +12,37 @@
   "height": 852,
   "lanes": [
    {
-    "x": 56.4,
+    "x": 50.6,
     "bands": [
      {
-      "y": 347.8,
-      "strength": 0.1855
+      "y": 103.4,
+      "strength": 0.0097,
+      "rescued": false
+     },
+     {
+      "y": 347.1,
+      "strength": 0.196,
+      "rescued": false
+     },
+     {
+      "y": 581.4,
+      "strength": 0.011,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 120.8,
+    "x": 115.7,
     "bands": [
      {
       "y": 348.6,
-      "strength": 0.1412
+      "strength": 0.1326,
+      "rescued": false
      },
      {
-      "y": 618.3,
-      "strength": 0.0986
+      "y": 615.4,
+      "strength": 0.1176,
+      "rescued": false
      }
     ]
    },
@@ -38,11 +51,13 @@
     "bands": [
      {
       "y": 352.2,
-      "strength": 0.1185
+      "strength": 0.119,
+      "rescued": false
      },
      {
       "y": 629.1,
-      "strength": 0.2346
+      "strength": 0.2525,
+      "rescued": false
      }
     ]
    },
@@ -51,73 +66,78 @@
     "bands": [
      {
       "y": 353.6,
-      "strength": 0.1753
+      "strength": 0.1905,
+      "rescued": false
      },
      {
-      "y": 581.4,
-      "strength": 0.1439
+      "y": 530.1,
+      "strength": 0.0202,
+      "rescued": false
+     },
+     {
+      "y": 582.1,
+      "strength": 0.1689,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 297.2,
+    "x": 297.9,
     "bands": [
      {
       "y": 355.1,
-      "strength": 0.2901
+      "strength": 0.3175,
+      "rescued": false
      },
      {
       "y": 634.2,
-      "strength": 0.1521
+      "strength": 0.1562,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 357.2,
+    "x": 355.8,
+    "bands": [
+     {
+      "y": 352.9,
+      "strength": 0.0553,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 415.1,
     "bands": [
      {
       "y": 353.6,
-      "strength": 0.0712
+      "strength": 0.0443,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 418.0,
+    "x": 472.9,
     "bands": [
      {
       "y": 354.3,
-      "strength": 0.0651
-     }
-    ]
-   },
-   {
-    "x": 470.8,
-    "bands": [
-     {
-      "y": 354.3,
-      "strength": 0.223
+      "strength": 0.208,
+      "rescued": false
      },
      {
       "y": 630.6,
-      "strength": 0.2342
+      "strength": 0.2228,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 513.4,
+    "x": 529.3,
     "bands": [
      {
       "y": 355.1,
-      "strength": 0.0617
-     }
-    ]
-   },
-   {
-    "x": 569.8,
-    "bands": [
-     {
-      "y": 357.2,
-      "strength": 0.2241
+      "strength": 0.0238,
+      "rescued": false
      }
     ]
    },
@@ -126,183 +146,268 @@
     "bands": [
      {
       "y": 360.1,
-      "strength": 0.3095
+      "strength": 0.3157,
+      "rescued": false
+     },
+     {
+      "y": 521.4,
+      "strength": 0.0428,
+      "rescued": false
+     },
+     {
+      "y": 563.3,
+      "strength": 0.0137,
+      "rescued": true
      },
      {
       "y": 628.4,
-      "strength": 0.1977
+      "strength": 0.1904,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 681.2,
+    "x": 700.0,
     "bands": [
      {
       "y": 360.1,
-      "strength": 0.2412
-     },
-     {
-      "y": 627.0,
-      "strength": 0.2308
-     }
-    ]
-   },
-   {
-    "x": 736.9,
-    "bands": [
-     {
-      "y": 354.3,
-      "strength": 0.1683
+      "strength": 0.2039,
+      "rescued": false
      },
      {
       "y": 517.8,
-      "strength": 0.1817
+      "strength": 0.0484,
+      "rescued": false
      },
      {
-      "y": 625.5,
-      "strength": 0.3288
+      "y": 577.1,
+      "strength": 0.0128,
+      "rescued": false
+     },
+     {
+      "y": 626.2,
+      "strength": 0.2928,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 796.9,
+    "x": 755.7,
+    "bands": [
+     {
+      "y": 353.6,
+      "strength": 0.1432,
+      "rescued": false
+     },
+     {
+      "y": 514.2,
+      "strength": 0.2197,
+      "rescued": false
+     },
+     {
+      "y": 568.4,
+      "strength": 0.0411,
+      "rescued": false
+     },
+     {
+      "y": 624.8,
+      "strength": 0.4204,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 810.6,
     "bands": [
      {
       "y": 355.1,
-      "strength": 0.2601
+      "strength": 0.2164,
+      "rescued": false
      },
      {
-      "y": 509.1,
-      "strength": 0.3465
+      "y": 505.5,
+      "strength": 0.3832,
+      "rescued": false
      },
      {
-      "y": 561.2,
-      "strength": 0.1117
+      "y": 552.5,
+      "strength": 0.1098,
+      "rescued": false
      },
      {
-      "y": 622.6,
-      "strength": 0.4298
+      "y": 621.2,
+      "strength": 0.5189,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 859.1,
+    "x": 856.2,
     "bands": [
      {
-      "y": 499.7,
-      "strength": 0.4201
+      "y": 352.2,
+      "strength": 0.1033,
+      "rescued": false
      },
      {
-      "y": 549.6,
-      "strength": 0.1719
+      "y": 500.4,
+      "strength": 0.4598,
+      "rescued": false
+     },
+     {
+      "y": 551.8,
+      "strength": 0.1699,
+      "rescued": false
      },
      {
       "y": 618.3,
-      "strength": 0.5301
+      "strength": 0.5393,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 912.6,
+    "x": 910.4,
     "bands": [
      {
       "y": 352.9,
-      "strength": 0.136
+      "strength": 0.1536,
+      "rescued": false
      },
      {
-      "y": 491.0,
-      "strength": 0.5226
+      "y": 491.7,
+      "strength": 0.5632,
+      "rescued": false
      },
      {
-      "y": 538.7,
-      "strength": 0.2407
+      "y": 538.0,
+      "strength": 0.2436,
+      "rescued": false
      },
      {
       "y": 619.0,
-      "strength": 0.5805
+      "strength": 0.596,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 962.5,
-    "bands": [
-     {
-      "y": 348.6,
-      "strength": 0.2314
-     },
-     {
-      "y": 612.5,
-      "strength": 0.3323
-     }
-    ]
-   },
-   {
-    "x": 1012.4,
+    "x": 971.2,
     "bands": [
      {
       "y": 347.8,
-      "strength": 0.1621
+      "strength": 0.1532,
+      "rescued": false
      },
      {
-      "y": 559.0,
-      "strength": 0.2083
+      "y": 611.8,
+      "strength": 0.3468,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 1071.7,
+    "x": 1030.5,
     "bands": [
      {
-      "y": 350.0,
-      "strength": 0.2538
+      "y": 349.3,
+      "strength": 0.0749,
+      "rescued": false
      },
      {
-      "y": 616.8,
-      "strength": 0.3525
+      "y": 512.0,
+      "strength": 0.0168,
+      "rescued": false
+     },
+     {
+      "y": 561.2,
+      "strength": 0.2108,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 1121.6,
+    "x": 1083.3,
     "bands": [
      {
       "y": 352.9,
-      "strength": 0.231
-     }
-    ]
-   },
-   {
-    "x": 1167.9,
-    "bands": [
-     {
-      "y": 347.8,
-      "strength": 0.2995
+      "strength": 0.2027,
+      "rescued": false
      },
      {
-      "y": 561.9,
-      "strength": 0.2002
+      "y": 616.8,
+      "strength": 0.4126,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 1238.7,
+    "x": 1133.2,
     "bands": [
      {
-      "y": 341.3,
-      "strength": 0.1501
+      "y": 351.4,
+      "strength": 0.1824,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 1334.2,
+    "x": 1187.4,
+    "bands": [
+     {
+      "y": 347.1,
+      "strength": 0.1426,
+      "rescued": false
+     },
+     {
+      "y": 561.2,
+      "strength": 0.2289,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 1241.6,
+    "bands": [
+     {
+      "y": 342.0,
+      "strength": 0.1229,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 1292.3,
+    "bands": [
+     {
+      "y": 339.9,
+      "strength": 0.0804,
+      "rescued": false
+     },
+     {
+      "y": 594.4,
+      "strength": 0.0147,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 1350.1,
     "bands": [
      {
       "y": 339.2,
-      "strength": 0.1932
+      "strength": 0.1498,
+      "rescued": false
      },
      {
-      "y": 574.2,
-      "strength": 0.1473
+      "y": 450.5,
+      "strength": 0.0068,
+      "rescued": true
+     },
+     {
+      "y": 561.2,
+      "strength": 0.1367,
+      "rescued": false
      }
     ]
    }
@@ -321,252 +426,432 @@
   "height": 780,
   "lanes": [
    {
-    "x": 120.5,
+    "x": 54.1,
     "bands": [
      {
-      "y": 190.8,
-      "strength": 0.3372
-     }
-    ]
-   },
-   {
-    "x": 175.1,
-    "bands": [
-     {
-      "y": 191.7,
-      "strength": 0.2001
+      "y": 192.1,
+      "strength": 0.0939,
+      "rescued": false
      },
      {
-      "y": 484.7,
-      "strength": 0.2248
-     }
-    ]
-   },
-   {
-    "x": 292.1,
-    "bands": [
-     {
-      "y": 414.0,
-      "strength": 0.1682
+      "y": 312.7,
+      "strength": 0.0145,
+      "rescued": false
      },
      {
-      "y": 503.1,
-      "strength": 0.4541
+      "y": 345.4,
+      "strength": 0.117,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 348.5,
-    "bands": [
-     {
-      "y": 195.6,
-      "strength": 0.2153
-     },
-     {
-      "y": 503.1,
-      "strength": 0.346
-     }
-    ]
-   },
-   {
-    "x": 406.1,
-    "bands": [
-     {
-      "y": 196.5,
-      "strength": 0.2356
-     }
-    ]
-   },
-   {
-    "x": 445.9,
-    "bands": [
-     {
-      "y": 196.1,
-      "strength": 0.298
-     },
-     {
-      "y": 491.3,
-      "strength": 0.1656
-     }
-    ]
-   },
-   {
-    "x": 501.3,
-    "bands": [
-     {
-      "y": 195.6,
-      "strength": 0.3121
-     }
-    ]
-   },
-   {
-    "x": 573.4,
-    "bands": [
-     {
-      "y": 200.0,
-      "strength": 0.1716
-     }
-    ]
-   },
-   {
-    "x": 624.0,
-    "bands": [
-     {
-      "y": 203.1,
-      "strength": 0.3119
-     },
-     {
-      "y": 397.8,
-      "strength": 0.1459
-     },
-     {
-      "y": 475.1,
-      "strength": 0.1741
-     }
-    ]
-   },
-   {
-    "x": 679.5,
-    "bands": [
-     {
-      "y": 394.8,
-      "strength": 0.2523
-     },
-     {
-      "y": 472.1,
-      "strength": 0.2644
-     }
-    ]
-   },
-   {
-    "x": 732.3,
-    "bands": [
-     {
-      "y": 390.4,
-      "strength": 0.3583
-     },
-     {
-      "y": 470.3,
-      "strength": 0.3797
-     }
-    ]
-   },
-   {
-    "x": 778.6,
-    "bands": [
-     {
-      "y": 383.8,
-      "strength": 0.3614
-     },
-     {
-      "y": 466.8,
-      "strength": 0.3801
-     }
-    ]
-   },
-   {
-    "x": 847.6,
-    "bands": [
-     {
-      "y": 370.3,
-      "strength": 0.4663
-     },
-     {
-      "y": 458.1,
-      "strength": 0.4566
-     }
-    ]
-   },
-   {
-    "x": 897.4,
-    "bands": [
-     {
-      "y": 362.0,
-      "strength": 0.5371
-     },
-     {
-      "y": 451.5,
-      "strength": 0.4836
-     }
-    ]
-   },
-   {
-    "x": 945.0,
+    "x": 116.6,
     "bands": [
      {
       "y": 190.4,
-      "strength": 0.3136
+      "strength": 0.321,
+      "rescued": false
+     },
+     {
+      "y": 591.3,
+      "strength": 0.0085,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 1010.9,
+    "x": 177.3,
     "bands": [
      {
-      "y": 191.7,
-      "strength": 0.2627
+      "y": 192.6,
+      "strength": 0.2015,
+      "rescued": false
+     },
+     {
+      "y": 388.6,
+      "strength": 0.0383,
+      "rescued": false
+     },
+     {
+      "y": 485.2,
+      "strength": 0.26,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 1055.9,
+    "x": 233.6,
+    "bands": [
+     {
+      "y": 193.4,
+      "strength": 0.0635,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 291.7,
+    "bands": [
+     {
+      "y": 196.1,
+      "strength": 0.136,
+      "rescued": false
+     },
+     {
+      "y": 414.0,
+      "strength": 0.1955,
+      "rescued": false
+     },
+     {
+      "y": 503.1,
+      "strength": 0.4833,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 348.9,
+    "bands": [
+     {
+      "y": 195.6,
+      "strength": 0.2253,
+      "rescued": false
+     },
+     {
+      "y": 417.5,
+      "strength": 0.034,
+      "rescued": false
+     },
+     {
+      "y": 503.1,
+      "strength": 0.3589,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 407.4,
+    "bands": [
+     {
+      "y": 196.5,
+      "strength": 0.2423,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 465.5,
+    "bands": [
+     {
+      "y": 196.1,
+      "strength": 0.387,
+      "rescued": false
+     },
+     {
+      "y": 411.8,
+      "strength": 0.0376,
+      "rescued": false
+     },
+     {
+      "y": 489.5,
+      "strength": 0.2873,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 522.3,
+    "bands": [
+     {
+      "y": 195.2,
+      "strength": 0.3421,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 635.8,
+    "bands": [
+     {
+      "y": 202.6,
+      "strength": 0.2813,
+      "rescued": false
+     },
+     {
+      "y": 397.4,
+      "strength": 0.1324,
+      "rescued": false
+     },
+     {
+      "y": 427.5,
+      "strength": 0.0374,
+      "rescued": false
+     },
+     {
+      "y": 474.7,
+      "strength": 0.1797,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 681.2,
+    "bands": [
+     {
+      "y": 202.2,
+      "strength": 0.0859,
+      "rescued": false
+     },
+     {
+      "y": 394.8,
+      "strength": 0.2626,
+      "rescued": false
+     },
+     {
+      "y": 424.0,
+      "strength": 0.0768,
+      "rescued": false
+     },
+     {
+      "y": 472.1,
+      "strength": 0.2716,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 734.1,
+    "bands": [
+     {
+      "y": 197.8,
+      "strength": 0.1005,
+      "rescued": false
+     },
+     {
+      "y": 390.0,
+      "strength": 0.381,
+      "rescued": false
+     },
+     {
+      "y": 420.1,
+      "strength": 0.1091,
+      "rescued": false
+     },
+     {
+      "y": 470.3,
+      "strength": 0.3928,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 802.6,
+    "bands": [
+     {
+      "y": 379.0,
+      "strength": 0.4198,
+      "rescued": false
+     },
+     {
+      "y": 408.7,
+      "strength": 0.1159,
+      "rescued": false
+     },
+     {
+      "y": 463.8,
+      "strength": 0.444,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 849.3,
+    "bands": [
+     {
+      "y": 195.2,
+      "strength": 0.0371,
+      "rescued": false
+     },
+     {
+      "y": 369.9,
+      "strength": 0.4917,
+      "rescued": false
+     },
+     {
+      "y": 399.6,
+      "strength": 0.1304,
+      "rescued": false
+     },
+     {
+      "y": 457.6,
+      "strength": 0.4786,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 899.1,
+    "bands": [
+     {
+      "y": 361.6,
+      "strength": 0.5764,
+      "rescued": false
+     },
+     {
+      "y": 390.8,
+      "strength": 0.1245,
+      "rescued": false
+     },
+     {
+      "y": 450.7,
+      "strength": 0.5196,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 967.7,
+    "bands": [
+     {
+      "y": 190.0,
+      "strength": 0.2577,
+      "rescued": false
+     },
+     {
+      "y": 582.5,
+      "strength": 0.0086,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 1021.0,
+    "bands": [
+     {
+      "y": 192.6,
+      "strength": 0.2057,
+      "rescued": false
+     },
+     {
+      "y": 360.7,
+      "strength": 0.0638,
+      "rescued": false
+     },
+     {
+      "y": 389.1,
+      "strength": 0.102,
+      "rescued": false
+     },
+     {
+      "y": 443.7,
+      "strength": 0.0286,
+      "rescued": false
+     },
+     {
+      "y": 468.6,
+      "strength": 0.0235,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 1079.9,
     "bands": [
      {
       "y": 189.5,
-      "strength": 0.3716
+      "strength": 0.2799,
+      "rescued": false
+     },
+     {
+      "y": 362.4,
+      "strength": 0.0145,
+      "rescued": false
      },
      {
       "y": 444.5,
-      "strength": 0.1543
+      "strength": 0.2024,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 1111.4,
-    "bands": [
-     {
-      "y": 189.5,
-      "strength": 0.1977
-     }
-    ]
-   },
-   {
-    "x": 1166.8,
+    "x": 1133.2,
     "bands": [
      {
       "y": 189.1,
-      "strength": 0.1468
+      "strength": 0.1193,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 1222.3,
+    "x": 1186.0,
     "bands": [
      {
-      "y": 184.7,
-      "strength": 0.3154
+      "y": 186.9,
+      "strength": 0.1691,
+      "rescued": false
      },
      {
-      "y": 444.5,
-      "strength": 0.198
+      "y": 357.6,
+      "strength": 0.0462,
+      "rescued": false
+     },
+     {
+      "y": 386.5,
+      "strength": 0.1241,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 1277.7,
+    "x": 1239.7,
     "bands": [
      {
-      "y": 183.4,
-      "strength": 0.3648
+      "y": 184.3,
+      "strength": 0.2992,
+      "rescued": false
+     },
+     {
+      "y": 355.9,
+      "strength": 0.0179,
+      "rescued": false
+     },
+     {
+      "y": 445.0,
+      "strength": 0.2237,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 1347.2,
+    "x": 1295.2,
+    "bands": [
+     {
+      "y": 183.8,
+      "strength": 0.2417,
+      "rescued": false
+     },
+     {
+      "y": 443.7,
+      "strength": 0.1259,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 1349.8,
     "bands": [
      {
       "y": 187.8,
-      "strength": 0.2875
+      "strength": 0.3007,
+      "rescued": false
+     },
+     {
+      "y": 383.4,
+      "strength": 0.0064,
+      "rescued": true
      }
     ]
    }
@@ -585,55 +870,82 @@
   "height": 650,
   "lanes": [
    {
-    "x": 55.4,
+    "x": 54.0,
     "bands": [
      {
       "y": 142.5,
-      "strength": 0.4025
+      "strength": 0.4168,
+      "rescued": false
      },
      {
-      "y": 351.3,
-      "strength": 0.1363
+      "y": 245.4,
+      "strength": 0.0403,
+      "rescued": false
+     },
+     {
+      "y": 302.3,
+      "strength": 0.0154,
+      "rescued": true
+     },
+     {
+      "y": 349.8,
+      "strength": 0.173,
+      "rescued": false
+     },
+     {
+      "y": 393.0,
+      "strength": 0.0246,
+      "rescued": true
      }
     ]
    },
    {
-    "x": 110.8,
+    "x": 110.1,
     "bands": [
      {
       "y": 139.6,
-      "strength": 0.2811
+      "strength": 0.2588,
+      "rescued": false
      },
      {
-      "y": 371.4,
-      "strength": 0.1126
+      "y": 263.4,
+      "strength": 0.0165,
+      "rescued": false
+     },
+     {
+      "y": 370.7,
+      "strength": 0.1301,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 172.0,
+    "x": 170.6,
     "bands": [
      {
       "y": 141.8,
-      "strength": 0.2302
+      "strength": 0.1932,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 232.5,
+    "x": 230.3,
     "bands": [
      {
-      "y": 146.1,
-      "strength": 0.1655
+      "y": 145.4,
+      "strength": 0.1343,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 291.5,
+    "x": 290.8,
     "bands": [
      {
       "y": 146.8,
-      "strength": 0.1021
+      "strength": 0.0629,
+      "rescued": false
      }
     ]
    },
@@ -642,253 +954,298 @@
     "bands": [
      {
       "y": 150.4,
-      "strength": 0.156
+      "strength": 0.1353,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 390.1,
+    "x": 408.8,
     "bands": [
      {
-      "y": 151.9,
-      "strength": 0.2019
+      "y": 152.6,
+      "strength": 0.2684,
+      "rescued": false
      },
      {
-      "y": 409.6,
-      "strength": 0.0451
+      "y": 411.0,
+      "strength": 0.0767,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 446.3,
-    "bands": [
-     {
-      "y": 153.3,
-      "strength": 0.2414
-     },
-     {
-      "y": 416.8,
-      "strength": 0.1782
-     }
-    ]
-   },
-   {
-    "x": 501.7,
+    "x": 467.1,
     "bands": [
      {
       "y": 154.8,
-      "strength": 0.1974
+      "strength": 0.3069,
+      "rescued": false
      },
      {
-      "y": 419.6,
-      "strength": 0.0898
+      "y": 346.9,
+      "strength": 0.0669,
+      "rescued": false
+     },
+     {
+      "y": 417.5,
+      "strength": 0.3609,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 557.1,
+    "x": 521.9,
     "bands": [
      {
-      "y": 156.9,
-      "strength": 0.0573
+      "y": 155.5,
+      "strength": 0.2085,
+      "rescued": false
+     },
+     {
+      "y": 380.8,
+      "strength": 0.0273,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 613.3,
+    "x": 637.7,
     "bands": [
      {
-      "y": 161.2,
-      "strength": 0.1179
+      "y": 162.0,
+      "strength": 0.2254,
+      "rescued": false
+     },
+     {
+      "y": 366.4,
+      "strength": 0.0344,
+      "rescued": false
+     },
+     {
+      "y": 390.8,
+      "strength": 0.025,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 669.4,
+    "x": 692.4,
     "bands": [
      {
-      "y": 164.1,
-      "strength": 0.2793
+      "y": 166.3,
+      "strength": 0.3425,
+      "rescued": false
      },
      {
-      "y": 364.2,
-      "strength": 0.0966
+      "y": 362.8,
+      "strength": 0.1319,
+      "rescued": false
      },
      {
-      "y": 390.1,
-      "strength": 0.053
+      "y": 388.7,
+      "strength": 0.078,
+      "rescued": false
      },
      {
-      "y": 430.4,
-      "strength": 0.0562
+      "y": 429.7,
+      "strength": 0.0953,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 724.8,
-    "bands": [
-     {
-      "y": 168.4,
-      "strength": 0.2485
-     },
-     {
-      "y": 358.5,
-      "strength": 0.1191
-     },
-     {
-      "y": 382.9,
-      "strength": 0.0668
-     },
-     {
-      "y": 425.4,
-      "strength": 0.0987
-     }
-    ]
-   },
-   {
-    "x": 780.3,
-    "bands": [
-     {
-      "y": 167.7,
-      "strength": 0.2089
-     },
-     {
-      "y": 347.7,
-      "strength": 0.2427
-     },
-     {
-      "y": 372.9,
-      "strength": 0.1122
-     },
-     {
-      "y": 416.8,
-      "strength": 0.2095
-     }
-    ]
-   },
-   {
-    "x": 836.4,
-    "bands": [
-     {
-      "y": 330.4,
-      "strength": 0.2613
-     },
-     {
-      "y": 356.3,
-      "strength": 0.1529
-     },
-     {
-      "y": 398.8,
-      "strength": 0.2497
-     }
-    ]
-   },
-   {
-    "x": 892.5,
-    "bands": [
-     {
-      "y": 326.1,
-      "strength": 0.0427
-     },
-     {
-      "y": 353.4,
-      "strength": 0.0387
-     },
-     {
-      "y": 394.4,
-      "strength": 0.0664
-     }
-    ]
-   },
-   {
-    "x": 948.0,
-    "bands": [
-     {
-      "y": 168.4,
-      "strength": 0.2114
-     }
-    ]
-   },
-   {
-    "x": 1003.4,
-    "bands": [
-     {
-      "y": 168.4,
-      "strength": 0.2328
-     }
-    ]
-   },
-   {
-    "x": 1074.7,
-    "bands": [
-     {
-      "y": 169.2,
-      "strength": 0.2319
-     },
-     {
-      "y": 421.8,
-      "strength": 0.1045
-     }
-    ]
-   },
-   {
-    "x": 1127.9,
+    "x": 750.7,
     "bands": [
      {
       "y": 169.9,
-      "strength": 0.2157
+      "strength": 0.3245,
+      "rescued": false
      },
      {
-      "y": 340.5,
-      "strength": 0.0872
+      "y": 354.9,
+      "strength": 0.1974,
+      "rescued": false
      },
      {
-      "y": 367.8,
-      "strength": 0.3117
+      "y": 380.1,
+      "strength": 0.1227,
+      "rescued": false
+     },
+     {
+      "y": 423.2,
+      "strength": 0.1901,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 1178.3,
+    "x": 803.3,
     "bands": [
      {
-      "y": 169.9,
-      "strength": 0.2392
+      "y": 166.3,
+      "strength": 0.1728,
+      "rescued": false
+     },
+     {
+      "y": 341.2,
+      "strength": 0.3305,
+      "rescued": false
+     },
+     {
+      "y": 367.1,
+      "strength": 0.134,
+      "rescued": false
      },
      {
       "y": 409.6,
-      "strength": 0.1635
+      "strength": 0.2798,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 1236.6,
+    "x": 847.2,
+    "bands": [
+     {
+      "y": 166.3,
+      "strength": 0.009,
+      "rescued": false
+     },
+     {
+      "y": 328.9,
+      "strength": 0.3697,
+      "rescued": false
+     },
+     {
+      "y": 354.9,
+      "strength": 0.2297,
+      "rescued": false
+     },
+     {
+      "y": 396.6,
+      "strength": 0.3711,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 968.1,
+    "bands": [
+     {
+      "y": 168.4,
+      "strength": 0.1888,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 1024.3,
+    "bands": [
+     {
+      "y": 168.4,
+      "strength": 0.2055,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 1075.4,
+    "bands": [
+     {
+      "y": 169.2,
+      "strength": 0.2163,
+      "rescued": false
+     },
+     {
+      "y": 421.8,
+      "strength": 0.1054,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 1130.8,
     "bands": [
      {
       "y": 169.9,
-      "strength": 0.239
+      "strength": 0.1955,
+      "rescued": false
+     },
+     {
+      "y": 340.5,
+      "strength": 0.0835,
+      "rescued": false
+     },
+     {
+      "y": 367.8,
+      "strength": 0.3192,
+      "rescued": false
      }
     ]
    },
    {
-    "x": 1289.9,
+    "x": 1182.6,
+    "bands": [
+     {
+      "y": 169.9,
+      "strength": 0.2203,
+      "rescued": false
+     },
+     {
+      "y": 331.1,
+      "strength": 0.0229,
+      "rescued": false
+     },
+     {
+      "y": 408.8,
+      "strength": 0.1772,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 1238.0,
+    "bands": [
+     {
+      "y": 169.9,
+      "strength": 0.2181,
+      "rescued": false
+     }
+    ]
+   },
+   {
+    "x": 1291.3,
     "bands": [
      {
       "y": 171.3,
-      "strength": 0.1947
+      "strength": 0.1754,
+      "rescued": false
      },
      {
-      "y": 384.4,
-      "strength": 0.1622
+      "y": 383.7,
+      "strength": 0.1881,
+      "rescued": false
+     },
+     {
+      "y": 439.1,
+      "strength": 0.0104,
+      "rescued": true
      }
     ]
    },
    {
-    "x": 1345.3,
+    "x": 1349.6,
     "bands": [
      {
       "y": 176.3,
-      "strength": 0.2569
+      "strength": 0.2683,
+      "rescued": false
+     },
+     {
+      "y": 436.2,
+      "strength": 0.0265,
+      "rescued": true
      }
     ]
    }

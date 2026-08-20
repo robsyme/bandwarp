@@ -3,7 +3,7 @@ id: 003
 title: Can lanes and bands be auto-detected well enough to assist?
 labels: [wayfinder:prototype]
 status: open
-assignee:
+assignee: robsyme
 blocked-by: []
 ---
 
