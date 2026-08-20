@@ -34,10 +34,11 @@ A working, fully client-side browser tool the Operator (a scientist, no dev envi
 - [Build: scaffold and worker pixel pipeline](tickets/012-build-scaffold-pixel-pipeline.md) — done: Vite/TS/Preact app at repo root, pure analysis modules with 11 tests (rectify, sRGB, background/OD with the flat-field property verified), inlined worker with transferable buffers, dev harness rendering Gel 4B rectified + OD in the browser.
 - [Build: port detection and warp modules](tickets/013-build-detection-and-warp.md) — done: signal.ts (scipy-parity helpers), warp.ts (scaled-shared-warp ALS + three-model fit), detect.ts (origin-anchored lanes, adaptive peaks, warp rescue); byte-identical-input parity fixtures prove the port matches the Python reference on all three plates; 28 tests green.
 - [Create the GitHub repo and Pages hosting](tickets/010-repo-and-pages.md) — done: public repo https://github.com/robsyme/bandwarp, Pages deploying from actions on every push to main, live at https://robsyme.github.io/bandwarp/ (the scientist's final bookmark URL).
+- [Build: workspace UI shell (steps 1-6)](tickets/014-build-workspace-shell.md) — done: variant-B Workspace wired to the real modules for Photo through Bands with every correction gesture (drag corners/lanes, drag region, click bands on/off, right-click add lane, labels/standards/dilution amounts, compound naming, rescued bands ringed); in-app detection reproduces the reference's 23 lanes on Gel 4B; steps 7-9 stubbed for ticket 015.
 
 ## Not yet specified
 
-Nothing — every decision is made or ticketed. The route to the destination is the open tickets: formats ([What exactly goes in the Analysis File and the results CSV?](tickets/011-file-formats.md)), repo provisioning ([Create the GitHub repo and Pages hosting](tickets/010-repo-and-pages.md)), the build chain (scaffold → detection/warp port → workspace shell → quantification/exports → release, tickets 012-016), and the acceptance test ([Run the validation protocol on the example plates](tickets/009-run-validation-protocol.md), behind the quantification build).
+Nothing — every decision is made or ticketed. The remaining route: [Build: quantification views and exports (steps 7-9)](tickets/015-build-quantification-and-exports.md) (now unblocked), then [Build: release — single file, Pages, scientist README](tickets/016-build-release.md) and the acceptance test [Run the validation protocol on the example plates](tickets/009-run-validation-protocol.md).
 
 ## Out of scope
 
