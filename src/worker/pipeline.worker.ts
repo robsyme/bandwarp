@@ -1,16 +1,20 @@
-import { runPipeline } from "../analysis/pipeline";
 import type { Pt } from "../analysis/geometry";
+import { detectInRegion, type Rect } from "../analysis/detectRegion";
+import { runPipeline } from "../analysis/pipeline";
 
-interface Job {
-  rgba: ArrayBuffer;
-  width: number;
-  height: number;
-  corners: Pt[];
-}
+export type Job =
+  | { kind: "pipeline"; rgba: ArrayBuffer; width: number; height: number; corners: Pt[] }
+  | { kind: "detect"; rgba: ArrayBuffer; width: number; height: number; region: Rect };
 
 self.onmessage = (e: MessageEvent<Job>) => {
-  const { rgba, width, height, corners } = e.data;
-  const result = runPipeline(new Uint8ClampedArray(rgba), width, height, corners);
+  const job = e.data;
+  const rgba = new Uint8ClampedArray(job.rgba);
+  if (job.kind === "detect") {
+    const det = detectInRegion(rgba, job.width, job.height, job.region);
+    (self as unknown as Worker).postMessage(det);
+    return;
+  }
+  const result = runPipeline(rgba, job.width, job.height, job.corners);
   (self as unknown as Worker).postMessage(result, [
     result.rectified.buffer,
     result.od.buffer,

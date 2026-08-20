@@ -33,15 +33,21 @@ function boxBlurAxis(src: Float32Array, w: number, h: number, r: number, horizon
 }
 
 /**
- * Background field via 3 separable box blurs of radius `r`.
- * `r` should be much larger than a band (bands must not dent the estimate)
- * and much smaller than the plate.
+ * Background field via 3 separable box blurs of radius `rx` (horizontal)
+ * and `ry` (vertical, defaults to rx). Radii should be much larger than a
+ * band (bands must not dent the estimate) and much smaller than the plate.
  */
-export function estimateBackground(img: Float32Array, w: number, h: number, r: number): Float32Array {
+export function estimateBackground(
+  img: Float32Array,
+  w: number,
+  h: number,
+  rx: number,
+  ry: number = rx,
+): Float32Array {
   let cur = img;
   for (let pass = 0; pass < 3; pass++) {
-    cur = boxBlurAxis(cur, w, h, r, true);
-    cur = boxBlurAxis(cur, w, h, r, false);
+    cur = boxBlurAxis(cur, w, h, rx, true);
+    cur = boxBlurAxis(cur, w, h, ry, false);
   }
   return cur;
 }
