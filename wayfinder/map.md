@@ -25,12 +25,11 @@ A working, fully client-side browser tool the Operator (a scientist, no dev envi
 - [How do established tools quantify gel/TLC bands?](tickets/001-how-do-established-tools-quantify-bands.md) — lane-profile peak integration above a recorded baseline is universal; TLC calibration is inherently nonlinear (linear/polynomial/Michaelis-Menten with bracketing, 4-6 standard levels); camera photos need gamma linearization, flat-field, and an OD-like transform; ~3-5% RSD is realistic.
 - [What image processing is realistic fully client-side in the browser?](tickets/002-browser-image-processing-capability.md) — everything we need works in plain JS + typed arrays + a Web Worker; skip OpenCV.js/WASM, use image-js + mljs fitting libraries (<200 KB total), canvas-blit pan/zoom with an SVG marker overlay.
 - [How should Warp be modelled and Band identities assigned?](tickets/004-warp-model-and-identity-assignment.md) — scaled shared warp (one drift shape per plate, per-row amplitude), greedy row-linking as initializer, manual add/remove/rename plus draggable lane positions as the correction floor; user-confirmed on the prototype, and the demo's pure `WarpAssign` module lifts into the tool.
+- [Can lanes and bands be auto-detected well enough to assist?](tickets/003-band-autodetection-feasibility.md) — yes, user-confirmed: origin-anchored lanes unioned with band-mass peaks (no pitch grid), 2D flat-field, noise-adaptive thresholds, warp-guided rescue with rescued bands flagged; faintest standards may go undetected since calibration anchors on the stronger levels.
 
 ## Not yet specified
 
 - Analysis File JSON schema and results CSV column layout — waits on the data model settling through the pipeline and workflow tickets.
-- How the auto-detection assist integrates into the UI (when it runs, how corrections feed back) — waits on the detection prototype's results.
-- Photo preprocessing: rotation, plate-region cropping, illumination/flat-field correction — waits on the densitometry research and detection prototype showing what's actually needed.
 - The build itself: implementation tickets get charted once the workflow, pipeline, and stack decisions close.
 - Validation protocol details — waits on the accuracy grilling.
 
