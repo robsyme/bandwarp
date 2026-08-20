@@ -22,6 +22,7 @@ A working, fully client-side browser tool the Operator (a scientist, no dev envi
 
 <!-- one line per closed ticket: gist + link -->
 
+- [How do established tools quantify gel/TLC bands?](tickets/001-how-do-established-tools-quantify-bands.md) — lane-profile peak integration above a recorded baseline is universal; TLC calibration is inherently nonlinear (linear/polynomial/Michaelis-Menten with bracketing, 4-6 standard levels); camera photos need gamma linearization, flat-field, and an OD-like transform; ~3-5% RSD is realistic.
 - [What image processing is realistic fully client-side in the browser?](tickets/002-browser-image-processing-capability.md) — everything we need works in plain JS + typed arrays + a Web Worker; skip OpenCV.js/WASM, use image-js + mljs fitting libraries (<200 KB total), canvas-blit pan/zoom with an SVG marker overlay.
 
 ## Not yet specified
