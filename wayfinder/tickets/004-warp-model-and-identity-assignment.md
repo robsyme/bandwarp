@@ -3,7 +3,7 @@ id: 004
 title: How should Warp be modelled and Band identities assigned?
 labels: [wayfinder:prototype]
 status: open
-assignee:
+assignee: robsyme
 blocked-by: []
 ---
 

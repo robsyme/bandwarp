@@ -1,0 +1,459 @@
+<!doctype html>
+<!-- PROTOTYPE — throwaway demo answering wayfinder ticket 004.
+     Built by build_demo.py, which inlines images + band data. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Warp model demo — isoflavone plates</title>
+<style>
+  :root { --accent: #7a3fbf; --ink: #222; --muted: #777; --line: #ddd; }
+  * { box-sizing: border-box; }
+  body { font: 15px/1.5 -apple-system, "Segoe UI", sans-serif; color: var(--ink);
+         margin: 0; background: #faf9f7; }
+  main { max-width: 1160px; margin: 0 auto; padding: 24px 20px 80px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .q { color: var(--muted); max-width: 68ch; margin: 0 0 18px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+         padding: 10px 0; border-top: 1px solid var(--line); }
+  .bar b { font-size: 13px; text-transform: uppercase; letter-spacing: .04em;
+           color: var(--muted); font-weight: 600; }
+  button, .tab { font: inherit; padding: 5px 12px; border: 1px solid var(--line);
+         background: #fff; border-radius: 6px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  button.step-done { opacity: .45; }
+  button.step-next { border-color: var(--accent); box-shadow: 0 0 0 2px #7a3fbf33; }
+  #wrap { position: relative; margin-top: 10px; }
+  canvas { width: 100%; display: block; border-radius: 8px; cursor: crosshair; }
+  .cols { display: flex; gap: 22px; align-items: flex-start; margin-top: 14px; }
+  .panel { flex: 1 1 46%; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  td, th { padding: 5px 8px; text-align: left; border-bottom: 1px solid var(--line); }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em;
+       color: var(--muted); font-weight: 600; }
+  .chip { display: inline-block; width: 13px; height: 13px; border-radius: 50%;
+          vertical-align: -1px; margin-right: 6px; }
+  .rowname { cursor: pointer; text-decoration: underline dotted; }
+  .scen-blurb { color: var(--muted); font-size: 14px; max-width: 70ch; margin: 6px 0 10px; }
+  .steps { display: flex; flex-wrap: wrap; gap: 8px; }
+  .hint { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  #scenTabs { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .tab.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  input[type=range] { accent-color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Warp model demo — isoflavone plates</h1>
+  <p class="q"><strong>The question:</strong> bands on these TLC plates drift
+  vertically across the plate ("warping"), so the same compound sits at different
+  heights in different lanes. Which model of the warp assigns each band to the
+  correct compound row — including when a lane is missing a band, or holds only
+  one faint band? Click bands off, click new ones on, and switch models to feel
+  where each one breaks. Everything here uses real detected bands from the three
+  example plates.</p>
+
+  <div class="bar">
+    <b>Plate</b><span id="plateBtns"></span>
+    <b>Warp model</b><span id="modelBtns"></span>
+    <b>Match tolerance</b>
+    <input type="range" id="tol" min="1.5" max="8" step="0.5" value="3.5">
+    <span id="tolLabel"></span>
+    <button id="restore">Restore removed bands</button>
+  </div>
+
+  <div id="wrap"><canvas id="cv"></canvas></div>
+  <p class="hint">Click a dot to remove that band. Click anywhere else on a lane
+  to add a band there. The fit re-runs on every change. Click a row's name below
+  to rename it (e.g. "Genistein").</p>
+
+  <div class="cols">
+    <div class="panel">
+      <h3 style="margin:6px 0">Compound rows found</h3>
+      <table id="rowsTable"></table>
+    </div>
+    <div class="panel">
+      <h3 style="margin:6px 0">Guided walkthroughs</h3>
+      <div id="scenTabs"></div>
+      <p class="scen-blurb" id="scenBlurb"></p>
+      <div class="steps" id="scenSteps"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+/* ============================================================
+   PURE MODULE — WarpAssign. No DOM. This is the liftable part.
+   plate: { width, height, lanes: [{x}] }
+   bands: [{ id, lane, y, strength }]
+   opts:  { model: 'independent'|'shared'|'scaled', tol }  (tol in px)
+   returns { rows: [{ members: [band], curve: [y per lane] }], noise: [band] }
+   ============================================================ */
+const WarpAssign = (() => {
+  const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+
+  // Local linear regression of (xs, ys) evaluated at each lane x.
+  function loess(plate, xs, ys, evalXs, bw) {
+    return evalXs.map(x0 => {
+      let sw = 0, swx = 0, swy = 0, swxx = 0, swxy = 0;
+      for (let i = 0; i < xs.length; i++) {
+        const w = Math.exp(-0.5 * ((xs[i] - x0) / bw) ** 2);
+        sw += w; swx += w * xs[i]; swy += w * ys[i];
+        swxx += w * xs[i] * xs[i]; swxy += w * xs[i] * ys[i];
+      }
+      const det = sw * swxx - swx * swx;
+      if (Math.abs(det) < 1e-9) return swy / (sw || 1);
+      const b = (sw * swxy - swx * swy) / det;
+      const a = (swy - b * swx) / sw;
+      return a + b * x0;
+    });
+  }
+
+  // Greedy row building: strongest unclaimed band seeds a row, which walks
+  // outward lane by lane claiming the nearest unclaimed band within tol,
+  // tolerating up to 2 empty lanes in a row.
+  function buildRows(plate, bands, tol) {
+    const L = plate.lanes.length;
+    const byLane = Array.from({ length: L }, () => []);
+    bands.forEach(b => byLane[b.lane].push(b));
+    const free = new Set(bands.map(b => b.id));
+    const rows = [];
+    for (const seed of [...bands].sort((a, b) => b.strength - a.strength)) {
+      if (!free.has(seed.id)) continue;
+      free.delete(seed.id);
+      const members = [seed];
+      for (const dir of [1, -1]) {
+        let last = seed, prev = null, gaps = 0;
+        for (let li = seed.lane + dir; li >= 0 && li < L && gaps <= 2; li += dir) {
+          const slope = prev ? (last.y - prev.y) / (last.lane - prev.lane) : 0;
+          const pred = last.y + slope * (li - last.lane);
+          let best = null;
+          for (const c of byLane[li])
+            if (free.has(c.id) && Math.abs(c.y - pred) < tol &&
+                (!best || Math.abs(c.y - pred) < Math.abs(best.y - pred))) best = c;
+          if (best) {
+            free.delete(best.id); members.push(best);
+            prev = last; last = best; gaps = 0;
+          } else gaps++;
+        }
+      }
+      rows.push(members);
+    }
+    return rows;
+  }
+
+  function fitIndependent(plate, bands, tol) {
+    const laneXs = plate.lanes.map(l => l.x);
+    const rows = [], noise = [];
+    for (const members of buildRows(plate, bands, tol)) {
+      if (members.length < 2) { noise.push(...members); continue; }
+      const xs = members.map(b => laneXs[b.lane]);
+      const ys = members.map(b => b.y);
+      rows.push({ members, curve: loess(plate, xs, ys, laneXs, plate.width * 0.12) });
+    }
+    return { rows, noise };
+  }
+
+  // Shared warp: y = offset_r + a_r * d(x); a_r fixed to 1 unless scaled.
+  function fitShared(plate, bands, tol, scaled) {
+    const laneXs = plate.lanes.map(l => l.x);
+    const L = laneXs.length;
+    let rows = buildRows(plate, bands, tol)
+      .filter(m => m.length >= 4)
+      .map(m => ({ o: mean(m.map(b => b.y)), a: 1, members: m }));
+    if (!rows.length) return fitIndependent(plate, bands, tol);
+    let d = new Array(L).fill(0);
+
+    for (let iter = 0; iter < 6; iter++) {
+      // d(x): pooled residuals, then smoothed across lanes
+      const num = new Array(L).fill(0), den = new Array(L).fill(0);
+      for (const r of rows) for (const b of r.members) {
+        num[b.lane] += r.a * (b.y - r.o); den[b.lane] += r.a * r.a;
+      }
+      const xs = [], ys = [];
+      for (let i = 0; i < L; i++)
+        if (den[i] > 0) { xs.push(laneXs[i]); ys.push(num[i] / den[i]); }
+      d = loess(plate, xs, ys, laneXs, plate.width * 0.08);
+      const dm = mean(d); d = d.map(v => v - dm);
+      if (scaled) {
+        const s = Math.sqrt(mean(d.map(v => v * v))) || 1;
+        d = d.map(v => v / s);
+      }
+      // per-row offset (and amplitude, if scaled)
+      for (const r of rows) {
+        const dv = r.members.map(b => d[b.lane]);
+        const yv = r.members.map(b => b.y);
+        if (scaled && r.members.length >= 3) {
+          const md = mean(dv), my = mean(yv);
+          let cov = 0, va = 0;
+          dv.forEach((v, i) => { cov += (v - md) * (yv[i] - my); va += (v - md) ** 2; });
+          r.a = va > 1e-6 ? Math.min(Math.max(cov / va, 0), tol * 4) : r.a;
+          r.o = my - r.a * md;
+        } else { r.a = scaled ? r.a : 1; r.o = mean(yv) - r.a * mean(dv); }
+      }
+      // reassign every band to its nearest row curve
+      for (const r of rows) r.members = [];
+      const noise = [];
+      for (const b of bands) {
+        let best = null, bd = Infinity;
+        for (const r of rows) {
+          const dist = Math.abs(b.y - (r.o + r.a * d[b.lane]));
+          if (dist < bd) { bd = dist; best = r; }
+        }
+        if (best && bd < tol) best.members.push(b); else noise.push(b);
+      }
+      rows = rows.filter(r => r.members.length >= 2);
+      // merge rows whose curves nearly coincide (duplicate identities)
+      rows.sort((r1, r2) => r1.o - r2.o);
+      for (let i = rows.length - 2; i >= 0; i--) {
+        const r1 = rows[i], r2 = rows[i + 1];
+        const gap = mean(laneXs.map((_, li) =>
+          Math.abs((r1.o + r1.a * d[li]) - (r2.o + r2.a * d[li]))));
+        if (gap < tol * 0.7) {
+          r1.members = r1.members.concat(r2.members);
+          const dv = r1.members.map(b => d[b.lane]);
+          const yv = r1.members.map(b => b.y);
+          r1.o = mean(yv) - r1.a * mean(dv);
+          rows.splice(i + 1, 1);
+        }
+      }
+      if (iter === 5) {
+        rows.forEach(r => r.curve = laneXs.map((_, i) => r.o + r.a * d[i]));
+        return { rows, noise };
+      }
+    }
+  }
+
+  return {
+    fit(plate, bands, opts) {
+      if (opts.model === 'independent') return fitIndependent(plate, bands, opts.tol);
+      return fitShared(plate, bands, opts.tol, opts.model === 'scaled');
+    }
+  };
+})();
+/* ================= end pure module ================= */
+
+const DATA = __BANDS_JSON__;
+const IMAGES = __IMAGES_JSON__;
+
+const PALETTE = ['#e4572e', '#2e86ab', '#e0b410', '#7a3fbf', '#1b9e77', '#d95fa2', '#6b4e2e'];
+const state = { plate: 'gel4b', model: 'independent', tolFrac: 0.035,
+                removed: {}, added: {}, names: {} };
+Object.keys(DATA).forEach(k => { state.removed[k] = new Set(); state.added[k] = []; state.names[k] = {}; });
+
+function currentBands() {
+  const p = DATA[state.plate];
+  const out = [];
+  let id = 0;
+  p.lanes.forEach((ln, li) => ln.bands.forEach(b => {
+    const key = `d${li}:${b.y}`;
+    if (!state.removed[state.plate].has(key))
+      out.push({ id: key, lane: li, y: b.y, strength: b.strength });
+    id++;
+  }));
+  state.added[state.plate].forEach(b => {
+    if (!state.removed[state.plate].has(b.id)) out.push(b);
+  });
+  return out;
+}
+
+const imgs = {};
+let fit = null;
+
+function refit() {
+  const p = DATA[state.plate];
+  fit = WarpAssign.fit({ width: p.width, height: p.height, lanes: p.lanes },
+                       currentBands(),
+                       { model: state.model, tol: state.tolFrac * p.height });
+  fit.rows.sort((a, b) => mean(a.members.map(m => m.y)) - mean(b.members.map(m => m.y)));
+  draw(); renderRows();
+}
+const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+
+function draw() {
+  const p = DATA[state.plate];
+  const cv = document.getElementById('cv');
+  cv.width = p.width; cv.height = p.height;
+  const g = cv.getContext('2d');
+  g.drawImage(imgs[state.plate], 0, 0);
+  g.strokeStyle = 'rgba(255,255,255,.25)';
+  p.lanes.forEach(ln => { g.beginPath(); g.moveTo(ln.x, 0); g.lineTo(ln.x, p.height); g.stroke(); });
+  fit.rows.forEach((r, i) => {
+    const c = PALETTE[i % PALETTE.length];
+    const lo = Math.min(...r.members.map(b => b.lane));
+    const hi = Math.max(...r.members.map(b => b.lane));
+    g.strokeStyle = c; g.lineWidth = 2;
+    // solid where the row has bands, dashed where the curve extrapolates
+    for (const [a, b, dash] of [[0, lo, true], [lo, hi, false], [hi, p.lanes.length - 1, true]]) {
+      if (a >= b) continue;
+      g.setLineDash(dash ? [4, 6] : []);
+      g.beginPath();
+      for (let li = a; li <= b; li++)
+        li === a ? g.moveTo(p.lanes[li].x, r.curve[li]) : g.lineTo(p.lanes[li].x, r.curve[li]);
+      g.stroke();
+    }
+    g.setLineDash([]);
+    g.fillStyle = c;
+    r.members.forEach(b => {
+      g.beginPath(); g.arc(p.lanes[b.lane].x, b.y, 7, 0, 7); g.fill();
+      g.strokeStyle = '#fff'; g.lineWidth = 1.5; g.stroke();
+    });
+  });
+  g.fillStyle = '#999';
+  fit.noise.forEach(b => {
+    g.beginPath(); g.arc(p.lanes[b.lane].x, b.y, 6, 0, 7); g.fill();
+    g.strokeStyle = '#fff'; g.stroke();
+  });
+}
+
+function rowName(i) { return state.names[state.plate][i] || `Compound row ${i + 1}`; }
+
+function renderRows() {
+  const p = DATA[state.plate];
+  const t = document.getElementById('rowsTable');
+  const L = p.lanes.length;
+  let html = '<tr><th></th><th>Row (click to rename)</th><th>Bands</th><th>Missing in</th><th>Fit spread</th></tr>';
+  fit.rows.forEach((r, i) => {
+    const lanesWith = new Set(r.members.map(b => b.lane));
+    const dev = mean(r.members.map(b => Math.abs(b.y - r.curve[b.lane]))).toFixed(1);
+    html += `<tr><td><span class="chip" style="background:${PALETTE[i % PALETTE.length]}"></span></td>
+      <td><span class="rowname" data-i="${i}">${rowName(i)}</span></td>
+      <td>${r.members.length} / ${L} lanes</td>
+      <td>${L - lanesWith.size} lanes</td><td>&plusmn;${dev} px</td></tr>`;
+  });
+  html += `<tr><td><span class="chip" style="background:#999"></span></td>
+    <td>Unassigned bands</td><td>${fit.noise.length}</td><td></td><td></td></tr>`;
+  t.innerHTML = html;
+  t.querySelectorAll('.rowname').forEach(el => el.onclick = () => {
+    const n = prompt('Name this compound row:', rowName(+el.dataset.i));
+    if (n) { state.names[state.plate][+el.dataset.i] = n; renderRows(); }
+  });
+}
+
+/* ---------- interactions ---------- */
+document.getElementById('cv').addEventListener('click', ev => {
+  const p = DATA[state.plate];
+  const cv = ev.target, rect = cv.getBoundingClientRect();
+  const x = (ev.clientX - rect.left) * p.width / rect.width;
+  const y = (ev.clientY - rect.top) * p.height / rect.height;
+  // near an existing band? remove it
+  for (const b of currentBands()) {
+    const bx = p.lanes[b.lane].x;
+    if ((bx - x) ** 2 + (b.y - y) ** 2 < 14 ** 2) {
+      state.removed[state.plate].add(b.id); refit(); return;
+    }
+  }
+  // otherwise add to nearest lane
+  let li = 0;
+  p.lanes.forEach((ln, i) => { if (Math.abs(ln.x - x) < Math.abs(p.lanes[li].x - x)) li = i; });
+  state.added[state.plate].push({ id: `a${Date.now()}`, lane: li, y, strength: 0.05 });
+  refit();
+});
+
+function setPlate(k) { state.plate = k; syncBar(); refit(); }
+function setModel(m) { state.model = m; syncBar(); refit(); }
+document.getElementById('restore').onclick = () => {
+  state.removed[state.plate] = new Set();
+  state.added[state.plate] = [];
+  refit();
+};
+document.getElementById('tol').oninput = ev => {
+  state.tolFrac = ev.target.value / 100; syncBar(); refit();
+};
+
+const PLATE_LABELS = { gel4a: 'Gel 4A (before)', gel4b: 'Gel 4B (after — worst warp)', gel5a: 'Gel 5A (after)' };
+const MODEL_LABELS = { independent: 'Independent rows', shared: 'Shared warp', scaled: 'Scaled warp' };
+function syncBar() {
+  const pb = document.getElementById('plateBtns');
+  pb.innerHTML = Object.keys(DATA).map(k =>
+    `<button class="${k === state.plate ? 'on' : ''}" onclick="setPlate('${k}')">${PLATE_LABELS[k]}</button>`).join(' ');
+  const mb = document.getElementById('modelBtns');
+  mb.innerHTML = Object.keys(MODEL_LABELS).map(m =>
+    `<button class="${m === state.model ? 'on' : ''}" onclick="setModel('${m}')">${MODEL_LABELS[m]}</button>`).join(' ');
+  document.getElementById('tol').value = state.tolFrac * 100;
+  document.getElementById('tolLabel').textContent =
+    `±${(state.tolFrac * 100).toFixed(1)}% of plate height`;
+}
+
+/* ---------- guided walkthroughs ---------- */
+function resetTo(plate, model) {
+  state.plate = plate; state.model = model;
+  state.removed[plate] = new Set(); state.added[plate] = [];
+  syncBar(); refit();
+}
+// pick the row with the most members ("ladder") and remove n mid-span bands
+function removeMidLadder(n) {
+  const ladder = [...fit.rows].sort((a, b) => b.members.length - a.members.length)[0];
+  const mid = [...ladder.members].sort((a, b) => a.lane - b.lane);
+  const start = Math.floor(mid.length / 2 - n / 2);
+  mid.slice(start, start + n).forEach(b => state.removed[state.plate].add(b.id));
+  refit();
+}
+function stripLaneToOne() {
+  // rightmost lane holding >= 2 assigned bands: keep only its faintest
+  const p = DATA[state.plate];
+  const byLane = {};
+  currentBands().forEach(b => (byLane[b.lane] = byLane[b.lane] || []).push(b));
+  const lanes = Object.keys(byLane).map(Number).filter(l => byLane[l].length >= 2).sort((a, b) => b - a);
+  const li = lanes[Math.floor(lanes.length / 4)];
+  const keep = byLane[li].sort((a, b) => a.strength - b.strength)[0];
+  byLane[li].forEach(b => { if (b !== keep) state.removed[state.plate].add(b.id); });
+  refit();
+}
+
+const SCENARIOS = [
+  { title: 'The stress case',
+    blurb: 'Gel 4B is the worst plate: the standards ladder curves hard upward to the right, while the top row stays nearly flat. A model that forces every row to drift together should struggle; watch what each model does to the row curves and the unassigned count.',
+    steps: [
+      ['Start: Gel 4B, independent rows', () => resetTo('gel4b', 'independent')],
+      ['Switch to shared warp', () => setModel('shared')],
+      ['Switch to scaled warp', () => setModel('scaled')],
+    ] },
+  { title: 'A missing band',
+    blurb: 'Lanes routinely lack a band (the compound is absent from that tissue). Remove three bands from the middle of the biggest row and check the row and its curve survive, instead of splitting in two.',
+    steps: [
+      ['Start: Gel 4B, scaled warp', () => resetTo('gel4b', 'scaled')],
+      ['Remove three mid-ladder bands', () => removeMidLadder(3)],
+      ['Restore them', () => { state.removed.gel4b = new Set(); refit(); }],
+    ] },
+  { title: 'A lone faint band',
+    blurb: 'The hardest identity call: a lane holding a single faint band, far from the standards. Independent rows must guess from neighbours; a shared/scaled warp carries information from the whole plate. Watch which row claims the survivor.',
+    steps: [
+      ['Start: Gel 4B, independent rows', () => resetTo('gel4b', 'independent')],
+      ['Strip one lane to a single band', () => stripLaneToOne()],
+      ['Switch to scaled warp', () => setModel('scaled')],
+    ] },
+  { title: 'Free play & naming',
+    blurb: 'Gel 5A with scaled warp. Click a row name in the table to call it what it is (e.g. Daidzein, Genistein, Glycitein). Click dots off / lanes on and watch assignments update. This is roughly the correction loop the real tool would offer.',
+    steps: [
+      ['Start: Gel 5A, scaled warp', () => resetTo('gel5a', 'scaled')],
+    ] },
+];
+
+let scen = 0, scenStep = 0;
+function renderScen() {
+  const tabs = document.getElementById('scenTabs');
+  tabs.innerHTML = SCENARIOS.map((s, i) =>
+    `<button class="tab ${i === scen ? 'on' : ''}" onclick="pickScen(${i})">${s.title}</button>`).join('');
+  document.getElementById('scenBlurb').textContent = SCENARIOS[scen].blurb;
+  const st = document.getElementById('scenSteps');
+  st.innerHTML = SCENARIOS[scen].steps.map(([label], i) =>
+    `<button class="${i < scenStep ? 'step-done' : i === scenStep ? 'step-next' : ''}"
+       onclick="runStep(${i})">${i + 1}. ${label}</button>`).join('');
+}
+function pickScen(i) { scen = i; scenStep = 0; renderScen(); }
+function runStep(i) {
+  SCENARIOS[scen].steps[i][1]();
+  scenStep = i + 1; renderScen();
+}
+
+/* ---------- boot ---------- */
+let loaded = 0;
+Object.keys(DATA).forEach(k => {
+  imgs[k] = new Image();
+  imgs[k].onload = () => { if (++loaded === Object.keys(DATA).length) { syncBar(); refit(); renderScen(); } };
+  imgs[k].src = IMAGES[k];
+});
+</script>
+</body>
+</html>
