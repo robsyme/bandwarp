@@ -3,7 +3,7 @@ id: 008
 title: What is the Operator's step-by-step workflow?
 labels: [wayfinder:prototype]
 status: open
-assignee:
+assignee: robsyme
 blocked-by: [003, 004]
 ---
 

@@ -1,0 +1,311 @@
+<!doctype html>
+<!-- PROTOTYPE — UI mock for wayfinder ticket 008 (Operator workflow).
+     Three structurally different variants of the same 8-step flow,
+     switchable via ?variant= or the floating pill. Mock data throughout;
+     built by build_mock.py which inlines the Gel 4B image + detections. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Plate workflow mock</title>
+<style>
+  :root { --acc: #2e86ab; --ink: #223; --mut: #778; --line: #dfe3e8; --bg: #f7f8fa; --warn: #c2571a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
+  h1, h2, h3 { margin: 0; }
+  button { font: inherit; border: 1px solid var(--line); background: #fff; border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+  button.primary { background: var(--acc); border-color: var(--acc); color: #fff; }
+  input, select { font: inherit; border: 1px solid var(--line); border-radius: 5px; padding: 4px 7px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--line); }
+  th { color: var(--mut); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  canvas { display: block; max-width: 100%; border-radius: 6px; }
+  .chip { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #e8edf2; color: #445; margin-right: 3px; }
+  .chip.warn { background: #fbe4d5; color: var(--warn); }
+  .chip.ok { background: #ddf0e2; color: #1c6b38; }
+  .mock { position: fixed; top: 10px; right: 10px; background: #ffd; border: 1px solid #cc4; padding: 2px 10px; border-radius: 6px; font-size: 11px; z-index: 60; }
+  /* floating variant switcher — not part of the design under review */
+  #switcher { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); z-index: 70;
+    background: #1b1e24; color: #fff; border-radius: 999px; padding: 6px 12px; display: flex; gap: 10px;
+    align-items: center; box-shadow: 0 4px 16px rgba(0,0,0,.35); font-size: 13px; }
+  #switcher button { background: none; border: none; color: #fff; font-size: 16px; padding: 0 6px; cursor: pointer; }
+
+  /* Variant A — wizard */
+  .wizA { display: flex; min-height: 100vh; }
+  .wizA .rail { width: 210px; background: #fff; border-right: 1px solid var(--line); padding: 18px 0; }
+  .wizA .rail .st { padding: 8px 18px; color: var(--mut); cursor: pointer; border-left: 3px solid transparent; }
+  .wizA .rail .st.done { color: var(--ink); }
+  .wizA .rail .st.cur { border-left-color: var(--acc); color: var(--acc); font-weight: 600; background: #eef5f9; }
+  .wizA .main { flex: 1; padding: 26px 34px 90px; max-width: 1100px; }
+  .wizA .foot { position: fixed; bottom: 0; left: 210px; right: 0; background: #fff; border-top: 1px solid var(--line);
+    padding: 10px 34px; display: flex; justify-content: space-between; }
+  .wizA .stephint { color: var(--mut); max-width: 72ch; margin: 6px 0 16px; }
+
+  /* Variant B — workspace */
+  .wsB { display: grid; grid-template-columns: 200px 1fr 320px; grid-template-rows: 48px 1fr; height: 100vh; }
+  .wsB .top { grid-column: 1/4; background: #fff; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; padding: 0 16px; }
+  .wsB .check { background: #fff; border-right: 1px solid var(--line); padding: 12px 0; overflow: auto; }
+  .wsB .check .st { padding: 7px 16px; cursor: pointer; color: var(--mut); display: flex; gap: 8px; align-items: center; }
+  .wsB .check .st.cur { background: #eef5f9; color: var(--acc); font-weight: 600; }
+  .wsB .check .tick { width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid var(--line); display: inline-flex; align-items: center; justify-content: center; font-size: 10px; }
+  .wsB .check .done .tick { background: var(--acc); border-color: var(--acc); color: #fff; }
+  .wsB .stage { padding: 14px; overflow: auto; }
+  .wsB .side { background: #fff; border-left: 1px solid var(--line); padding: 14px; overflow: auto; }
+
+  /* Variant C — notebook */
+  .nbC { max-width: 880px; margin: 0 auto; padding: 26px 18px 120px; }
+  .nbC section { background: #fff; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 16px; padding: 16px 20px; }
+  .nbC section h2 { font-size: 15px; margin-bottom: 4px; }
+  .nbC .sechint { color: var(--mut); font-size: 13px; margin: 0 0 12px; }
+  .nbC .toc { position: fixed; top: 60px; left: max(8px, calc(50% - 620px)); width: 130px; font-size: 12px; color: var(--mut); }
+  .nbC .toc div { padding: 3px 8px; cursor: pointer; border-left: 2px solid var(--line); }
+</style>
+</head>
+<body>
+<div class="mock">PROTOTYPE — mock data</div>
+<div id="root"></div>
+<div id="switcher">
+  <button id="prevV">&#8592;</button>
+  <span id="vlabel"></span>
+  <button id="nextV">&#8594;</button>
+</div>
+
+<script>
+const DATA = __BANDS_JSON__;
+const IMAGES = __IMAGES_JSON__;
+const P = DATA.gel4b;
+const COMPOUNDS = [
+  { name: 'Compound A', color: '#e4572e' },
+  { name: 'Compound B', color: '#2e86ab' },
+  { name: 'Compound C', color: '#e0b410' },
+  { name: 'Compound D', color: '#7a3fbf' },
+];
+const SERIES = [0.25, 0.5, 1, 1.5, 2, 3, 4];
+
+// crude row grouping for visuals only: split sorted band ys at big gaps
+const allBands = [];
+P.lanes.forEach((ln, li) => ln.bands.forEach(b => allBands.push({ ...b, lane: li })));
+const ys = allBands.map(b => b.y).sort((a, b) => a - b);
+const cuts = [];
+for (let i = 1; i < ys.length; i++) if (ys[i] - ys[i - 1] > P.height * 0.03) cuts.push((ys[i] + ys[i - 1]) / 2);
+allBands.forEach(b => b.row = cuts.filter(c => b.y > c).length);
+
+const STEPS = [
+  { id: 'photo',    t: '1. Photo',        hint: 'Load the plate photo. EXIF rotation is applied automatically.' },
+  { id: 'corners',  t: '2. Corners',      hint: 'Click the four plate corners so the image can be rectified — lanes become vertical, rows comparable.' },
+  { id: 'region',   t: '3. Region',       hint: 'Drag a box around the developed region to analyse (this photo has two).' },
+  { id: 'lanes',    t: '4. Lanes',        hint: 'Auto-detected lanes: drag a handle to fix one, right-click to add one. Type each lane’s label; tick the standards.' },
+  { id: 'setup',    t: '5. Compounds',    hint: 'Name the compounds and enter the dilution series amounts + unit for the standard lanes.' },
+  { id: 'bands',    t: '6. Bands',        hint: 'Auto-detected bands grouped into compound rows by the warp fit. Click to remove, click a lane to add. Ringed dots were warp-rescued — double-check them.' },
+  { id: 'profiles', t: '7. Profiles',     hint: 'Per-lane profile with each band’s integration bounds and valley-to-valley baseline. Drag bounds if needed.' },
+  { id: 'calib',    t: '8. Calibration',  hint: 'Per-compound curve from the on-plate standards. Fit picked by quality; residuals shown; saturation visible.' },
+  { id: 'results',  t: '9. Results',      hint: 'Calibrated table with QC flags. Export CSV; save the Analysis File to reopen or rerun later.' },
+];
+
+/* ---------- shared pieces (data-level, layouts differ) ---------- */
+const img = new Image();
+
+function plateCanvas(step, width) {
+  const cv = document.createElement('canvas');
+  const scale = width / P.width;
+  cv.width = width; cv.height = P.height * scale;
+  const g = cv.getContext('2d');
+  g.drawImage(img, 0, 0, cv.width, cv.height);
+  const sx = x => x * scale, sy = y => y * scale;
+  if (step === 'corners') {
+    [[8, 8], [P.width - 8, 14], [P.width - 6, P.height - 10], [10, P.height - 6]].forEach(([x, y], i) => {
+      g.strokeStyle = '#fff'; g.lineWidth = 2;
+      g.beginPath(); g.arc(sx(x), sy(y), 9, 0, 7); g.stroke();
+      g.fillStyle = '#fff'; g.font = 'bold 11px sans-serif';
+      g.fillText(String(i + 1), sx(x) + 11, sy(y) + 4);
+    });
+  }
+  if (step === 'region') {
+    g.strokeStyle = '#fff'; g.setLineDash([6, 5]); g.lineWidth = 2;
+    g.strokeRect(sx(6), sy(6), sx(P.width - 12), sy(P.height - 12));
+    g.setLineDash([]);
+  }
+  if (step === 'lanes' || step === 'bands' || step === 'setup') {
+    P.lanes.forEach(ln => {
+      g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 1;
+      g.beginPath(); g.moveTo(sx(ln.x), 0); g.lineTo(sx(ln.x), cv.height); g.stroke();
+      g.beginPath(); g.arc(sx(ln.x), 10, 5, 0, 7);
+      g.fillStyle = 'rgba(255,255,255,.85)'; g.fill(); g.strokeStyle = '#555'; g.stroke();
+    });
+  }
+  if (step === 'bands' || step === 'profiles') {
+    allBands.forEach(b => {
+      g.beginPath(); g.arc(sx(P.lanes[b.lane].x), sy(b.y), 5.5, 0, 7);
+      g.fillStyle = COMPOUNDS[Math.min(b.row, 3)].color; g.fill();
+      g.strokeStyle = b.rescued ? '#111' : '#fff'; g.lineWidth = b.rescued ? 2 : 1.2; g.stroke();
+    });
+  }
+  return cv;
+}
+
+function profileSvg() {
+  // real green-channel profile of a standards lane, mock baseline/bounds
+  const li = 12, half = 6;
+  const c = document.createElement('canvas');
+  c.width = P.width; c.height = P.height;
+  c.getContext('2d').drawImage(img, 0, 0);
+  const px = c.getContext('2d').getImageData(P.lanes[li].x - half, 0, half * 2, P.height).data;
+  const prof = [];
+  for (let y = 0; y < P.height; y++) {
+    let s = 0;
+    for (let x = 0; x < half * 2; x++) s += px[(y * half * 2 + x) * 4 + 1];
+    prof.push(255 - s / (half * 2));
+  }
+  const max = Math.max(...prof), min = Math.min(...prof);
+  const W = 560, H = 150;
+  const pts = prof.map((v, y) => `${(y / P.height * W).toFixed(1)},${(H - 8 - (v - min) / (max - min) * (H - 20)).toFixed(1)}`).join(' ');
+  const bandsHtml = allBands.filter(b => b.lane === li).map(b => {
+    const x = b.y / P.height * W;
+    return `<rect x="${x - 14}" y="8" width="28" height="${H - 16}" fill="${COMPOUNDS[Math.min(b.row, 3)].color}22"/>
+      <line x1="${x - 14}" y1="${H - 24}" x2="${x + 14}" y2="${H - 28}" stroke="#888" stroke-dasharray="3 2"/>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;background:#fff;border:1px solid var(--line);border-radius:6px">
+    ${bandsHtml}<polyline points="${pts}" fill="none" stroke="#334" stroke-width="1.3"/>
+    <text x="6" y="14" font-size="10" fill="#778">lane 13 (standard "2") — OD profile, shaded = integration bounds, dashed = baseline</text></svg>`;
+}
+
+function calibSvg() {
+  const W = 300, H = 170, ods = [0.09, 0.17, 0.24, 0.33, 0.42, 0.47];
+  const amounts = [0.5, 1, 1.5, 2, 3, 4];
+  const px = a => 30 + a / 4.4 * (W - 40), py = v => H - 22 - v / 0.55 * (H - 40);
+  const curve = [];
+  for (let a = 0; a <= 4.4; a += 0.1) curve.push(`${px(a).toFixed(1)},${py(0.62 * a / (1.35 + a)).toFixed(1)}`);
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:340px;background:#fff;border:1px solid var(--line);border-radius:6px">
+    <polyline points="${curve.join(' ')}" fill="none" stroke="#2e86ab" stroke-width="1.5"/>
+    ${amounts.map((a, i) => `<circle cx="${px(a)}" cy="${py(ods[i])}" r="3.5" fill="#e4572e"/>`).join('')}
+    <line x1="30" y1="${H - 22}" x2="${W - 8}" y2="${H - 22}" stroke="#99a"/>
+    <line x1="30" y1="${H - 22}" x2="30" y2="8" stroke="#99a"/>
+    <text x="${W - 105}" y="18" font-size="10" fill="#445">Michaelis-Menten · r² 0.994</text>
+    <text x="${W / 2 - 20}" y="${H - 6}" font-size="10" fill="#778">µg spotted</text>
+    <text x="6" y="14" font-size="10" fill="#778">area</text></svg>`;
+}
+
+function laneTable(compact) {
+  const labels = ['G', 'Lo', 'N', 'R', 'U', 'Le', 'U', 'Le', 'R', '0.25', '0.5', '1', '1.5', '2', '3', '4', 'Lo', 'G', 'N', 'Lo', 'G', 'N', 'Le'];
+  const rows = P.lanes.map((ln, i) => {
+    const isStd = i >= 9 && i <= 15;
+    return `<tr><td>${i + 1}</td>
+      <td><input value="${labels[i] ?? ''}" style="width:${compact ? 44 : 70}px"></td>
+      <td><input type="checkbox" ${isStd ? 'checked' : ''}></td>
+      ${isStd ? `<td><input value="${labels[i]}" style="width:44px"> µg</td>` : '<td></td>'}</tr>`;
+  }).join('');
+  return `<table><tr><th>#</th><th>Label</th><th>Std?</th><th>Amount</th></tr>${rows}</table>`;
+}
+
+function resultsTable(limit) {
+  const rows = [];
+  allBands.slice(0, limit ?? allBands.length).forEach(b => {
+    const q = (b.strength * 28).toFixed(2);
+    const flags =
+      (b.rescued ? '<span class="chip warn">rescued</span>' : '') +
+      (b.strength > 0.16 ? '<span class="chip warn">&gt; top std</span>' : '<span class="chip ok">ok</span>');
+    rows.push(`<tr><td>${b.lane + 1}</td><td>${COMPOUNDS[Math.min(b.row, 3)].name}</td>
+      <td>${b.strength > 0.16 ? '&gt; 4.00' : q} µg</td><td>${flags}</td></tr>`);
+  });
+  return `<table><tr><th>Lane</th><th>Compound</th><th>Amount</th><th>QC</th></tr>${rows.join('')}</table>`;
+}
+
+function stepBody(id, wide) {
+  switch (id) {
+    case 'photo': return `<p><button class="primary">Choose photo…</button> <span style="color:var(--mut)">Gel4B_Aft.jpg · 4208×3120 · rotated per EXIF</span></p>` + plateCanvas('photo', wide).outerHTML_ || '';
+    case 'corners': return plateCanvas('corners', wide).outerHTML_ || '';
+    case 'region': return plateCanvas('region', wide).outerHTML_ || '';
+    case 'lanes': return plateCanvas('lanes', wide).outerHTML_ || '';
+    case 'setup': return `<div style="display:flex;gap:20px;flex-wrap:wrap"><div>
+      <h3 style="font-size:13px;margin-bottom:6px">Compounds (top row first)</h3>
+      ${COMPOUNDS.map(c => `<div style="margin:4px 0"><span class="chip" style="background:${c.color};color:#fff">&nbsp;</span> <input value="${c.name}"></div>`).join('')}
+      <div style="margin-top:10px">Unit <input value="µg" style="width:50px"></div></div>
+      <div style="flex:1;min-width:280px"><h3 style="font-size:13px;margin-bottom:6px">Lanes</h3>${laneTable(true)}</div></div>`;
+    case 'bands': return plateCanvas('bands', wide).outerHTML_ || '';
+    case 'profiles': return profileSvg();
+    case 'calib': return `<div style="display:flex;gap:14px;flex-wrap:wrap">${COMPOUNDS.slice(0, 3).map(c =>
+      `<div><div style="font-size:12px;margin-bottom:3px"><span class="chip" style="background:${c.color};color:#fff">&nbsp;</span> ${c.name}</div>${calibSvg()}</div>`).join('')}</div>`;
+    case 'results': return `<p style="margin:0 0 10px"><button class="primary">Export CSV</button>
+      <button>Save Analysis File</button> <span style="color:var(--mut)">provenance: valley-to-valley baseline · sRGB-linearized green OD · MM fit</span></p>` + resultsTable();
+  }
+  return '';
+}
+// canvases can't go through innerHTML — patch: render into container after
+function mount(el, id, width) {
+  const needsCanvas = ['photo', 'corners', 'region', 'lanes', 'bands'].includes(id);
+  el.innerHTML = needsCanvas ? (id === 'photo' ? `<p><button class="primary">Choose photo…</button> <span style="color:var(--mut)">Gel4B_Aft.jpg · 4208×3120 · rotated per EXIF</span></p>` : '') : stepBody(id, width);
+  if (needsCanvas) el.appendChild(plateCanvas(id, width));
+}
+
+/* ---------- Variant A: wizard ---------- */
+let aStep = 5;
+function VariantA(root) {
+  const s = STEPS[aStep];
+  root.innerHTML = `<div class="wizA">
+    <nav class="rail">${STEPS.map((st, i) =>
+      `<div class="st ${i < aStep ? 'done' : ''} ${i === aStep ? 'cur' : ''}" onclick="aGo(${i})">${st.t}</div>`).join('')}</nav>
+    <div class="main"><h1 style="font-size:19px">${s.t.replace(/^\d+\. /, '')}</h1>
+      <p class="stephint">${s.hint}</p><div id="aBody"></div></div>
+    <div class="foot"><button onclick="aGo(${aStep - 1})" ${aStep === 0 ? 'disabled' : ''}>&#8592; Back</button>
+      <button class="primary" onclick="aGo(${aStep + 1})" ${aStep === STEPS.length - 1 ? 'disabled' : ''}>Next &#8594;</button></div></div>`;
+  mount(document.getElementById('aBody'), s.id, 860);
+}
+window.aGo = i => { aStep = Math.max(0, Math.min(STEPS.length - 1, i)); render(); };
+
+/* ---------- Variant B: workspace ---------- */
+let bStep = 5;
+function VariantB(root) {
+  const s = STEPS[bStep];
+  root.innerHTML = `<div class="wsB">
+    <div class="top"><b>Plate: Gel 4B (after)</b><span style="color:var(--mut)">isoflavone-plates.html</span>
+      <span style="flex:1"></span><button>Open…</button><button>Save Analysis File</button><button class="primary">Export CSV</button></div>
+    <nav class="check">${STEPS.map((st, i) =>
+      `<div class="st ${i === bStep ? 'cur' : ''} ${i < bStep ? 'done' : ''}" onclick="bGo(${i})"><span class="tick">${i < bStep ? '✓' : ''}</span>${st.t.replace(/^\d+\. /, '')}</div>`).join('')}</nav>
+    <div class="stage"><div id="bBody"></div></div>
+    <aside class="side"><h3 style="font-size:14px;margin-bottom:4px">${s.t.replace(/^\d+\. /, '')}</h3>
+      <p style="color:var(--mut);font-size:12.5px">${s.hint}</p><div id="bSide"></div></aside></div>`;
+  // stage always shows the plate in the mode of the current step; side panel holds the step's controls
+  const stageStep = ['photo', 'corners', 'region', 'lanes', 'setup', 'bands'].includes(s.id) ? (s.id === 'setup' ? 'lanes' : s.id) : 'bands';
+  document.getElementById('bBody').appendChild(plateCanvas(stageStep, 820));
+  const side = document.getElementById('bSide');
+  if (s.id === 'setup') side.innerHTML = stepBody('setup', 300);
+  else if (s.id === 'profiles') side.innerHTML = profileSvg();
+  else if (s.id === 'calib') side.innerHTML = COMPOUNDS.slice(0, 2).map(() => calibSvg()).join('');
+  else if (s.id === 'results') side.innerHTML = resultsTable(14);
+  else if (s.id === 'lanes') side.innerHTML = laneTable(true);
+  else if (s.id === 'bands') side.innerHTML = `<table><tr><th></th><th>Row</th><th>Bands</th></tr>${COMPOUNDS.map(c =>
+    `<tr><td><span class="chip" style="background:${c.color};color:#fff">&nbsp;</span></td><td><input value="${c.name}" style="width:100px"></td><td>${allBands.filter(b => COMPOUNDS[Math.min(b.row, 3)] === c).length}</td></tr>`).join('')}</table>`;
+}
+window.bGo = i => { bStep = i; render(); };
+
+/* ---------- Variant C: notebook ---------- */
+function VariantC(root) {
+  root.innerHTML = `<div class="nbC">
+    <div class="toc">${STEPS.map((st, i) => `<div onclick="document.getElementById('sec${i}').scrollIntoView({behavior:'smooth'})">${st.t}</div>`).join('')}</div>
+    <h1 style="font-size:20px;margin-bottom:14px">Gel 4B (after) — analysis record</h1>
+    ${STEPS.map((st, i) => `<section id="sec${i}"><h2>${st.t}</h2><p class="sechint">${st.hint}</p><div id="cBody${i}"></div></section>`).join('')}
+  </div>`;
+  STEPS.forEach((st, i) => mount(document.getElementById('cBody' + i), st.id, 800));
+}
+
+/* ---------- switcher ---------- */
+const VARIANTS = [['A', 'Wizard', VariantA], ['B', 'Workspace', VariantB], ['C', 'Notebook', VariantC]];
+let vIdx = Math.max(0, VARIANTS.findIndex(v => v[0] === new URLSearchParams(location.search).get('variant')));
+function render() {
+  const [key, name, fn] = VARIANTS[vIdx];
+  document.getElementById('vlabel').textContent = `${key} — ${name}`;
+  fn(document.getElementById('root'));
+  try { history.replaceState(null, '', `?variant=${key}`); } catch (e) {}
+}
+function cycle(d) { vIdx = (vIdx + d + VARIANTS.length) % VARIANTS.length; render(); }
+document.getElementById('prevV').onclick = () => cycle(-1);
+document.getElementById('nextV').onclick = () => cycle(1);
+window.addEventListener('keydown', e => {
+  if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+  if (e.key === 'ArrowLeft') cycle(-1);
+  if (e.key === 'ArrowRight') cycle(1);
+});
+img.onload = render;
+img.src = IMAGES.gel4b;
+</script>
+</body>
+</html>
