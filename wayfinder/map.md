@@ -33,6 +33,7 @@ A working, fully client-side browser tool the Operator (a scientist, no dev envi
 - [What exactly goes in the Analysis File and the results CSV?](tickets/011-file-formats.md) — Analysis File embeds the original photo for self-contained provenance; CSV is the full lane x compound grid (`nd` for absent bands), censored amounts stay empty with `amount_display` carrying "> top", standards appear as ordinary rows so recovery is checkable in the CSV.
 - [Build: scaffold and worker pixel pipeline](tickets/012-build-scaffold-pixel-pipeline.md) — done: Vite/TS/Preact app at repo root, pure analysis modules with 11 tests (rectify, sRGB, background/OD with the flat-field property verified), inlined worker with transferable buffers, dev harness rendering Gel 4B rectified + OD in the browser.
 - [Build: port detection and warp modules](tickets/013-build-detection-and-warp.md) — done: signal.ts (scipy-parity helpers), warp.ts (scaled-shared-warp ALS + three-model fit), detect.ts (origin-anchored lanes, adaptive peaks, warp rescue); byte-identical-input parity fixtures prove the port matches the Python reference on all three plates; 28 tests green.
+- [Create the GitHub repo and Pages hosting](tickets/010-repo-and-pages.md) — done: public repo https://github.com/robsyme/bandwarp, Pages deploying from actions on every push to main, live at https://robsyme.github.io/bandwarp/ (the scientist's final bookmark URL).
 
 ## Not yet specified
 
