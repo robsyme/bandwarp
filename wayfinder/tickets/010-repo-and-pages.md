@@ -3,7 +3,7 @@ id: 010
 title: Create the GitHub repo and Pages hosting
 labels: [wayfinder:task]
 status: open
-assignee:
+assignee: robsyme
 blocked-by: []
 ---
 
