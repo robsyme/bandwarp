@@ -31,6 +31,7 @@ A working, fully client-side browser tool the Operator (a scientist, no dev envi
 - [What tech stack and distribution for the client-side tool?](tickets/007-tech-stack-and-distribution.md) — Vite + TypeScript + Preact shell over pure TS analysis modules (vitest); single-file build doubling as the GitHub Pages artifact; only dependency ml-levenberg-marquardt; one Web Worker for pixel work; provisioning charted as [Create the GitHub repo and Pages hosting](tickets/010-repo-and-pages.md).
 - [What is the Operator's step-by-step workflow?](tickets/008-operator-workflow.md) — the Workspace layout (plate center-stage, step checklist left, context panel right) over the confirmed nine-step flow: Photo, Corners, Region, Lanes, Compounds, Bands, Profiles, Calibration, Results.
 - [What exactly goes in the Analysis File and the results CSV?](tickets/011-file-formats.md) — Analysis File embeds the original photo for self-contained provenance; CSV is the full lane x compound grid (`nd` for absent bands), censored amounts stay empty with `amount_display` carrying "> top", standards appear as ordinary rows so recovery is checkable in the CSV.
+- [Build: scaffold and worker pixel pipeline](tickets/012-build-scaffold-pixel-pipeline.md) — done: Vite/TS/Preact app at repo root, pure analysis modules with 11 tests (rectify, sRGB, background/OD with the flat-field property verified), inlined worker with transferable buffers, dev harness rendering Gel 4B rectified + OD in the browser.
 
 ## Not yet specified
 
