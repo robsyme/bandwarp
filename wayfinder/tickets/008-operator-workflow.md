@@ -14,3 +14,7 @@ Mock the UI flow the Operator walks for one Plate — load photo, mark lanes, na
 Requirements those resolutions established: an explicit "mark the analysis region" step (each photo holds two developed regions; detection doesn't find the boundary); correction gestures — remove/add band by click, drag lane x, add whole lane (right-click, with the context menu suppressed), rename rows to Compound names; rescued bands visually flagged for review.
 
 From [What is the exact pixel-to-quantity pipeline?](006-pixel-to-quantity-pipeline.md): the flow starts with marking the four plate corners (rectification) before region marking; band integration bounds and the valley-to-valley baseline are drawn on a visible per-lane profile and draggable; the calibration view shows curve + residuals per Compound; results carry the fixed QC flag set (out-of-bracket, saturated, rescued, manually-added).
+
+## Assets
+
+- [workflow-mock.html](../../prototypes/workflow-mock.html) — three structurally different UI variants of the same 9-step flow (`?variant=A` wizard, `B` workspace, `C` notebook), switchable with the floating pill or arrow keys. Built by `prototypes/build_mock.py`. Awaiting user reaction.
