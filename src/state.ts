@@ -3,6 +3,7 @@
 // references; the warp fit works on x-sorted indices computed at call time.
 
 import type { RegionDetection } from "./analysis/detectRegion";
+import type { Bounds } from "./analysis/profile";
 import { type Band, fit } from "./analysis/warp";
 
 export interface Lane {
@@ -26,6 +27,8 @@ export interface PlacedBand {
   rescued: boolean;
   /** Placed by the Operator, not detection. */
   manual: boolean;
+  /** Operator-dragged integration bounds; absent means auto valleys. */
+  bounds?: Bounds | null;
 }
 
 export const PALETTE = [

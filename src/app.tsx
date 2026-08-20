@@ -4,9 +4,31 @@
 // Steps 7-9 stay stubs until the quantification build (ticket 015).
 
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
+import { type Calibration, fitCalibration, predictArea } from "./analysis/calibrate";
 import type { Rect, RegionDetection } from "./analysis/detectRegion";
 import type { Pt } from "./analysis/geometry";
 import type { PipelineResult } from "./analysis/pipeline";
+import {
+  type Bounds,
+  defaultBounds,
+  type Integration,
+  integrateBand,
+  isSaturated,
+  laneProfileOD,
+  smoothProfile,
+} from "./analysis/profile";
+import {
+  type AnalysisFile,
+  APP_VERSION,
+  bandsToSaved,
+  base64ToBytes,
+  bytesToBase64,
+  parseAnalysis,
+  savedToBands,
+  SCHEMA_VERSION,
+  serializeAnalysis,
+} from "./io";
+import { buildRows, type CellMeasure, toCSV } from "./results";
 import {
   addBand,
   addLane,
@@ -29,6 +51,9 @@ interface Photo {
   width: number;
   height: number;
   name: string;
+  /** Original file bytes, embedded verbatim in the Analysis File. */
+  bytes: ArrayBuffer;
+  mime: string;
 }
 
 const STEPS = [
@@ -38,14 +63,15 @@ const STEPS = [
   { id: "lanes", t: "Lanes", hint: "Auto-detected lanes: drag a line to fix its position, right-click the plate to add one. Type each lane's label; tick the standards and enter their dilution amounts." },
   { id: "setup", t: "Compounds", hint: "Name the compound rows (top row first) and set the amount unit. The coloured curves show the fitted warp per row." },
   { id: "bands", t: "Bands", hint: "Auto-detected bands grouped into compound rows by the warp fit. Click a dot to remove it; click on a lane to add one. Dark-ringed dots were warp-rescued — double-check them." },
-  { id: "profiles", t: "Profiles", hint: "Per-lane profile with integration bounds and the valley-to-valley baseline." },
-  { id: "calib", t: "Calibration", hint: "Per-compound calibration curve from the on-plate standards." },
-  { id: "results", t: "Results", hint: "Calibrated table with QC flags; CSV export and the Analysis File." },
+  { id: "profiles", t: "Profiles", hint: "Per-lane OD profile with each band's integration bounds and valley-to-valley baseline. Drag a bound edge on the profile if a valley landed wrong." },
+  { id: "calib", t: "Calibration", hint: "Per-compound calibration from the on-plate standards: linear and Michaelis-Menten fitted, the better one chosen. Points, curve, and residuals shown." },
+  { id: "results", t: "Results", hint: "Calibrated lane x compound table with QC flags. Export the CSV; save the Analysis File to reopen or rerun later." },
 ] as const;
 
 type StepId = (typeof STEPS)[number]["id"];
 
 async function decode(blob: Blob, name: string): Promise<Photo> {
+  const bytes = await blob.arrayBuffer();
   const bmp = await createImageBitmap(blob, { imageOrientation: "from-image" });
   const cv = document.createElement("canvas");
   cv.width = bmp.width;
@@ -53,7 +79,23 @@ async function decode(blob: Blob, name: string): Promise<Photo> {
   const g = cv.getContext("2d")!;
   g.drawImage(bmp, 0, 0);
   const data = g.getImageData(0, 0, bmp.width, bmp.height);
-  return { rgba: data.data, width: bmp.width, height: bmp.height, name };
+  return {
+    rgba: data.data,
+    width: bmp.width,
+    height: bmp.height,
+    name,
+    bytes,
+    mime: blob.type || "image/jpeg",
+  };
+}
+
+function download(name: string, mime: string, content: string) {
+  const url = URL.createObjectURL(new Blob([content], { type: mime }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
 function defaultCorners(w: number, h: number): Pt[] {
@@ -78,6 +120,186 @@ function Bitmap({ rgba, width, height }: { rgba: Uint8ClampedArray; width: numbe
   return <canvas ref={ref} style="width:100%;border-radius:6px" />;
 }
 
+interface BandQuant {
+  bounds: Bounds;
+  integ: Integration;
+  saturated: boolean;
+  row: number;
+}
+
+/**
+ * One lane's OD profile with each band's integration bounds shaded, the
+ * valley-to-valley baseline dashed, and the bound edges draggable.
+ */
+function ProfileView({
+  prof,
+  region,
+  bandsInLane,
+  quant,
+  onBounds,
+}: {
+  prof: Float64Array;
+  region: Rect;
+  bandsInLane: PlacedBand[];
+  quant: Map<number, BandQuant>;
+  onBounds: (bandId: number, bounds: Bounds) => void;
+}) {
+  const W = 560;
+  const H = 170;
+  const svgRef = useRef<SVGSVGElement>(null);
+  const dragRef = useRef<{ bandId: number; side: "a" | "b" } | null>(null);
+  const regionH = region.y1 - region.y0;
+  let maxOD = 0.05;
+  for (const v of prof) if (v > maxOD) maxOD = v;
+  const sx = (y: number) => ((y - region.y0) / regionH) * W;
+  const sy = (od: number) => H - 12 - (Math.max(od, 0) / (maxOD * 1.08)) * (H - 26);
+  const toPlateY = (clientX: number) => {
+    const r = svgRef.current!.getBoundingClientRect();
+    return region.y0 + ((clientX - r.left) / r.width) * regionH;
+  };
+  const pts = Array.from(prof, (v, i) => `${sx(region.y0 + i).toFixed(1)},${sy(v).toFixed(1)}`).join(" ");
+  return (
+    <svg
+      ref={svgRef}
+      viewBox={`0 0 ${W} ${H}`}
+      style="width:100%;background:#fff;border:1px solid var(--line);border-radius:6px;touch-action:none"
+      onPointerDown={(e) => {
+        // hit a bound edge within 6 svg px
+        const y = toPlateY(e.clientX);
+        let best: { bandId: number; side: "a" | "b"; d: number } | null = null;
+        for (const b of bandsInLane) {
+          const q = quant.get(b.id);
+          if (!q) continue;
+          for (const side of ["a", "b"] as const) {
+            const d = Math.abs(sx(q.bounds[side]) - sx(y));
+            if (d < 8 && (!best || d < best.d)) best = { bandId: b.id, side, d };
+          }
+        }
+        if (best) {
+          dragRef.current = best;
+          svgRef.current!.setPointerCapture(e.pointerId);
+        }
+      }}
+      onPointerMove={(e) => {
+        const d = dragRef.current;
+        if (!d) return;
+        const band = bandsInLane.find((b) => b.id === d.bandId);
+        const q = quant.get(d.bandId);
+        if (!band || !q) return;
+        let y = Math.min(Math.max(toPlateY(e.clientX), region.y0), region.y1 - 1);
+        const next: Bounds =
+          d.side === "a"
+            ? { a: Math.min(y, band.y - 2), b: q.bounds.b }
+            : { a: q.bounds.a, b: Math.max(y, band.y + 2) };
+        onBounds(d.bandId, next);
+      }}
+      onPointerUp={() => {
+        dragRef.current = null;
+      }}
+    >
+      {bandsInLane.map((b) => {
+        const q = quant.get(b.id);
+        if (!q) return null;
+        const color = q.row >= 0 ? PALETTE[q.row % PALETTE.length] : "#9aa4ae";
+        return (
+          <g key={b.id}>
+            <rect
+              x={sx(q.bounds.a)}
+              y={10}
+              width={Math.max(1, sx(q.bounds.b) - sx(q.bounds.a))}
+              height={H - 22}
+              fill={`${color}22`}
+            />
+            <line
+              x1={sx(q.bounds.a)}
+              y1={sy(q.integ.base0)}
+              x2={sx(q.bounds.b)}
+              y2={sy(q.integ.base1)}
+              stroke="#888"
+              stroke-dasharray="4 3"
+            />
+            {(["a", "b"] as const).map((side) => (
+              <line
+                key={side}
+                x1={sx(q.bounds[side])}
+                y1={10}
+                x2={sx(q.bounds[side])}
+                y2={H - 12}
+                stroke={color}
+                stroke-width="2.5"
+                style="cursor:ew-resize"
+              />
+            ))}
+          </g>
+        );
+      })}
+      <polyline points={pts} fill="none" stroke="#334" stroke-width="1.3" />
+      <text x="6" y="14" font-size="10" fill="#778">
+        OD along the lane · shaded = integration bounds (drag edges) · dashed = baseline
+      </text>
+    </svg>
+  );
+}
+
+/** Per-compound calibration: fitted curve, standard points, residual bars. */
+function CalibView({ cal, unit }: { cal: Calibration; unit: string }) {
+  const W = 300;
+  const H = 170;
+  const RH = 46;
+  const top = cal.topAmount * 1.08;
+  const maxArea = Math.max(...cal.points.map((p) => p.area), ...cal.fitted) * 1.1;
+  const px = (a: number) => 32 + (a / top) * (W - 42);
+  const py = (v: number) => H - 24 - (Math.max(v, 0) / maxArea) * (H - 42);
+  const curve: string[] = [];
+  for (let i = 0; i <= 60; i++) {
+    const a = (top * i) / 60;
+    curve.push(`${px(a).toFixed(1)},${py(predictArea(cal, a)).toFixed(1)}`);
+  }
+  const residuals = cal.points.map((p, i) => p.area - cal.fitted[i]);
+  const maxRes = Math.max(...residuals.map(Math.abs), 1e-9);
+  const modelName = cal.model === "linear" ? "linear" : "Michaelis-Menten";
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H + RH}`}
+      style="width:100%;background:#fff;border:1px solid var(--line);border-radius:6px"
+    >
+      <polyline points={curve.join(" ")} fill="none" stroke="#2e86ab" stroke-width="1.5" />
+      {cal.points.map((p, i) => (
+        <circle key={i} cx={px(p.amount)} cy={py(p.area)} r="3.5" fill="#e4572e" />
+      ))}
+      <line x1={32} y1={H - 24} x2={W - 8} y2={H - 24} stroke="#99a" />
+      <line x1={32} y1={H - 24} x2={32} y2={10} stroke="#99a" />
+      <text x={W - 130} y={18} font-size="10" fill="#445">
+        {modelName} · r² {cal.r2.toFixed(4)}
+      </text>
+      <text x={W / 2 - 24} y={H - 8} font-size="10" fill="#778">
+        {unit} spotted
+      </text>
+      <text x={6} y={14} font-size="10" fill="#778">
+        area
+      </text>
+      {/* residual bars share the x scale */}
+      <line x1={32} y1={H + RH / 2} x2={W - 8} y2={H + RH / 2} stroke="#ccd" />
+      {cal.points.map((p, i) => {
+        const h = (residuals[i] / maxRes) * (RH / 2 - 4);
+        return (
+          <rect
+            key={i}
+            x={px(p.amount) - 2.5}
+            y={h >= 0 ? H + RH / 2 - h : H + RH / 2}
+            width="5"
+            height={Math.abs(h)}
+            fill="#e4572e"
+          />
+        );
+      })}
+      <text x={6} y={H + 12} font-size="9" fill="#778">
+        residuals
+      </text>
+    </svg>
+  );
+}
+
 type Drag =
   | { kind: "corner"; i: number }
   | { kind: "region"; ax: number; ay: number }
@@ -99,9 +321,12 @@ export function App() {
   const [unit, setUnit] = useState("µg");
   const [rectifying, setRectifying] = useState(false);
   const [detecting, setDetecting] = useState(false);
+  const [selectedLaneId, setSelectedLaneId] = useState<number | null>(null);
   const dragRef = useRef<Drag | null>(null);
   const jobsRef = useRef({ rect: 0, det: 0 });
   const fileRef = useRef<HTMLInputElement>(null);
+  const analysisFileRef = useRef<HTMLInputElement>(null);
+  const restoreRef = useRef<AnalysisFile | null>(null);
 
   const stepId: StepId = STEPS[step].id;
 
@@ -126,16 +351,31 @@ export function App() {
       .then((r) => {
         if (job !== jobsRef.current.rect) return;
         setRect(r);
-        setRegion({ x0: 0, y0: 0, x1: r.width, y1: r.height });
+        setRegion(restoreRef.current ? restoreRef.current.region : { x0: 0, y0: 0, x1: r.width, y1: r.height });
       })
       .finally(() => {
         if (job === jobsRef.current.rect) setRectifying(false);
       });
   }, [photo, corners]);
 
-  // re-detect whenever the rectified image or the analysis region changes
+  // re-detect whenever the rectified image or the analysis region changes;
+  // a pending Analysis File restore supplies the saved state instead
   useEffect(() => {
     if (!rect || !region) return;
+    const saved = restoreRef.current;
+    if (saved) {
+      restoreRef.current = null;
+      setDet(
+        saved.detection
+          ? { lanes: [], unit: saved.detection.unit, yOrigin: saved.detection.yOrigin, bands: [] }
+          : null,
+      );
+      setLanes(saved.lanes);
+      setBands(savedToBands(saved.bands));
+      setCompounds(saved.compounds);
+      setUnit(saved.unit);
+      return;
+    }
     const job = ++jobsRef.current.det;
     setDetecting(true);
     detectPlateRegion(rect.rectified.slice(), rect.width, rect.height, region)
@@ -169,6 +409,163 @@ export function App() {
   const slanes = useMemo(() => sortedLanes(lanes), [lanes]);
   const laneX = useMemo(() => new Map(lanes.map((l) => [l.id, l.x])), [lanes]);
   const unitPx = det?.unit ?? (region ? (region.x1 - region.x0) / 25 : 50);
+  const rowCount = assignment.rowCount;
+
+  /* --------------------------- quantification --------------------------- */
+
+  const halfPx = unitPx * 0.3;
+
+  // per-lane OD profiles over the region (heavier: only on lane/region change)
+  const profs = useMemo(() => {
+    const out = new Map<number, { prof: Float64Array; smooth: Float64Array }>();
+    if (!rect || !region) return out;
+    const y0 = Math.round(region.y0);
+    const y1 = Math.round(region.y1);
+    for (const l of lanes) {
+      const prof = laneProfileOD(rect.od, rect.width, l.x, halfPx, y0, y1);
+      out.set(l.id, { prof, smooth: smoothProfile(prof) });
+    }
+    return out;
+  }, [rect, region, lanes, halfPx]);
+
+  // per-band bounds (override or auto valleys), area, saturation, row
+  const bandQuant = useMemo(() => {
+    const out = new Map<number, BandQuant>();
+    if (!rect || !region) return out;
+    const y0 = Math.round(region.y0);
+    const regionH = region.y1 - region.y0;
+    for (const b of bands) {
+      const lp = profs.get(b.laneId);
+      const lx = laneX.get(b.laneId);
+      if (!lp || lx === undefined) continue;
+      const neighbours = bands.filter((o) => o.laneId === b.laneId && o.id !== b.id).map((o) => o.y);
+      const bounds = b.bounds ?? defaultBounds(lp.smooth, y0, b.y, neighbours, regionH);
+      out.set(b.id, {
+        bounds,
+        integ: integrateBand(lp.prof, y0, bounds),
+        saturated: isSaturated(rect.rectified, rect.width, lx, halfPx, bounds),
+        row: assignment.rowOf.get(b.id) ?? -1,
+      });
+    }
+    return out;
+  }, [rect, region, bands, profs, laneX, halfPx, assignment]);
+
+  // lane x compound cells: nearest band to the row curve wins duplicates
+  const cells = useMemo(() => {
+    const out = new Map<string, CellMeasure & { bandId: number }>();
+    if (!region) return out;
+    const laneIdx = new Map(slanes.map((l, i) => [l.id, i]));
+    for (const b of bands) {
+      const q = bandQuant.get(b.id);
+      if (!q || q.row < 0) continue;
+      const key = `${b.laneId}:${q.row}`;
+      const prev = out.get(key);
+      if (prev) {
+        const li = laneIdx.get(b.laneId)!;
+        const curveY = assignment.curves[q.row]?.[li] ?? b.y;
+        const prevB = bands.find((x) => x.id === prev.bandId)!;
+        if (Math.abs(b.y - curveY) >= Math.abs(prevB.y - curveY)) continue;
+      }
+      out.set(key, {
+        bandId: b.id,
+        area: q.integ.area,
+        y: b.y,
+        rescued: b.rescued,
+        manual: b.manual,
+        saturated: q.saturated,
+      });
+    }
+    return out;
+  }, [bands, bandQuant, assignment, slanes, region]);
+
+  // per-compound calibration from the ticked standards
+  const calibrations = useMemo(() => {
+    const out: (Calibration | null)[] = [];
+    for (let row = 0; row < rowCount; row++) {
+      const pts = slanes
+        .filter((l) => l.isStandard && Number.isFinite(parseFloat(l.amount)))
+        .flatMap((l) => {
+          const cell = cells.get(`${l.id}:${row}`);
+          return cell ? [{ amount: parseFloat(l.amount), area: cell.area }] : [];
+        });
+      out.push(fitCalibration(pts));
+    }
+    return out;
+  }, [slanes, cells, rowCount]);
+
+  const provenance = useMemo(() => {
+    const fits = compounds
+      .slice(0, rowCount)
+      .map((c, i) => `${c}=${calibrations[i]?.model ?? "none"}`)
+      .join(", ");
+    return `${APP_VERSION} · schema ${SCHEMA_VERSION} · sRGB-linearized green log-ratio OD vs 2D local background · valley-to-valley baseline · rf vs region top · calibration: ${fits || "none"}`;
+  }, [compounds, rowCount, calibrations]);
+
+  const rfOf = (y: number) =>
+    det && region && det.yOrigin - region.y0 > 1 ? (det.yOrigin - y) / (det.yOrigin - region.y0) : null;
+
+  const resultRows = useMemo(
+    () => (region ? buildRows(slanes, compounds.slice(0, rowCount), cells, calibrations, rfOf) : []),
+    [slanes, compounds, rowCount, cells, calibrations, det, region],
+  );
+
+  /* ------------------------------ file io ------------------------------- */
+
+  const saveAnalysis = () => {
+    if (!photo || !corners || !region) return;
+    const file: AnalysisFile = {
+      schemaVersion: SCHEMA_VERSION,
+      app: APP_VERSION,
+      photo: { name: photo.name, mime: photo.mime, base64: bytesToBase64(new Uint8Array(photo.bytes)) },
+      corners,
+      region,
+      detection: det ? { unit: det.unit, yOrigin: det.yOrigin } : null,
+      lanes,
+      compounds,
+      unit,
+      bands: bandsToSaved(
+        bands.map((b) => ({ ...b, bounds: b.bounds ?? bandQuant.get(b.id)?.bounds ?? null })),
+      ),
+      warp: rowCount ? { laneXs: assignment.laneXs, curves: assignment.curves } : null,
+      calibrations: calibrations.map((cal, i) =>
+        cal
+          ? { compound: compounds[i] ?? "", model: cal.model, params: cal.params, r2: cal.r2, points: cal.points }
+          : null,
+      ),
+      provenance,
+    };
+    download(photo.name.replace(/\.[^.]+$/, "") + ".analysis.json", "application/json", serializeAnalysis(file));
+  };
+
+  const openAnalysis = async (f: File) => {
+    try {
+      const parsed = parseAnalysis(await f.text());
+      const bytes = base64ToBytes(parsed.photo.base64);
+      const blob = new Blob([bytes as BlobPart], { type: parsed.photo.mime });
+      const p = await decode(blob, parsed.photo.name);
+      restoreRef.current = parsed;
+      setRect(null);
+      setRegion(null);
+      setDet(null);
+      setLanes([]);
+      setBands([]);
+      setCompounds([]);
+      setPhoto(p);
+      setCorners(parsed.corners);
+      setStep(8);
+    } catch (err) {
+      alert(`Could not open Analysis File: ${err instanceof Error ? err.message : err}`);
+    }
+  };
+
+  const exportCSV = () => {
+    if (!photo || !resultRows.length) return;
+    download(
+      photo.name.replace(/\.[^.]+$/, "") + ".results.csv",
+      "text/csv",
+      toCSV(resultRows, photo.name, unit, provenance),
+    );
+  };
 
   /* ------------------------------ gestures ------------------------------ */
 
@@ -187,6 +584,11 @@ export function App() {
         if (Math.abs(l.x - p.x) < Math.max(12 * p.scale, unitPx * 0.25) && (!best || Math.abs(l.x - p.x) < Math.abs(best.x - p.x)))
           best = l;
       if (best && p.y > region.y0 - 30 * p.scale && p.y < region.y1) dragRef.current = { kind: "lane", id: best.id };
+    } else if (stepId === "profiles" && lanes.length) {
+      let best: Lane | null = null;
+      for (const l of lanes)
+        if (!best || Math.abs(l.x - p.x) < Math.abs(best.x - p.x)) best = l;
+      if (best) setSelectedLaneId(best.id);
     } else if (stepId === "bands" && region) {
       let hit: number | null = null;
       let hd = Infinity;
@@ -354,8 +756,14 @@ export function App() {
               y1={region.y0}
               x2={l.x}
               y2={region.y1}
-              stroke={showLanes ? "rgba(255,255,255,.55)" : "rgba(255,255,255,.22)"}
-              stroke-width={lw}
+              stroke={
+                stepId === "profiles" && l.id === (selectedLaneId ?? slanes[0]?.id)
+                  ? "rgba(255,255,255,.95)"
+                  : showLanes
+                    ? "rgba(255,255,255,.55)"
+                    : "rgba(255,255,255,.22)"
+              }
+              stroke-width={stepId === "profiles" && l.id === (selectedLaneId ?? slanes[0]?.id) ? lw * 2.5 : lw}
             />
             {showLanes && (
               <g>
@@ -632,12 +1040,162 @@ export function App() {
           </div>
         );
       }
-      default:
+      case "profiles": {
+        if (!region || !slanes.length)
+          return <p style="color:var(--mut)">Mark the region and lanes first (steps 3-4).</p>;
+        const laneId = selectedLaneId ?? slanes[0].id;
+        const lane = slanes.find((l) => l.id === laneId) ?? slanes[0];
+        const lp = profs.get(lane.id);
+        const mine = bands.filter((b) => b.laneId === lane.id).sort((a, b) => a.y - b.y);
         return (
-          <p style="color:var(--mut)">
-            This step arrives with the quantification build. Everything set up in steps 1–6 feeds it directly.
-          </p>
+          <div>
+            <p>
+              Lane{" "}
+              <select
+                value={lane.id}
+                onChange={(e) =>
+                  setSelectedLaneId(Number((e.currentTarget as HTMLSelectElement).value))
+                }
+              >
+                {slanes.map((l, i) => (
+                  <option key={l.id} value={l.id}>
+                    {i + 1}
+                    {l.label ? ` — ${l.label}` : ""}
+                    {l.isStandard ? " (std)" : ""}
+                  </option>
+                ))}
+              </select>{" "}
+              <span style="color:var(--mut);font-size:12px">or click a lane on the plate</span>
+            </p>
+            {lp && (
+              <ProfileView
+                prof={lp.prof}
+                region={region}
+                bandsInLane={mine}
+                quant={bandQuant}
+                onBounds={(bandId, bounds) =>
+                  setBands((bs) => bs.map((b) => (b.id === bandId ? { ...b, bounds } : b)))
+                }
+              />
+            )}
+            <table style="margin-top:10px">
+              <tr>
+                <th></th>
+                <th>Compound</th>
+                <th>Area (OD·px)</th>
+                <th></th>
+              </tr>
+              {mine.map((b) => {
+                const q = bandQuant.get(b.id);
+                if (!q) return null;
+                return (
+                  <tr key={b.id}>
+                    <td>
+                      <span
+                        class="chip"
+                        style={`background:${q.row >= 0 ? PALETTE[q.row % PALETTE.length] : "#9aa4ae"};color:#fff`}
+                      >
+                        &nbsp;
+                      </span>
+                    </td>
+                    <td>{q.row >= 0 ? (compounds[q.row] ?? "") : "unassigned"}</td>
+                    <td>{q.integ.area.toFixed(2)}</td>
+                    <td>{q.saturated && <span class="chip warn">saturated</span>}</td>
+                  </tr>
+                );
+              })}
+            </table>
+            {mine.some((b) => b.bounds) && (
+              <p>
+                <button
+                  class="small"
+                  onClick={() =>
+                    setBands((bs) =>
+                      bs.map((b) => (b.laneId === lane.id ? { ...b, bounds: undefined } : b)),
+                    )
+                  }
+                >
+                  Reset bounds to auto valleys
+                </button>
+              </p>
+            )}
+          </div>
         );
+      }
+      case "calib":
+        if (!rowCount)
+          return <p style="color:var(--mut)">No compound rows yet — mark bands in step 6 first.</p>;
+        return (
+          <div>
+            {Array.from({ length: rowCount }, (_, i) => {
+              const cal = calibrations[i];
+              return (
+                <div key={i} style="margin-bottom:14px">
+                  <div style="font-size:12.5px;margin-bottom:3px">
+                    <span class="chip" style={`background:${PALETTE[i % PALETTE.length]};color:#fff`}>
+                      &nbsp;
+                    </span>{" "}
+                    {compounds[i] ?? ""}{" "}
+                    {cal && cal.r2 < 0.99 && <span class="chip warn">r² {cal.r2.toFixed(3)}</span>}
+                  </div>
+                  {cal ? (
+                    <CalibView cal={cal} unit={unit} />
+                  ) : (
+                    <p style="color:var(--mut);font-size:12.5px;margin:0">
+                      Needs at least 3 detected standards — tick standard lanes and enter their amounts in
+                      step 4.
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+      case "results":
+        return (
+          <div>
+            <p style="display:flex;gap:8px">
+              <button class="primary" disabled={!resultRows.length} onClick={exportCSV}>
+                Export CSV
+              </button>
+              <button disabled={!photo || !region} onClick={saveAnalysis}>
+                Save Analysis File
+              </button>
+            </p>
+            <p style="color:var(--mut);font-size:11px;word-break:break-word">{provenance}</p>
+            <table>
+              <tr>
+                <th>Lane</th>
+                <th>Compound</th>
+                <th>Amount</th>
+                <th>QC</th>
+              </tr>
+              {resultRows.map((r, i) => (
+                <tr key={i}>
+                  <td style="white-space:nowrap">
+                    {r.laneNumber}
+                    {r.laneLabel ? ` ${r.laneLabel}` : ""}
+                    {r.isStandard ? " ★" : ""}
+                  </td>
+                  <td>{r.compound}</td>
+                  <td style="white-space:nowrap">
+                    {r.amountDisplay ? `${r.amountDisplay} ${unit}` : ""}
+                  </td>
+                  <td>
+                    {r.flags.length === 0 && <span class="chip ok">ok</span>}
+                    {r.flags.map((f) => (
+                      <span key={f} class={`chip ${f === "nd" ? "" : "warn"}`}>
+                        {f === "above_top_standard" ? "> top" : f.replace(/_/g, " ")}
+                      </span>
+                    ))}
+                  </td>
+                </tr>
+              ))}
+            </table>
+          </div>
+        );
+      default:
+        return null;
     }
   };
 
@@ -645,7 +1203,13 @@ export function App() {
 
   const stageImage = stepId === "photo" || stepId === "corners" ? photo : (rect ?? photo);
   const cursor =
-    stepId === "region" ? "crosshair" : stepId === "bands" ? "pointer" : stepId === "corners" ? "grab" : "default";
+    stepId === "region"
+      ? "crosshair"
+      : stepId === "bands" || stepId === "profiles"
+        ? "pointer"
+        : stepId === "corners"
+          ? "grab"
+          : "default";
 
   return (
     <div class="ws">
@@ -654,13 +1218,24 @@ export function App() {
         <span style="color:var(--mut)">{photo ? photo.name : "no photo loaded"}</span>
         <span style="flex:1"></span>
         {(rectifying || detecting) && <span class="chip">{rectifying ? "Rectifying…" : "Detecting…"}</span>}
-        <button disabled title="Arrives with the quantification build">
+        <input
+          ref={analysisFileRef}
+          type="file"
+          accept=".json,application/json"
+          style="display:none"
+          onChange={(e) => {
+            const f = (e.currentTarget as HTMLInputElement).files?.[0];
+            (e.currentTarget as HTMLInputElement).value = "";
+            if (f) openAnalysis(f);
+          }}
+        />
+        <button onClick={() => analysisFileRef.current!.click()} title="Open a saved Analysis File">
           Open…
         </button>
-        <button disabled title="Arrives with the quantification build">
+        <button disabled={!photo || !region} onClick={saveAnalysis}>
           Save Analysis File
         </button>
-        <button class="primary" disabled title="Arrives with the quantification build">
+        <button class="primary" disabled={!resultRows.length} onClick={exportCSV}>
           Export CSV
         </button>
       </div>

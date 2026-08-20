@@ -1,7 +1,9 @@
-// Dev utility: drive the Workspace through steps 1-6 on the bundled Gel 4B
-// example, exercising the correction gestures, and screenshot each step.
+// Dev utility: drive the Workspace through the full operator flow on the
+// bundled Gel 4B example — corners, region, standards labelling, correction
+// gestures, quantification, CSV export, and an Analysis File save/reopen
+// round-trip — screenshotting each step.
 // Usage: node scripts/walkthrough.mjs <dist/index.html> <outDir>
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import puppeteer from "puppeteer-core";
 
@@ -15,6 +17,8 @@ const browser = await puppeteer.launch({
 const page = await browser.newPage();
 await page.setViewport({ width: 1440, height: 1000 });
 page.on("pageerror", (e) => console.log("pageerror:", e.message));
+const cdp = await page.createCDPSession();
+await cdp.send("Page.setDownloadBehavior", { behavior: "allow", downloadPath: outDir });
 await page.goto(pathToFileURL(target).href);
 
 const clickButton = (label) =>
@@ -24,8 +28,10 @@ const clickButton = (label) =>
     b.click();
   }, label);
 
-const goStep = (n) =>
-  page.evaluate((i) => document.querySelectorAll(".check .st")[i].click(), n - 1);
+const goStep = async (n) => {
+  await page.evaluate((i) => document.querySelectorAll(".check .st")[i].click(), n - 1);
+  await new Promise((r) => setTimeout(r, 300));
+};
 
 // Busy work (rectify/detect) surfaces as a chip in the top bar, but only
 // after async state settles — wait for it to show up before waiting it out.
@@ -85,16 +91,45 @@ await idle();
 await shot("3-region");
 
 await goStep(4);
-await shot("4-lanes");
+const laneCount = () =>
+  page.evaluate(() => document.querySelectorAll(".side table tr").length - 1);
+console.log("lanes detected:", await laneCount());
 
-const laneCount = await page.evaluate(() => document.querySelectorAll(".side table tr").length - 1);
-console.log("lanes detected:", laneCount);
-
-// Gesture: right-click adds a lane at the pointer.
+// Gestures: right-click adds a lane at the far right, then remove it again.
 b = await stageBox();
-await page.mouse.click(b.x + b.width * 0.5, b.y + b.height * 0.7, { button: "right" });
-const laneCount2 = await page.evaluate(() => document.querySelectorAll(".side table tr").length - 1);
-console.log("after right-click add:", laneCount2);
+await page.mouse.click(b.x + b.width * 0.94, b.y + b.height * 0.7, { button: "right" });
+console.log("after right-click add:", await laneCount());
+await page.evaluate(() => {
+  const rows = document.querySelectorAll(".side table tr");
+  rows[rows.length - 1].querySelector("button").click();
+});
+console.log("after delete:", await laneCount());
+
+// Label the Dilution Series: lanes 10-16 carry 0.25..4 µg on Gel 4B.
+const SERIES = ["0.25", "0.5", "1", "1.5", "2", "3", "4"];
+for (let i = 0; i < SERIES.length; i++) {
+  const row = 10 + i; // 1-based table row index (row 0 is the header)
+  await page.evaluate((r) => {
+    document.querySelectorAll(".side table tr")[r].querySelector("input[type=checkbox]").click();
+  }, row);
+  await new Promise((r) => setTimeout(r, 50));
+  await page.evaluate(
+    (r, v) => {
+      const tr = document.querySelectorAll(".side table tr")[r];
+      const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set;
+      const [label, , amount] = tr.querySelectorAll("input:not([type=checkbox])").length
+        ? [tr.querySelectorAll("td")[1].querySelector("input"), null, tr.querySelectorAll("td")[3].querySelector("input")]
+        : [];
+      set.call(label, v);
+      label.dispatchEvent(new Event("input", { bubbles: true }));
+      set.call(amount, v);
+      amount.dispatchEvent(new Event("input", { bubbles: true }));
+    },
+    row,
+    SERIES[i],
+  );
+}
+await shot("4-lanes");
 
 await goStep(5);
 await shot("5-compounds");
@@ -112,17 +147,64 @@ const bandCount = () =>
       .reduce((s, tr) => s + Number(tr.lastElementChild.textContent || 0), 0),
   );
 const before = await bandCount();
-
-// Gesture: click the first band dot to remove it.
 const dot = await page.evaluate(() => {
   const c = document.querySelector(".stagebox svg circle[fill^='#']");
   const r = c.getBoundingClientRect();
   return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
 });
 await page.mouse.click(dot.x, dot.y);
-const after = await bandCount();
-console.log(`bands: ${before} -> ${after} after clicking a dot off`);
+console.log(`bands: ${before} -> ${await bandCount()} after clicking a dot off`);
 
+// Step 7: profile of a standards lane; drag one integration bound.
 await goStep(7);
-await shot("7-stub");
+await page.evaluate(() => {
+  const sel = document.querySelector(".side select");
+  const set = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value").set;
+  set.call(sel, "13"); // lane 13 = standard "1.5"
+  sel.dispatchEvent(new Event("change", { bubbles: true }));
+});
+await new Promise((r) => setTimeout(r, 300));
+await shot("7-profiles");
+
+await goStep(8);
+await shot("8-calibration");
+console.log(
+  "calibration:",
+  await page.evaluate(() =>
+    [...document.querySelectorAll(".side svg text")]
+      .map((t) => t.textContent)
+      .filter((t) => t.includes("r²")),
+  ),
+);
+
+await goStep(9);
+await shot("9-results");
+await clickButton("Export CSV");
+await clickButton("Save Analysis File");
+await new Promise((r) => setTimeout(r, 1500));
+const files = readdirSync(outDir);
+const csvName = files.find((f) => f.endsWith(".results.csv"));
+const jsonName = files.find((f) => f.endsWith(".analysis.json"));
+console.log("downloads:", csvName, jsonName);
+const csv = readFileSync(`${outDir}/${csvName}`, "utf8");
+const csvLines = csv.trim().split("\n");
+console.log("csv rows:", csvLines.length - 2, "| header:", csvLines[1]);
+console.log("sample std row:", csvLines.find((l) => l.includes(",true,")));
+console.log("censored rows:", csvLines.filter((l) => l.includes("above_top_standard")).length);
+console.log("nd rows:", csvLines.filter((l) => l.endsWith(",nd")).length);
+
+// Round-trip: fresh page, open the saved Analysis File, results reappear.
+await page.goto(pathToFileURL(target).href);
+const opener = await page.$(".top input[type=file]");
+await opener.uploadFile(`${outDir}/${jsonName}`);
+await page.waitForFunction(
+  () => document.querySelectorAll(".side table tr").length > 50,
+  { timeout: 60000, polling: 300 },
+);
+console.log(
+  "restored results rows:",
+  await page.evaluate(() => document.querySelectorAll(".side table tr").length - 1),
+);
+await shot("10-restored");
+
 await browser.close();
