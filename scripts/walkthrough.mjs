@@ -155,6 +155,27 @@ const dot = await page.evaluate(() => {
 await page.mouse.click(dot.x, dot.y);
 console.log(`bands: ${before} -> ${await bandCount()} after clicking a dot off`);
 
+// Pin two hand-added points into a brand-new compound row (the drastic-gel
+// flow: the auto fit never found this row).
+await page.evaluate(() => {
+  const radios = [...document.querySelectorAll(".side input[type=radio]")];
+  radios[radios.length - 1].click(); // "Pin to a new row"
+});
+b = await stageBox();
+await page.mouse.click(b.x + b.width * 0.35, b.y + b.height * 0.68);
+await new Promise((r) => setTimeout(r, 250));
+await page.mouse.click(b.x + b.width * 0.55, b.y + b.height * 0.685);
+await new Promise((r) => setTimeout(r, 250));
+console.log(
+  "after pinning into new row:",
+  await page.evaluate(() => ({
+    compoundRows: document.querySelectorAll(".side table tr").length - 1,
+    pinnedDots: document.querySelectorAll(".stagebox svg circle[fill='#fff']").length,
+  })),
+);
+await shot("6b-pinned-row");
+await page.evaluate(() => document.querySelector(".side input[type=radio]").click()); // back to Auto
+
 // Step 7: profile of a standards lane; drag one integration bound.
 await goStep(7);
 await page.evaluate(() => {

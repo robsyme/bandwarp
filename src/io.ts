@@ -18,6 +18,8 @@ export interface SavedBand {
   strength: number;
   source: "detected" | "rescued" | "manual";
   bounds: Bounds | null;
+  /** Compound Row pinned by hand; null when the warp fit decides. */
+  rowOverride?: number | null;
 }
 
 export interface SavedCalibration {
@@ -35,6 +37,8 @@ export interface AnalysisFile {
   corners: Pt[];
   region: Rect;
   detection: { unit: number; yOrigin: number } | null;
+  /** Warp-fit settings the Operator tuned (optional; defaults when absent). */
+  fit?: { tolFrac: number; bw: number };
   lanes: Lane[];
   compounds: string[];
   unit: string;
@@ -52,6 +56,7 @@ export function bandsToSaved(bands: PlacedBand[]): SavedBand[] {
     strength: b.strength,
     source: b.manual ? "manual" : b.rescued ? "rescued" : "detected",
     bounds: b.bounds ?? null,
+    rowOverride: b.rowOverride ?? null,
   }));
 }
 
@@ -64,6 +69,7 @@ export function savedToBands(saved: SavedBand[]): PlacedBand[] {
     rescued: s.source === "rescued",
     manual: s.source === "manual",
     bounds: s.bounds ?? undefined,
+    rowOverride: s.rowOverride ?? undefined,
   }));
 }
 

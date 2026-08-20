@@ -29,6 +29,8 @@ export interface Row {
 export interface FitResult {
   rows: Row[];
   noise: Band[];
+  /** Shared drift value per lane (scaled/shared models only). */
+  drift?: number[];
 }
 
 interface ScaledRow {
@@ -97,6 +99,7 @@ function sharedCore(
   width: number,
   tol: number,
   scaled: boolean,
+  bwFrac = 0.08,
 ): { rows: ScaledRow[]; d: number[] } | null {
   const L = laneXs.length;
   let rows: ScaledRow[] = buildRows(bands, L, tol)
@@ -120,7 +123,7 @@ function sharedCore(
         xs.push(laneXs[i]);
         ys.push(num[i] / den[i]);
       }
-    d = loess(xs, ys, laneXs, width * 0.08);
+    d = loess(xs, ys, laneXs, width * bwFrac);
     const dm = mean(d);
     d = d.map((v) => v - dm);
     if (scaled) {
@@ -202,12 +205,14 @@ export interface FitOptions {
   model: "independent" | "shared" | "scaled";
   /** Match tolerance in pixels. */
   tol: number;
+  /** Loess bandwidth for the drift shape, as a fraction of plate width. */
+  bw?: number;
 }
 
 export function fit(plate: PlateGeom, bands: Band[], opts: FitOptions): FitResult {
   if (opts.model === "independent") return fitIndependent(plate, bands, opts.tol);
   const laneXs = plate.lanes.map((l) => l.x);
-  const core = sharedCore(bands, laneXs, plate.width, opts.tol, opts.model === "scaled");
+  const core = sharedCore(bands, laneXs, plate.width, opts.tol, opts.model === "scaled", opts.bw);
   if (!core) return fitIndependent(plate, bands, opts.tol);
   const assigned = new Set(core.rows.flatMap((r) => r.members));
   return {
@@ -216,5 +221,6 @@ export function fit(plate: PlateGeom, bands: Band[], opts: FitOptions): FitResul
       curve: core.d.map((v) => r.o + r.a * v),
     })),
     noise: bands.filter((b) => !assigned.has(b)),
+    drift: core.d,
   };
 }

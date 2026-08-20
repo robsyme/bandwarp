@@ -73,6 +73,58 @@ describe("assignRows", () => {
     expect(assignRows([], [], REGION_W, REGION_H).rowCount).toBe(0);
     expect(assignRows(makeLanes(3), [], REGION_W, REGION_H).rowCount).toBe(0);
   });
+
+  it("a wider tolerance connects bands the default fit drops", () => {
+    const lanes = makeLanes(8);
+    const bands = twoRows(lanes);
+    // an extreme outlier on lane 5's top row: ~60 px off the curve
+    const wild = { ...bands.find((b) => b.laneId === 5 && b.y < 450)!, y: 360 };
+    const mixed = bands.map((b) => (b.laneId === 5 && b.y < 450 ? wild : b));
+    const tight = assignRows(lanes, mixed, REGION_W, REGION_H, { tolFrac: 0.035 });
+    const loose = assignRows(lanes, mixed, REGION_W, REGION_H, { tolFrac: 0.09 });
+    expect(tight.rowOf.get(wild.id)).toBe(-1);
+    expect(loose.rowOf.get(wild.id)).toBe(0);
+  });
+});
+
+describe("row pinning (rowOverride)", () => {
+  it("pins a band to a chosen row over the fit's verdict", () => {
+    const lanes = makeLanes(8);
+    const bands = twoRows(lanes).map((b) =>
+      b.laneId === 3 && b.y < 450 ? { ...b, rowOverride: 1 } : b,
+    );
+    const a = assignRows(lanes, bands, REGION_W, REGION_H);
+    const pinnedId = bands.find((b) => b.rowOverride === 1)!.id;
+    expect(a.rowOf.get(pinnedId)).toBe(1);
+    expect(a.rowCount).toBe(2);
+  });
+
+  it("pinning into a new row creates it with a curve through the pins", () => {
+    const lanes = makeLanes(8);
+    let bands = twoRows(lanes);
+    // two hand-pinned points forming a third row the fit never found
+    bands = addBand(bands, 2, 800, 0.05, 2);
+    bands = addBand(bands, 6, 830, 0.05, 2);
+    const a = assignRows(lanes, bands, REGION_W, REGION_H);
+    expect(a.rowCount).toBe(3);
+    const pinIds = bands.slice(-2).map((b) => b.id);
+    for (const id of pinIds) expect(a.rowOf.get(id)).toBe(2);
+    expect(a.curves[2]).toHaveLength(8);
+    // the new curve passes near the pinned points
+    expect(Math.abs(a.curves[2][1] - 800)).toBeLessThan(25);
+    expect(Math.abs(a.curves[2][5] - 830)).toBeLessThan(25);
+  });
+
+  it("auto rows keep their curves when pins do not touch them", () => {
+    const lanes = makeLanes(8);
+    const plain = twoRows(lanes);
+    const withPin = [...plain];
+    const pinned = addBand(withPin, 4, 810, 0.05, 2);
+    const before = assignRows(lanes, plain, REGION_W, REGION_H);
+    const after = assignRows(lanes, pinned, REGION_W, REGION_H);
+    expect(after.curves[0]).toEqual(before.curves[0]);
+    expect(after.curves[1]).toEqual(before.curves[1]);
+  });
 });
 
 describe("lane and band bookkeeping", () => {

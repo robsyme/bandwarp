@@ -33,6 +33,7 @@ import {
   addBand,
   addLane,
   assignRows,
+  DEFAULT_ASSIGN,
   bandsFromDetection,
   compoundName,
   lanesFromDetection,
@@ -322,6 +323,8 @@ export function App() {
   const [rectifying, setRectifying] = useState(false);
   const [detecting, setDetecting] = useState(false);
   const [selectedLaneId, setSelectedLaneId] = useState<number | null>(null);
+  const [fitOpts, setFitOpts] = useState({ ...DEFAULT_ASSIGN });
+  const [brush, setBrush] = useState<"auto" | "new" | number>("auto");
   const dragRef = useRef<Drag | null>(null);
   const jobsRef = useRef({ rect: 0, det: 0 });
   const fileRef = useRef<HTMLInputElement>(null);
@@ -339,6 +342,8 @@ export function App() {
     setLanes([]);
     setBands([]);
     setCompounds([]);
+    setFitOpts({ ...DEFAULT_ASSIGN });
+    setBrush("auto");
     setStep(1);
   };
 
@@ -374,6 +379,7 @@ export function App() {
       setBands(savedToBands(saved.bands));
       setCompounds(saved.compounds);
       setUnit(saved.unit);
+      setFitOpts(saved.fit ?? { ...DEFAULT_ASSIGN });
       return;
     }
     const job = ++jobsRef.current.det;
@@ -392,8 +398,15 @@ export function App() {
   }, [rect, region]);
 
   const assignment = useMemo(
-    () => assignRows(lanes, bands, region ? region.x1 - region.x0 : 1, region ? region.y1 - region.y0 : 1),
-    [lanes, bands, region],
+    () =>
+      assignRows(
+        lanes,
+        bands,
+        region ? region.x1 - region.x0 : 1,
+        region ? region.y1 - region.y0 : 1,
+        fitOpts,
+      ),
+    [lanes, bands, region, fitOpts],
   );
 
   // keep one compound name per detected row (never discard typed names)
@@ -520,6 +533,7 @@ export function App() {
       corners,
       region,
       detection: det ? { unit: det.unit, yOrigin: det.yOrigin } : null,
+      fit: fitOpts,
       lanes,
       compounds,
       unit,
@@ -642,8 +656,17 @@ export function App() {
       setDraftRegion(null);
     } else if (d.kind === "tap" && region) {
       if (Math.hypot(p.x - d.ax, p.y - d.ay) > 6 * p.scale) return; // it was a drag, not a click
+      // resolve the active brush: "new" pins into a fresh row, then stays on it
+      let brushRow: number | null = null;
+      if (brush === "new") {
+        brushRow = rowCount;
+        setBrush(rowCount);
+      } else if (brush !== "auto") {
+        brushRow = brush;
+      }
       if (d.hit !== null) {
-        setBands((bs) => bs.filter((b) => b.id !== d.hit));
+        if (brushRow === null) setBands((bs) => bs.filter((b) => b.id !== d.hit));
+        else setBands((bs) => bs.map((b) => (b.id === d.hit ? { ...b, rowOverride: brushRow } : b)));
         return;
       }
       let best: Lane | null = null;
@@ -653,7 +676,7 @@ export function App() {
         const target = best;
         const strengths = bands.map((b) => b.strength).sort((a, b) => a - b);
         const typical = strengths.length ? strengths[Math.trunc(strengths.length / 2)] : 0.05;
-        setBands((bs) => addBand(bs, target.id, p.y, typical));
+        setBands((bs) => addBand(bs, target.id, p.y, typical, brushRow ?? undefined));
       }
     }
   };
@@ -796,16 +819,20 @@ export function App() {
           bands.map((b) => {
             const row = assignment.rowOf.get(b.id) ?? -1;
             return (
-              <circle
-                key={b.id}
-                cx={laneX.get(b.laneId)}
-                cy={b.y}
-                r={dotR}
-                fill={row >= 0 ? PALETTE[row % PALETTE.length] : "#9aa4ae"}
-                stroke={b.rescued ? "#111" : "#fff"}
-                stroke-width={b.rescued ? dotR * 0.38 : dotR * 0.2}
-                stroke-dasharray={b.manual ? `${dotR * 0.6} ${dotR * 0.4}` : undefined}
-              />
+              <g key={b.id}>
+                <circle
+                  cx={laneX.get(b.laneId)}
+                  cy={b.y}
+                  r={dotR}
+                  fill={row >= 0 ? PALETTE[row % PALETTE.length] : "#9aa4ae"}
+                  stroke={b.rescued ? "#111" : "#fff"}
+                  stroke-width={b.rescued ? dotR * 0.38 : dotR * 0.2}
+                  stroke-dasharray={b.manual ? `${dotR * 0.6} ${dotR * 0.4}` : undefined}
+                />
+                {b.rowOverride != null && (
+                  <circle cx={laneX.get(b.laneId)} cy={b.y} r={dotR * 0.32} fill="#fff" />
+                )}
+              </g>
             );
           })}
       </g>
@@ -1028,6 +1055,78 @@ export function App() {
                 </tr>
               )}
             </table>
+            <h3 style="margin:12px 0 4px;font-size:13px">Assign clicks to</h3>
+            <div style="display:flex;flex-direction:column;gap:2px;font-size:12.5px">
+              <label>
+                <input type="radio" checked={brush === "auto"} onChange={() => setBrush("auto")} /> Auto
+                (warp fit) — click a dot to remove it
+              </label>
+              {Array.from({ length: assignment.rowCount }, (_, i) => (
+                <label key={i}>
+                  <input type="radio" checked={brush === i} onChange={() => setBrush(i)} />{" "}
+                  <span class="chip" style={`background:${PALETTE[i % PALETTE.length]};color:#fff`}>
+                    &nbsp;
+                  </span>{" "}
+                  Pin to {compounds[i] ?? `row ${i + 1}`}
+                </label>
+              ))}
+              <label>
+                <input type="radio" checked={brush === "new"} onChange={() => setBrush("new")} /> Pin to a
+                new row
+              </label>
+            </div>
+            {brush !== "auto" && (
+              <p style="color:var(--mut);font-size:12px;margin:6px 0 0">
+                Clicking a dot pins it to this compound instead of removing it; clicking a lane adds a
+                pinned band. Pinned dots get a white centre.
+              </p>
+            )}
+            {bands.some((b) => b.rowOverride != null) && (
+              <p style="margin:6px 0 0">
+                <button
+                  class="small"
+                  onClick={() => setBands((bs) => bs.map((b) => ({ ...b, rowOverride: undefined })))}
+                >
+                  Clear all pins
+                </button>
+              </p>
+            )}
+            <h3 style="margin:12px 0 4px;font-size:13px">Warp fit</h3>
+            <div style="font-size:12px;color:var(--mut)">
+              <label style="display:block">
+                Row match tolerance: {(fitOpts.tolFrac * 100).toFixed(1)}% of region height
+                <input
+                  type="range"
+                  min="2"
+                  max="10"
+                  step="0.5"
+                  value={fitOpts.tolFrac * 100}
+                  style="width:100%"
+                  onInput={(e) =>
+                    setFitOpts((o) => ({ ...o, tolFrac: Number((e.currentTarget as HTMLInputElement).value) / 100 }))
+                  }
+                />
+              </label>
+              <label style="display:block">
+                Curve stiffness: {(fitOpts.bw * 100).toFixed(0)}% of region width
+                <input
+                  type="range"
+                  min="3"
+                  max="25"
+                  step="1"
+                  value={fitOpts.bw * 100}
+                  style="width:100%"
+                  onInput={(e) =>
+                    setFitOpts((o) => ({ ...o, bw: Number((e.currentTarget as HTMLInputElement).value) / 100 }))
+                  }
+                />
+              </label>
+              {(fitOpts.tolFrac !== DEFAULT_ASSIGN.tolFrac || fitOpts.bw !== DEFAULT_ASSIGN.bw) && (
+                <button class="small" onClick={() => setFitOpts({ ...DEFAULT_ASSIGN })}>
+                  Reset to defaults
+                </button>
+              )}
+            </div>
             <p style="color:var(--mut);font-size:12.5px;margin-top:10px">
               {rescued > 0 && (
                 <span>
@@ -1035,7 +1134,8 @@ export function App() {
                   them.{" "}
                 </span>
               )}
-              Dashed dots were added by hand. Click a dot to remove it; click on a lane to add a band there.
+              Dashed dots were added by hand. Raise the tolerance if distant bands refuse to join a row;
+              lower the stiffness if the curves can't follow a drastic warp.
             </p>
           </div>
         );

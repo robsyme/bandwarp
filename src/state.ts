@@ -29,6 +29,8 @@ export interface PlacedBand {
   manual: boolean;
   /** Operator-dragged integration bounds; absent means auto valleys. */
   bounds?: Bounds | null;
+  /** Compound Row this band is pinned to by hand; absent means the warp fit decides. */
+  rowOverride?: number | null;
 }
 
 export const PALETTE = [
@@ -78,8 +80,14 @@ export function removeLane(
   };
 }
 
-export function addBand(bands: PlacedBand[], laneId: number, y: number, strength: number): PlacedBand[] {
-  return [...bands, { id: nextId(bands), laneId, y, strength, rescued: false, manual: true }];
+export function addBand(
+  bands: PlacedBand[],
+  laneId: number,
+  y: number,
+  strength: number,
+  rowOverride?: number,
+): PlacedBand[] {
+  return [...bands, { id: nextId(bands), laneId, y, strength, rescued: false, manual: true, rowOverride }];
 }
 
 export interface RowAssignment {
@@ -94,14 +102,33 @@ export interface RowAssignment {
 
 const EMPTY: RowAssignment = { rowOf: new Map(), rowCount: 0, laneXs: [], curves: [] };
 
-/** Group bands into Compound Rows with the scaled shared warp fit. */
+export interface AssignOptions {
+  /** Row match tolerance as a fraction of region height (default 0.035). */
+  tolFrac?: number;
+  /** Drift-curve loess bandwidth as a fraction of region width (default 0.08). */
+  bw?: number;
+}
+
+export const DEFAULT_ASSIGN: Required<AssignOptions> = { tolFrac: 0.035, bw: 0.08 };
+
+const mean = (v: number[]) => v.reduce((s, x) => s + x, 0) / v.length;
+
+/**
+ * Group bands into Compound Rows with the scaled shared warp fit. Pinned
+ * bands (`rowOverride`) overrule the fit — including into rows the fit
+ * never found — and the affected row curves are re-regressed against the
+ * shared drift so they pass through the pinned memberships.
+ */
 export function assignRows(
   lanes: Lane[],
   bands: PlacedBand[],
   regionW: number,
   regionH: number,
+  opts: AssignOptions = {},
 ): RowAssignment {
   if (!lanes.length || !bands.length) return EMPTY;
+  const tolFrac = opts.tolFrac ?? DEFAULT_ASSIGN.tolFrac;
+  const bw = opts.bw ?? DEFAULT_ASSIGN.bw;
   const sl = sortedLanes(lanes);
   const idxOf = new Map(sl.map((l, i) => [l.id, i]));
   const wb: Band[] = bands.map((b) => ({
@@ -114,7 +141,7 @@ export function assignRows(
   const res = fit(
     { width: regionW, height: regionH, lanes: sl.map((l) => ({ x: l.x })) },
     wb,
-    { model: "scaled", tol: 0.035 * regionH },
+    { model: "scaled", tol: tolFrac * regionH, bw },
   );
   const order = res.rows
     .map((r, i) => ({ i, y: r.curve.reduce((s, v) => s + v, 0) / r.curve.length }))
@@ -124,10 +151,42 @@ export function assignRows(
   order.forEach(({ i }, rank) => {
     for (const m of res.rows[i].members) rowOf.set(Number(m.id), rank);
   });
-  return {
-    rowOf,
-    rowCount: order.length,
-    laneXs: sl.map((l) => l.x),
-    curves: order.map(({ i }) => res.rows[i].curve),
-  };
+  let rowCount = order.length;
+  const curves: number[][] = order.map(({ i }) => res.rows[i].curve);
+
+  const pinned = bands.filter((b) => b.rowOverride != null && b.rowOverride >= 0);
+  if (pinned.length) {
+    const touched = new Set<number>();
+    for (const b of pinned) {
+      const prev = rowOf.get(b.id);
+      if (prev !== undefined && prev >= 0) touched.add(prev);
+      rowOf.set(b.id, b.rowOverride!);
+      touched.add(b.rowOverride!);
+      rowCount = Math.max(rowCount, b.rowOverride! + 1);
+    }
+    const d = res.drift;
+    for (const r of touched) {
+      const members = bands.filter((b) => rowOf.get(b.id) === r);
+      if (!members.length) {
+        curves[r] = curves[r] ?? [];
+        continue;
+      }
+      const yv = members.map((b) => b.y);
+      if (d && d.length === sl.length && members.length >= 2) {
+        const dv = members.map((b) => d[idxOf.get(b.laneId)!]);
+        const md = mean(dv);
+        const va = mean(dv.map((v) => (v - md) ** 2));
+        const my = mean(yv);
+        const a = va > 1e-9 ? Math.max(mean(dv.map((v, i) => (v - md) * (yv[i] - my))) / va, 0) : 0;
+        const o = my - a * md;
+        curves[r] = d.map((v) => o + a * v);
+      } else {
+        const my = mean(yv);
+        curves[r] = sl.map(() => my);
+      }
+    }
+    for (let r = 0; r < rowCount; r++) curves[r] = curves[r] ?? [];
+  }
+
+  return { rowOf, rowCount, laneXs: sl.map((l) => l.x), curves };
 }
