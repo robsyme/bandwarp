@@ -194,8 +194,61 @@ def fit_scaled_warp(bands, lane_xs, w, tol):
     return rows, d
 
 
+def detect_on_signal(sig, w, h):
+    """Full detection on a darkness-signal image. This is the reference
+    implementation the TS port (ticket 013) is tested against."""
+    tol = 0.035 * h
+    lane_xs, unit, y_org = detect_lanes(sig, w, h)
+    half = int(unit * 0.3)
+
+    # Per-lane profiles with noise-adaptive peak detection
+    profs, noises, bands = [], [], []
+    for li, lx in enumerate(lane_xs):
+        prof = sig[:, max(0, lx - half):lx + half].mean(axis=1)
+        prof_s = gaussian_filter1d(prof, sigma=h / 300)
+        noise = 1.4826 * np.median(np.abs(np.diff(prof_s))) / np.sqrt(2)
+        profs.append(prof_s)
+        noises.append(noise)
+        pk, pp = find_peaks(prof_s, distance=h / 60,
+                            prominence=max(3.5 * noise, 0.008))
+        for i, y in enumerate(pk):
+            if Y_MIN_FRAC * h < y < Y_MAX_FRAC * h:
+                bands.append({"lane": li, "y": int(y),
+                              "strength": float(pp["prominences"][i]),
+                              "rescued": False})
+
+    # Warp-guided rescue of faint bands
+    fit = fit_scaled_warp(bands, lane_xs, w, tol)
+    if fit:
+        rows, dcurve = fit
+        for r in rows:
+            have = {b["lane"] for b in r["members"]}
+            for li in range(len(lane_xs)):
+                if li in have:
+                    continue
+                pred = r["o"] + r["a"] * dcurve[li]
+                if not (Y_MIN_FRAC * h < pred < Y_MAX_FRAC * h):
+                    continue
+                lo = int(max(0, pred - 0.6 * tol))
+                hi = int(min(h, pred + 0.6 * tol))
+                seg = profs[li][lo:hi]
+                yi = int(np.argmax(seg))
+                val = float(seg[yi])
+                near_existing = any(b["lane"] == li and abs(b["y"] - (lo + yi)) < tol / 2
+                                    for b in bands)
+                if (0 < yi < len(seg) - 1 and not near_existing
+                        and val > max(2.0 * noises[li], 0.005)):
+                    bands.append({"lane": li, "y": lo + yi,
+                                  "strength": val, "rescued": True})
+    return lane_xs, float(unit), int(y_org), bands
+
+
+FIXTURE_W = 700
+
+
 def main():
     result = {}
+    fixtures = {}
     for name, rel in PLATES.items():
         im = ImageOps.exif_transpose(Image.open(ROOT / rel)).convert("RGB")
         g = np.asarray(im, dtype=np.float32)[:, :, 1]
@@ -204,57 +257,31 @@ def main():
         y0, y1 = y0 + int(f0 * (y1 - y0)), y0 + int(f1 * (y1 - y0))
         plate = g[y0:y1, x0:x1]
         h, w = plate.shape
-        tol = 0.035 * h
 
         # 1. Flat-field: 2D smooth background, signal = fractional darkness
         bg = gaussian_filter(plate, sigma=(h / 6, w / 6))
         sig = np.clip(1.0 - plate / (bg + 1e-6), 0, None)
 
-        # 2. Lanes from origin spots, centroid-refined
-        lane_xs, unit, y_org = detect_lanes(sig, w, h)
-        half = int(unit * 0.3)
+        # 2-4. Lanes, bands, warp rescue
+        lane_xs, unit, y_org, bands = detect_on_signal(sig, w, h)
+        n_rescued = sum(1 for b in bands if b["rescued"])
 
-        # 3. Per-lane profiles with noise-adaptive peak detection
-        profs, noises, bands = [], [], []
-        for li, lx in enumerate(lane_xs):
-            prof = sig[:, max(0, lx - half):lx + half].mean(axis=1)
-            prof_s = gaussian_filter1d(prof, sigma=h / 300)
-            noise = 1.4826 * np.median(np.abs(np.diff(prof_s))) / np.sqrt(2)
-            profs.append(prof_s)
-            noises.append(noise)
-            pk, pp = find_peaks(prof_s, distance=h / 60,
-                                prominence=max(3.5 * noise, 0.008))
-            for i, y in enumerate(pk):
-                if Y_MIN_FRAC * h < y < Y_MAX_FRAC * h:
-                    bands.append({"lane": li, "y": int(y),
-                                  "strength": float(pp["prominences"][i]),
-                                  "rescued": False})
-
-        # 4. Warp-guided rescue of faint bands
-        n_rescued = 0
-        fit = fit_scaled_warp(bands, lane_xs, w, tol)
-        if fit:
-            rows, dcurve = fit
-            for r in rows:
-                have = {b["lane"] for b in r["members"]}
-                for li in range(len(lane_xs)):
-                    if li in have:
-                        continue
-                    pred = r["o"] + r["a"] * dcurve[li]
-                    if not (Y_MIN_FRAC * h < pred < Y_MAX_FRAC * h):
-                        continue
-                    lo = int(max(0, pred - 0.6 * tol))
-                    hi = int(min(h, pred + 0.6 * tol))
-                    seg = profs[li][lo:hi]
-                    yi = int(np.argmax(seg))
-                    val = float(seg[yi])
-                    near_existing = any(b["lane"] == li and abs(b["y"] - (lo + yi)) < tol / 2
-                                        for b in bands)
-                    if (0 < yi < len(seg) - 1 and not near_existing
-                            and val > max(2.0 * noises[li], 0.005)):
-                        bands.append({"lane": li, "y": lo + yi,
-                                      "strength": val, "rescued": True})
-                        n_rescued += 1
+        # Fixture for the TS port (ticket 013): the exact same detection on a
+        # downscaled, u8-quantized signal, so vitest runs the reference
+        # algorithm on byte-identical input
+        fh = round(h * FIXTURE_W / w)
+        small = np.asarray(Image.fromarray(sig, mode="F")
+                           .resize((FIXTURE_W, fh), Image.BILINEAR))
+        u8 = np.round(np.clip(small / 0.5, 0, 1) * 255).astype(np.uint8)
+        deq = u8.astype(np.float32) / 255 * 0.5
+        f_lanes, f_unit, f_yorg, f_bands = detect_on_signal(deq, FIXTURE_W, fh)
+        (OUT / f"{name}_sig.u8").write_bytes(u8.tobytes())
+        fixtures[name] = {
+            "width": FIXTURE_W, "height": int(fh),
+            "unit": f_unit, "yOrigin": f_yorg,
+            "lanes": [int(x) for x in f_lanes],
+            "bands": f_bands,
+        }
 
         # Collate per lane; empty lanes are kept — an origin spot with no
         # bands is a real lane whose sample simply lacks the compounds
@@ -309,6 +336,7 @@ def main():
               f"{n_rescued} rescued by warp")
 
     (OUT / "bands.json").write_text(json.dumps(result, indent=1))
+    (OUT / "fixtures.json").write_text(json.dumps(fixtures, indent=1))
 
 
 if __name__ == "__main__":

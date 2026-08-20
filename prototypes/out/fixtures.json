@@ -1,0 +1,1138 @@
+{
+ "gel4a": {
+  "width": 700,
+  "height": 426,
+  "unit": 28.5,
+  "yOrigin": 350,
+  "lanes": [
+   25,
+   57,
+   89,
+   118,
+   148,
+   177,
+   207,
+   236,
+   264,
+   320,
+   350,
+   377,
+   405,
+   427,
+   454,
+   485,
+   514,
+   541,
+   566,
+   593,
+   620,
+   645,
+   674
+  ],
+  "bands": [
+   {
+    "lane": 0,
+    "y": 51,
+    "strength": 0.010028991848230362,
+    "rescued": false
+   },
+   {
+    "lane": 0,
+    "y": 173,
+    "strength": 0.1935951868072152,
+    "rescued": false
+   },
+   {
+    "lane": 0,
+    "y": 290,
+    "strength": 0.01118030957877636,
+    "rescued": false
+   },
+   {
+    "lane": 1,
+    "y": 174,
+    "strength": 0.12610089778900146,
+    "rescued": false
+   },
+   {
+    "lane": 1,
+    "y": 307,
+    "strength": 0.1186308778997045,
+    "rescued": false
+   },
+   {
+    "lane": 2,
+    "y": 176,
+    "strength": 0.11528874933719635,
+    "rescued": false
+   },
+   {
+    "lane": 2,
+    "y": 314,
+    "strength": 0.2489493042230606,
+    "rescued": false
+   },
+   {
+    "lane": 3,
+    "y": 176,
+    "strength": 0.18449480831623077,
+    "rescued": false
+   },
+   {
+    "lane": 3,
+    "y": 264,
+    "strength": 0.020060930401086807,
+    "rescued": false
+   },
+   {
+    "lane": 3,
+    "y": 290,
+    "strength": 0.16614042222499847,
+    "rescued": false
+   },
+   {
+    "lane": 4,
+    "y": 177,
+    "strength": 0.31616300344467163,
+    "rescued": false
+   },
+   {
+    "lane": 4,
+    "y": 316,
+    "strength": 0.1506175696849823,
+    "rescued": false
+   },
+   {
+    "lane": 5,
+    "y": 176,
+    "strength": 0.05825575813651085,
+    "rescued": false
+   },
+   {
+    "lane": 6,
+    "y": 176,
+    "strength": 0.04554728791117668,
+    "rescued": false
+   },
+   {
+    "lane": 7,
+    "y": 177,
+    "strength": 0.21693331003189087,
+    "rescued": false
+   },
+   {
+    "lane": 7,
+    "y": 315,
+    "strength": 0.21959924697875977,
+    "rescued": false
+   },
+   {
+    "lane": 8,
+    "y": 177,
+    "strength": 0.02544347569346428,
+    "rescued": false
+   },
+   {
+    "lane": 9,
+    "y": 180,
+    "strength": 0.3275546431541443,
+    "rescued": false
+   },
+   {
+    "lane": 9,
+    "y": 260,
+    "strength": 0.04451390728354454,
+    "rescued": false
+   },
+   {
+    "lane": 9,
+    "y": 314,
+    "strength": 0.18643198907375336,
+    "rescued": false
+   },
+   {
+    "lane": 10,
+    "y": 180,
+    "strength": 0.20404747128486633,
+    "rescued": false
+   },
+   {
+    "lane": 10,
+    "y": 258,
+    "strength": 0.04806293174624443,
+    "rescued": false
+   },
+   {
+    "lane": 10,
+    "y": 288,
+    "strength": 0.012281727977097034,
+    "rescued": false
+   },
+   {
+    "lane": 10,
+    "y": 313,
+    "strength": 0.28192275762557983,
+    "rescued": false
+   },
+   {
+    "lane": 11,
+    "y": 176,
+    "strength": 0.14711332321166992,
+    "rescued": false
+   },
+   {
+    "lane": 11,
+    "y": 257,
+    "strength": 0.22198954224586487,
+    "rescued": false
+   },
+   {
+    "lane": 11,
+    "y": 284,
+    "strength": 0.04136359691619873,
+    "rescued": false
+   },
+   {
+    "lane": 11,
+    "y": 312,
+    "strength": 0.4132106304168701,
+    "rescued": false
+   },
+   {
+    "lane": 12,
+    "y": 177,
+    "strength": 0.22158090770244598,
+    "rescued": false
+   },
+   {
+    "lane": 12,
+    "y": 252,
+    "strength": 0.3873351812362671,
+    "rescued": false
+   },
+   {
+    "lane": 12,
+    "y": 276,
+    "strength": 0.10718265175819397,
+    "rescued": false
+   },
+   {
+    "lane": 12,
+    "y": 310,
+    "strength": 0.4747147262096405,
+    "rescued": false
+   },
+   {
+    "lane": 13,
+    "y": 176,
+    "strength": 0.10830546170473099,
+    "rescued": false
+   },
+   {
+    "lane": 13,
+    "y": 250,
+    "strength": 0.4604872763156891,
+    "rescued": false
+   },
+   {
+    "lane": 13,
+    "y": 275,
+    "strength": 0.16553765162825584,
+    "rescued": false
+   },
+   {
+    "lane": 13,
+    "y": 309,
+    "strength": 0.46971726417541504,
+    "rescued": false
+   },
+   {
+    "lane": 14,
+    "y": 176,
+    "strength": 0.1607528179883957,
+    "rescued": false
+   },
+   {
+    "lane": 14,
+    "y": 246,
+    "strength": 0.4999353587627411,
+    "rescued": false
+   },
+   {
+    "lane": 14,
+    "y": 269,
+    "strength": 0.23794332146644592,
+    "rescued": false
+   },
+   {
+    "lane": 14,
+    "y": 309,
+    "strength": 0.4916301369667053,
+    "rescued": false
+   },
+   {
+    "lane": 15,
+    "y": 174,
+    "strength": 0.16102106869220734,
+    "rescued": false
+   },
+   {
+    "lane": 15,
+    "y": 305,
+    "strength": 0.33839744329452515,
+    "rescued": false
+   },
+   {
+    "lane": 16,
+    "y": 174,
+    "strength": 0.0783800557255745,
+    "rescued": false
+   },
+   {
+    "lane": 16,
+    "y": 255,
+    "strength": 0.01824900391511619,
+    "rescued": false
+   },
+   {
+    "lane": 16,
+    "y": 280,
+    "strength": 0.22949884831905365,
+    "rescued": false
+   },
+   {
+    "lane": 17,
+    "y": 176,
+    "strength": 0.19932115077972412,
+    "rescued": false
+   },
+   {
+    "lane": 17,
+    "y": 308,
+    "strength": 0.41358986496925354,
+    "rescued": false
+   },
+   {
+    "lane": 18,
+    "y": 175,
+    "strength": 0.17547957599163055,
+    "rescued": false
+   },
+   {
+    "lane": 19,
+    "y": 173,
+    "strength": 0.149875208735466,
+    "rescued": false
+   },
+   {
+    "lane": 19,
+    "y": 280,
+    "strength": 0.23985916376113892,
+    "rescued": false
+   },
+   {
+    "lane": 20,
+    "y": 171,
+    "strength": 0.11007126420736313,
+    "rescued": false
+   },
+   {
+    "lane": 21,
+    "y": 169,
+    "strength": 0.08320482820272446,
+    "rescued": false
+   },
+   {
+    "lane": 21,
+    "y": 297,
+    "strength": 0.016440613195300102,
+    "rescued": false
+   },
+   {
+    "lane": 22,
+    "y": 169,
+    "strength": 0.156963050365448,
+    "rescued": false
+   },
+   {
+    "lane": 22,
+    "y": 281,
+    "strength": 0.14246831834316254,
+    "rescued": false
+   },
+   {
+    "lane": 22,
+    "y": 225,
+    "strength": 0.006590805947780609,
+    "rescued": true
+   },
+   {
+    "lane": 9,
+    "y": 281,
+    "strength": 0.01429225318133831,
+    "rescued": true
+   },
+   {
+    "lane": 0,
+    "y": 317,
+    "strength": 0.010495014488697052,
+    "rescued": true
+   }
+  ]
+ },
+ "gel4b": {
+  "width": 700,
+  "height": 390,
+  "unit": 28.5,
+  "yOrigin": 300,
+  "lanes": [
+   26,
+   57,
+   88,
+   116,
+   145,
+   174,
+   203,
+   232,
+   260,
+   317,
+   340,
+   366,
+   400,
+   423,
+   448,
+   483,
+   510,
+   539,
+   566,
+   592,
+   619,
+   647,
+   674
+  ],
+  "bands": [
+   {
+    "lane": 0,
+    "y": 96,
+    "strength": 0.09383094430813799,
+    "rescued": false
+   },
+   {
+    "lane": 0,
+    "y": 154,
+    "strength": 0.019155479967594147,
+    "rescued": false
+   },
+   {
+    "lane": 0,
+    "y": 171,
+    "strength": 0.1169770285487175,
+    "rescued": false
+   },
+   {
+    "lane": 1,
+    "y": 95,
+    "strength": 0.2949120104312897,
+    "rescued": false
+   },
+   {
+    "lane": 2,
+    "y": 96,
+    "strength": 0.2058427631855011,
+    "rescued": false
+   },
+   {
+    "lane": 2,
+    "y": 194,
+    "strength": 0.038536444306373596,
+    "rescued": false
+   },
+   {
+    "lane": 2,
+    "y": 242,
+    "strength": 0.2613041400909424,
+    "rescued": false
+   },
+   {
+    "lane": 3,
+    "y": 96,
+    "strength": 0.06167392432689667,
+    "rescued": false
+   },
+   {
+    "lane": 4,
+    "y": 97,
+    "strength": 0.13219620287418365,
+    "rescued": false
+   },
+   {
+    "lane": 4,
+    "y": 206,
+    "strength": 0.1920052468776703,
+    "rescued": false
+   },
+   {
+    "lane": 4,
+    "y": 251,
+    "strength": 0.4750058948993683,
+    "rescued": false
+   },
+   {
+    "lane": 5,
+    "y": 97,
+    "strength": 0.22888332605361938,
+    "rescued": false
+   },
+   {
+    "lane": 5,
+    "y": 208,
+    "strength": 0.034690212458372116,
+    "rescued": false
+   },
+   {
+    "lane": 5,
+    "y": 251,
+    "strength": 0.356143057346344,
+    "rescued": false
+   },
+   {
+    "lane": 6,
+    "y": 98,
+    "strength": 0.2523466646671295,
+    "rescued": false
+   },
+   {
+    "lane": 7,
+    "y": 98,
+    "strength": 0.3994656503200531,
+    "rescued": false
+   },
+   {
+    "lane": 7,
+    "y": 205,
+    "strength": 0.0385713055729866,
+    "rescued": false
+   },
+   {
+    "lane": 7,
+    "y": 244,
+    "strength": 0.281872421503067,
+    "rescued": false
+   },
+   {
+    "lane": 8,
+    "y": 97,
+    "strength": 0.3632740378379822,
+    "rescued": false
+   },
+   {
+    "lane": 9,
+    "y": 101,
+    "strength": 0.2962116301059723,
+    "rescued": false
+   },
+   {
+    "lane": 9,
+    "y": 198,
+    "strength": 0.13935695588588715,
+    "rescued": false
+   },
+   {
+    "lane": 9,
+    "y": 213,
+    "strength": 0.03894158732146025,
+    "rescued": false
+   },
+   {
+    "lane": 9,
+    "y": 237,
+    "strength": 0.1826290637254715,
+    "rescued": false
+   },
+   {
+    "lane": 10,
+    "y": 101,
+    "strength": 0.08592262864112854,
+    "rescued": false
+   },
+   {
+    "lane": 10,
+    "y": 197,
+    "strength": 0.26049408316612244,
+    "rescued": false
+   },
+   {
+    "lane": 10,
+    "y": 211,
+    "strength": 0.07247479632496834,
+    "rescued": false
+   },
+   {
+    "lane": 10,
+    "y": 236,
+    "strength": 0.2613946199417114,
+    "rescued": false
+   },
+   {
+    "lane": 11,
+    "y": 98,
+    "strength": 0.09827925264835358,
+    "rescued": false
+   },
+   {
+    "lane": 11,
+    "y": 195,
+    "strength": 0.3724842667579651,
+    "rescued": false
+   },
+   {
+    "lane": 11,
+    "y": 210,
+    "strength": 0.10375988110899925,
+    "rescued": false
+   },
+   {
+    "lane": 11,
+    "y": 235,
+    "strength": 0.37963318824768066,
+    "rescued": false
+   },
+   {
+    "lane": 12,
+    "y": 189,
+    "strength": 0.42687028646469116,
+    "rescued": false
+   },
+   {
+    "lane": 12,
+    "y": 204,
+    "strength": 0.11662489920854568,
+    "rescued": false
+   },
+   {
+    "lane": 12,
+    "y": 232,
+    "strength": 0.4422805905342102,
+    "rescued": false
+   },
+   {
+    "lane": 13,
+    "y": 97,
+    "strength": 0.03949331119656563,
+    "rescued": false
+   },
+   {
+    "lane": 13,
+    "y": 185,
+    "strength": 0.4878701865673065,
+    "rescued": false
+   },
+   {
+    "lane": 13,
+    "y": 200,
+    "strength": 0.12763958424329758,
+    "rescued": false
+   },
+   {
+    "lane": 13,
+    "y": 229,
+    "strength": 0.4695749878883362,
+    "rescued": false
+   },
+   {
+    "lane": 14,
+    "y": 181,
+    "strength": 0.4988008141517639,
+    "rescued": false
+   },
+   {
+    "lane": 14,
+    "y": 195,
+    "strength": 0.11856493353843689,
+    "rescued": false
+   },
+   {
+    "lane": 14,
+    "y": 225,
+    "strength": 0.4790223240852356,
+    "rescued": false
+   },
+   {
+    "lane": 15,
+    "y": 94,
+    "strength": 0.2728382349014282,
+    "rescued": false
+   },
+   {
+    "lane": 15,
+    "y": 291,
+    "strength": 0.008022546768188477,
+    "rescued": false
+   },
+   {
+    "lane": 16,
+    "y": 96,
+    "strength": 0.21265961229801178,
+    "rescued": false
+   },
+   {
+    "lane": 16,
+    "y": 180,
+    "strength": 0.0663621062412858,
+    "rescued": false
+   },
+   {
+    "lane": 16,
+    "y": 194,
+    "strength": 0.10523585230112076,
+    "rescued": false
+   },
+   {
+    "lane": 16,
+    "y": 221,
+    "strength": 0.029259558767080307,
+    "rescued": false
+   },
+   {
+    "lane": 16,
+    "y": 234,
+    "strength": 0.02404894593928475,
+    "rescued": false
+   },
+   {
+    "lane": 17,
+    "y": 94,
+    "strength": 0.29425013065338135,
+    "rescued": false
+   },
+   {
+    "lane": 17,
+    "y": 181,
+    "strength": 0.015702608972787857,
+    "rescued": false
+   },
+   {
+    "lane": 17,
+    "y": 222,
+    "strength": 0.20548145473003387,
+    "rescued": false
+   },
+   {
+    "lane": 18,
+    "y": 94,
+    "strength": 0.11923538148403168,
+    "rescued": false
+   },
+   {
+    "lane": 19,
+    "y": 93,
+    "strength": 0.15202845633029938,
+    "rescued": false
+   },
+   {
+    "lane": 19,
+    "y": 178,
+    "strength": 0.047652145847678185,
+    "rescued": false
+   },
+   {
+    "lane": 19,
+    "y": 193,
+    "strength": 0.13209252059459686,
+    "rescued": false
+   },
+   {
+    "lane": 20,
+    "y": 92,
+    "strength": 0.2895354926586151,
+    "rescued": false
+   },
+   {
+    "lane": 20,
+    "y": 177,
+    "strength": 0.019497061148285866,
+    "rescued": false
+   },
+   {
+    "lane": 20,
+    "y": 222,
+    "strength": 0.22805984318256378,
+    "rescued": false
+   },
+   {
+    "lane": 21,
+    "y": 91,
+    "strength": 0.24721741676330566,
+    "rescued": false
+   },
+   {
+    "lane": 21,
+    "y": 221,
+    "strength": 0.13130822777748108,
+    "rescued": false
+   },
+   {
+    "lane": 22,
+    "y": 93,
+    "strength": 0.3073681890964508,
+    "rescued": false
+   }
+  ]
+ },
+ "gel5a": {
+  "width": 700,
+  "height": 325,
+  "unit": 28.5,
+  "yOrigin": 254,
+  "lanes": [
+   26,
+   54,
+   85,
+   114,
+   145,
+   173,
+   204,
+   233,
+   260,
+   318,
+   346,
+   375,
+   401,
+   423,
+   484,
+   511,
+   537,
+   565,
+   591,
+   618,
+   645,
+   674
+  ],
+  "bands": [
+   {
+    "lane": 0,
+    "y": 71,
+    "strength": 0.4098870065063238,
+    "rescued": false
+   },
+   {
+    "lane": 0,
+    "y": 122,
+    "strength": 0.036802101880311966,
+    "rescued": false
+   },
+   {
+    "lane": 0,
+    "y": 174,
+    "strength": 0.1653088927268982,
+    "rescued": false
+   },
+   {
+    "lane": 1,
+    "y": 69,
+    "strength": 0.2556231915950775,
+    "rescued": false
+   },
+   {
+    "lane": 1,
+    "y": 131,
+    "strength": 0.020957132801413536,
+    "rescued": false
+   },
+   {
+    "lane": 1,
+    "y": 184,
+    "strength": 0.1242598444223404,
+    "rescued": false
+   },
+   {
+    "lane": 2,
+    "y": 70,
+    "strength": 0.1861666440963745,
+    "rescued": false
+   },
+   {
+    "lane": 3,
+    "y": 72,
+    "strength": 0.13137148320674896,
+    "rescued": false
+   },
+   {
+    "lane": 4,
+    "y": 73,
+    "strength": 0.06070464476943016,
+    "rescued": false
+   },
+   {
+    "lane": 5,
+    "y": 75,
+    "strength": 0.12651702761650085,
+    "rescued": false
+   },
+   {
+    "lane": 6,
+    "y": 76,
+    "strength": 0.2651279866695404,
+    "rescued": false
+   },
+   {
+    "lane": 6,
+    "y": 205,
+    "strength": 0.07419995963573456,
+    "rescued": false
+   },
+   {
+    "lane": 7,
+    "y": 77,
+    "strength": 0.3030465841293335,
+    "rescued": false
+   },
+   {
+    "lane": 7,
+    "y": 173,
+    "strength": 0.06543485075235367,
+    "rescued": false
+   },
+   {
+    "lane": 7,
+    "y": 208,
+    "strength": 0.3514879643917084,
+    "rescued": false
+   },
+   {
+    "lane": 8,
+    "y": 77,
+    "strength": 0.2013716697692871,
+    "rescued": false
+   },
+   {
+    "lane": 8,
+    "y": 190,
+    "strength": 0.0268142968416214,
+    "rescued": false
+   },
+   {
+    "lane": 9,
+    "y": 81,
+    "strength": 0.2219153344631195,
+    "rescued": false
+   },
+   {
+    "lane": 9,
+    "y": 183,
+    "strength": 0.03209913149476051,
+    "rescued": false
+   },
+   {
+    "lane": 9,
+    "y": 195,
+    "strength": 0.023753640154609457,
+    "rescued": false
+   },
+   {
+    "lane": 10,
+    "y": 83,
+    "strength": 0.3404078781604767,
+    "rescued": false
+   },
+   {
+    "lane": 10,
+    "y": 181,
+    "strength": 0.13202883303165436,
+    "rescued": false
+   },
+   {
+    "lane": 10,
+    "y": 194,
+    "strength": 0.07711208425462246,
+    "rescued": false
+   },
+   {
+    "lane": 10,
+    "y": 214,
+    "strength": 0.09383167326450348,
+    "rescued": false
+   },
+   {
+    "lane": 11,
+    "y": 85,
+    "strength": 0.32141631841659546,
+    "rescued": false
+   },
+   {
+    "lane": 11,
+    "y": 177,
+    "strength": 0.1965465098619461,
+    "rescued": false
+   },
+   {
+    "lane": 11,
+    "y": 190,
+    "strength": 0.12093500979244709,
+    "rescued": false
+   },
+   {
+    "lane": 11,
+    "y": 211,
+    "strength": 0.1865973323583603,
+    "rescued": false
+   },
+   {
+    "lane": 12,
+    "y": 83,
+    "strength": 0.17661702632904053,
+    "rescued": false
+   },
+   {
+    "lane": 12,
+    "y": 170,
+    "strength": 0.33446016907691956,
+    "rescued": false
+   },
+   {
+    "lane": 12,
+    "y": 183,
+    "strength": 0.13098055869340897,
+    "rescued": false
+   },
+   {
+    "lane": 12,
+    "y": 204,
+    "strength": 0.2777128282184549,
+    "rescued": false
+   },
+   {
+    "lane": 13,
+    "y": 83,
+    "strength": 0.008799869567155838,
+    "rescued": false
+   },
+   {
+    "lane": 13,
+    "y": 164,
+    "strength": 0.36072829365730286,
+    "rescued": false
+   },
+   {
+    "lane": 13,
+    "y": 177,
+    "strength": 0.2198649626225233,
+    "rescued": false
+   },
+   {
+    "lane": 13,
+    "y": 198,
+    "strength": 0.358117014169693,
+    "rescued": false
+   },
+   {
+    "lane": 14,
+    "y": 84,
+    "strength": 0.18835705518722534,
+    "rescued": false
+   },
+   {
+    "lane": 15,
+    "y": 84,
+    "strength": 0.20841540396213531,
+    "rescued": false
+   },
+   {
+    "lane": 16,
+    "y": 84,
+    "strength": 0.2194824069738388,
+    "rescued": false
+   },
+   {
+    "lane": 16,
+    "y": 210,
+    "strength": 0.1048433929681778,
+    "rescued": false
+   },
+   {
+    "lane": 17,
+    "y": 85,
+    "strength": 0.18780115246772766,
+    "rescued": false
+   },
+   {
+    "lane": 17,
+    "y": 170,
+    "strength": 0.0841165129095316,
+    "rescued": false
+   },
+   {
+    "lane": 17,
+    "y": 183,
+    "strength": 0.32310667634010315,
+    "rescued": false
+   },
+   {
+    "lane": 18,
+    "y": 84,
+    "strength": 0.21235010027885437,
+    "rescued": false
+   },
+   {
+    "lane": 18,
+    "y": 165,
+    "strength": 0.02362341806292534,
+    "rescued": false
+   },
+   {
+    "lane": 18,
+    "y": 204,
+    "strength": 0.17924290895462036,
+    "rescued": false
+   },
+   {
+    "lane": 19,
+    "y": 84,
+    "strength": 0.21707871556282043,
+    "rescued": false
+   },
+   {
+    "lane": 20,
+    "y": 85,
+    "strength": 0.17251056432724,
+    "rescued": false
+   },
+   {
+    "lane": 20,
+    "y": 191,
+    "strength": 0.19715043809264898,
+    "rescued": false
+   },
+   {
+    "lane": 21,
+    "y": 88,
+    "strength": 0.2701645045308396,
+    "rescued": false
+   },
+   {
+    "lane": 21,
+    "y": 200,
+    "strength": 0.026575127616524696,
+    "rescued": true
+   },
+   {
+    "lane": 20,
+    "y": 219,
+    "strength": 0.010714116506278515,
+    "rescued": true
+   },
+   {
+    "lane": 0,
+    "y": 197,
+    "strength": 0.024889567866921425,
+    "rescued": true
+   },
+   {
+    "lane": 20,
+    "y": 206,
+    "strength": 0.012425246648490429,
+    "rescued": true
+   }
+  ]
+ }
+}

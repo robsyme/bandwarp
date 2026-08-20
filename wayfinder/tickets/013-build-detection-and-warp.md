@@ -3,7 +3,7 @@ id: 013
 title: "Build: port detection and warp modules"
 labels: [wayfinder:task]
 status: open
-assignee:
+assignee: robsyme
 blocked-by: [012]
 ---
 
