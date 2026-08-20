@@ -64,8 +64,10 @@
 
   <div id="wrap"><canvas id="cv"></canvas></div>
   <p class="hint">Click a dot to remove that band. Click anywhere else on a lane
-  to add a band there. The fit re-runs on every change. Click a row's name below
-  to rename it (e.g. "Genistein").</p>
+  to add a band there. Drag the small handle at the top of a lane to correct the
+  lane's position (handles turn purple once moved; "Restore" resets them too).
+  The fit re-runs on every change. Click a row's name below to rename it
+  (e.g. "Genistein").</p>
 
   <div class="cols">
     <div class="panel">
@@ -238,8 +240,16 @@ const IMAGES = __IMAGES_JSON__;
 
 const PALETTE = ['#e4572e', '#2e86ab', '#e0b410', '#7a3fbf', '#1b9e77', '#d95fa2', '#6b4e2e'];
 const state = { plate: 'gel4b', model: 'independent', tolFrac: 0.035,
-                removed: {}, added: {}, names: {} };
-Object.keys(DATA).forEach(k => { state.removed[k] = new Set(); state.added[k] = []; state.names[k] = {}; });
+                removed: {}, added: {}, names: {}, laneShift: {} };
+Object.keys(DATA).forEach(k => {
+  state.removed[k] = new Set(); state.added[k] = []; state.names[k] = {}; state.laneShift[k] = {};
+});
+
+// Effective lanes for the current plate: detected x plus any Operator drag.
+function effLanes() {
+  const p = DATA[state.plate];
+  return p.lanes.map((ln, li) => ({ x: state.laneShift[state.plate][li] ?? ln.x }));
+}
 
 function currentBands() {
   const p = DATA[state.plate];
@@ -262,7 +272,7 @@ let fit = null;
 
 function refit() {
   const p = DATA[state.plate];
-  fit = WarpAssign.fit({ width: p.width, height: p.height, lanes: p.lanes },
+  fit = WarpAssign.fit({ width: p.width, height: p.height, lanes: effLanes() },
                        currentBands(),
                        { model: state.model, tol: state.tolFrac * p.height });
   fit.rows.sort((a, b) => mean(a.members.map(m => m.y)) - mean(b.members.map(m => m.y)));
@@ -272,36 +282,44 @@ const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
 
 function draw() {
   const p = DATA[state.plate];
+  const lanes = effLanes();
   const cv = document.getElementById('cv');
   cv.width = p.width; cv.height = p.height;
   const g = cv.getContext('2d');
   g.drawImage(imgs[state.plate], 0, 0);
-  g.strokeStyle = 'rgba(255,255,255,.25)';
-  p.lanes.forEach(ln => { g.beginPath(); g.moveTo(ln.x, 0); g.lineTo(ln.x, p.height); g.stroke(); });
+  lanes.forEach((ln, li) => {
+    g.strokeStyle = 'rgba(255,255,255,.25)';
+    g.lineWidth = 1;
+    g.beginPath(); g.moveTo(ln.x, 0); g.lineTo(ln.x, p.height); g.stroke();
+    // drag handle for adjusting the lane's x position
+    g.beginPath(); g.arc(ln.x, 14, 7, 0, 7);
+    g.fillStyle = state.laneShift[state.plate][li] != null ? '#7a3fbf' : 'rgba(255,255,255,.75)';
+    g.fill(); g.strokeStyle = '#555'; g.stroke();
+  });
   fit.rows.forEach((r, i) => {
     const c = PALETTE[i % PALETTE.length];
     const lo = Math.min(...r.members.map(b => b.lane));
     const hi = Math.max(...r.members.map(b => b.lane));
     g.strokeStyle = c; g.lineWidth = 2;
     // solid where the row has bands, dashed where the curve extrapolates
-    for (const [a, b, dash] of [[0, lo, true], [lo, hi, false], [hi, p.lanes.length - 1, true]]) {
+    for (const [a, b, dash] of [[0, lo, true], [lo, hi, false], [hi, lanes.length - 1, true]]) {
       if (a >= b) continue;
       g.setLineDash(dash ? [4, 6] : []);
       g.beginPath();
       for (let li = a; li <= b; li++)
-        li === a ? g.moveTo(p.lanes[li].x, r.curve[li]) : g.lineTo(p.lanes[li].x, r.curve[li]);
+        li === a ? g.moveTo(lanes[li].x, r.curve[li]) : g.lineTo(lanes[li].x, r.curve[li]);
       g.stroke();
     }
     g.setLineDash([]);
     g.fillStyle = c;
     r.members.forEach(b => {
-      g.beginPath(); g.arc(p.lanes[b.lane].x, b.y, 7, 0, 7); g.fill();
+      g.beginPath(); g.arc(lanes[b.lane].x, b.y, 7, 0, 7); g.fill();
       g.strokeStyle = '#fff'; g.lineWidth = 1.5; g.stroke();
     });
   });
   g.fillStyle = '#999';
   fit.noise.forEach(b => {
-    g.beginPath(); g.arc(p.lanes[b.lane].x, b.y, 6, 0, 7); g.fill();
+    g.beginPath(); g.arc(lanes[b.lane].x, b.y, 6, 0, 7); g.fill();
     g.strokeStyle = '#fff'; g.stroke();
   });
 }
@@ -331,21 +349,50 @@ function renderRows() {
 }
 
 /* ---------- interactions ---------- */
-document.getElementById('cv').addEventListener('click', ev => {
+function canvasPos(ev) {
   const p = DATA[state.plate];
-  const cv = ev.target, rect = cv.getBoundingClientRect();
-  const x = (ev.clientX - rect.left) * p.width / rect.width;
-  const y = (ev.clientY - rect.top) * p.height / rect.height;
+  const rect = document.getElementById('cv').getBoundingClientRect();
+  return { x: (ev.clientX - rect.left) * p.width / rect.width,
+           y: (ev.clientY - rect.top) * p.height / rect.height };
+}
+
+let drag = null; // {lane} while a lane handle is being dragged
+document.getElementById('cv').addEventListener('mousedown', ev => {
+  const { x, y } = canvasPos(ev);
+  const lanes = effLanes();
+  for (let li = 0; li < lanes.length; li++)
+    if ((lanes[li].x - x) ** 2 + (14 - y) ** 2 < 14 ** 2) {
+      drag = { lane: li, moved: false };
+      ev.preventDefault();
+      return;
+    }
+});
+window.addEventListener('mousemove', ev => {
+  if (!drag) return;
+  drag.moved = true;
+  state.laneShift[state.plate][drag.lane] = canvasPos(ev).x;
+  refit();
+});
+window.addEventListener('mouseup', () => {
+  if (drag && drag.moved) { drag = null; refit(); }
+  else drag = null;
+});
+
+document.getElementById('cv').addEventListener('click', ev => {
+  if (drag) return;
+  const p = DATA[state.plate];
+  const lanes = effLanes();
+  const { x, y } = canvasPos(ev);
+  if (y < 30) return; // handle strip — clicks there are lane drags, not bands
   // near an existing band? remove it
   for (const b of currentBands()) {
-    const bx = p.lanes[b.lane].x;
-    if ((bx - x) ** 2 + (b.y - y) ** 2 < 14 ** 2) {
+    if ((lanes[b.lane].x - x) ** 2 + (b.y - y) ** 2 < 14 ** 2) {
       state.removed[state.plate].add(b.id); refit(); return;
     }
   }
   // otherwise add to nearest lane
   let li = 0;
-  p.lanes.forEach((ln, i) => { if (Math.abs(ln.x - x) < Math.abs(p.lanes[li].x - x)) li = i; });
+  lanes.forEach((ln, i) => { if (Math.abs(ln.x - x) < Math.abs(lanes[li].x - x)) li = i; });
   state.added[state.plate].push({ id: `a${Date.now()}`, lane: li, y, strength: 0.05 });
   refit();
 });
@@ -355,6 +402,7 @@ function setModel(m) { state.model = m; syncBar(); refit(); }
 document.getElementById('restore').onclick = () => {
   state.removed[state.plate] = new Set();
   state.added[state.plate] = [];
+  state.laneShift[state.plate] = {};
   refit();
 };
 document.getElementById('tol').oninput = ev => {
@@ -379,6 +427,7 @@ function syncBar() {
 function resetTo(plate, model) {
   state.plate = plate; state.model = model;
   state.removed[plate] = new Set(); state.added[plate] = [];
+  state.laneShift[plate] = {};
   syncBar(); refit();
 }
 // pick the row with the most members ("ladder") and remove n mid-span bands
