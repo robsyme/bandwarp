@@ -152,11 +152,12 @@ function ProfileView({
   const regionH = region.y1 - region.y0;
   let maxOD = 0.05;
   for (const v of prof) if (v > maxOD) maxOD = v;
-  const sx = (y: number) => ((y - region.y0) / regionH) * W;
+  // x axis runs origin-first: the plate's bottom edge sits at the left
+  const sx = (y: number) => ((region.y1 - y) / regionH) * W;
   const sy = (od: number) => H - 12 - (Math.max(od, 0) / (maxOD * 1.08)) * (H - 26);
   const toPlateY = (clientX: number) => {
     const r = svgRef.current!.getBoundingClientRect();
-    return region.y0 + ((clientX - r.left) / r.width) * regionH;
+    return region.y1 - ((clientX - r.left) / r.width) * regionH;
   };
   const pts = Array.from(prof, (v, i) => `${sx(region.y0 + i).toFixed(1)},${sy(v).toFixed(1)}`).join(" ");
   return (
@@ -205,9 +206,9 @@ function ProfileView({
         return (
           <g key={b.id}>
             <rect
-              x={sx(q.bounds.a)}
+              x={Math.min(sx(q.bounds.a), sx(q.bounds.b))}
               y={10}
-              width={Math.max(1, sx(q.bounds.b) - sx(q.bounds.a))}
+              width={Math.max(1, Math.abs(sx(q.bounds.b) - sx(q.bounds.a)))}
               height={H - 22}
               fill={`${color}22`}
             />
@@ -236,7 +237,7 @@ function ProfileView({
       })}
       <polyline points={pts} fill="none" stroke="#334" stroke-width="1.3" />
       <text x="6" y="14" font-size="10" fill="#778">
-        OD along the lane · shaded = integration bounds (drag edges) · dashed = baseline
+        OD along the lane, origin (plate bottom) at left · shaded = bounds (drag edges) · dashed = baseline
       </text>
     </svg>
   );
