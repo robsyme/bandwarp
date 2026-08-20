@@ -4,7 +4,7 @@ title: Run the validation protocol on the example plates
 labels: [wayfinder:task]
 status: open
 assignee:
-blocked-by: []
+blocked-by: [015]
 ---
 
 ## Question
