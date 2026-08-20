@@ -35,10 +35,11 @@ A working, fully client-side browser tool the Operator (a scientist, no dev envi
 - [Build: port detection and warp modules](tickets/013-build-detection-and-warp.md) — done: signal.ts (scipy-parity helpers), warp.ts (scaled-shared-warp ALS + three-model fit), detect.ts (origin-anchored lanes, adaptive peaks, warp rescue); byte-identical-input parity fixtures prove the port matches the Python reference on all three plates; 28 tests green.
 - [Create the GitHub repo and Pages hosting](tickets/010-repo-and-pages.md) — done: public repo https://github.com/robsyme/bandwarp, Pages deploying from actions on every push to main, live at https://robsyme.github.io/bandwarp/ (the scientist's final bookmark URL).
 - [Build: workspace UI shell (steps 1-6)](tickets/014-build-workspace-shell.md) — done: variant-B Workspace wired to the real modules for Photo through Bands with every correction gesture (drag corners/lanes, drag region, click bands on/off, right-click add lane, labels/standards/dilution amounts, compound naming, rescued bands ringed); in-app detection reproduces the reference's 23 lanes on Gel 4B; steps 7-9 stubbed for ticket 015.
+- [Build: quantification views and exports (steps 7-9)](tickets/015-build-quantification-and-exports.md) — done: profile view with draggable valley-to-valley bounds, per-compound linear/MM calibration with censoring and residuals, QC-flagged results grid, CSV export, embedded-photo Analysis File with full save/reopen; end-to-end pass on Gel 4B yields a 92-row CSV with ~7% standards recovery on the well-behaved compounds.
 
 ## Not yet specified
 
-Nothing — every decision is made or ticketed. The remaining route: [Build: quantification views and exports (steps 7-9)](tickets/015-build-quantification-and-exports.md) (now unblocked), then [Build: release — single file, Pages, scientist README](tickets/016-build-release.md) and the acceptance test [Run the validation protocol on the example plates](tickets/009-run-validation-protocol.md).
+Nothing — every decision is made or ticketed. The remaining route: [Run the validation protocol on the example plates](tickets/009-run-validation-protocol.md) and [Build: release — single file, Pages, scientist README](tickets/016-build-release.md), both now unblocked.
 
 ## Out of scope
 
