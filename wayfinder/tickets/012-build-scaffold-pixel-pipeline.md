@@ -3,7 +3,7 @@ id: 012
 title: "Build: scaffold and worker pixel pipeline"
 labels: [wayfinder:task]
 status: open
-assignee:
+assignee: robsyme
 blocked-by: []
 ---
 
