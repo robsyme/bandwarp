@@ -22,6 +22,8 @@ A working, fully client-side browser tool the Operator (a scientist, no dev envi
 
 <!-- one line per closed ticket: gist + link -->
 
+- [What image processing is realistic fully client-side in the browser?](tickets/002-browser-image-processing-capability.md) — everything we need works in plain JS + typed arrays + a Web Worker; skip OpenCV.js/WASM, use image-js + mljs fitting libraries (<200 KB total), canvas-blit pan/zoom with an SVG marker overlay.
+
 ## Not yet specified
 
 - Analysis File JSON schema and results CSV column layout — waits on the data model settling through the pipeline and workflow tickets.

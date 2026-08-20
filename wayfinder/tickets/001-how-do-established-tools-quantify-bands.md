@@ -3,7 +3,7 @@ id: 001
 title: How do established tools quantify gel/TLC bands?
 labels: [wayfinder:research]
 status: open
-assignee:
+assignee: claude-research-agent
 blocked-by: []
 ---
 
