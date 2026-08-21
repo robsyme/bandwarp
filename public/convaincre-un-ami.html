@@ -154,12 +154,45 @@
   }
   .chip.qc { background: var(--qc-bg); color: var(--qc-ink); }
 
+  /* --- hover translations --- */
+  [data-en] { position: relative; }
+  [data-en]:hover::after {
+    content: attr(data-en);
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 6px);
+    width: max-content;
+    max-width: min(46ch, 78vw);
+    background: var(--ink);
+    color: var(--bg);
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: .78rem;
+    letter-spacing: 0;
+    text-transform: none;
+    line-height: 1.4;
+    padding: 6px 10px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    pointer-events: none;
+    z-index: 30;
+  }
+  .bubble.you[data-en]:hover::after { left: auto; right: 0; }
+  /* practice mode hides French — don't leak it back through the tooltip */
+  body.practice .fr:not(.peek):hover::after { content: none; }
+
   /* practice mode */
   body.practice .fr { filter: blur(7px); background: var(--blur-veil); cursor: pointer; }
   body.practice .fr.peek { filter: none; background: transparent; }
 
   /* --- six questions grid --- */
-  .qgrid { display: grid; grid-template-columns: max-content 1fr; gap: 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  /* no overflow:hidden — tooltips must escape the grid; round the corner cells instead */
+  .qgrid { display: grid; grid-template-columns: max-content 1fr; gap: 0; border: 1px solid var(--border); border-radius: 12px; }
+  .qgrid > div:first-child { border-top-left-radius: 12px; }
+  .qgrid > div:nth-child(2) { border-top-right-radius: 12px; }
+  .qgrid > div:nth-last-child(2) { border-bottom-left-radius: 12px; }
+  .qgrid > div:last-child { border-bottom-right-radius: 12px; }
   .qgrid > div { padding: 10px 14px; border-top: 1px solid var(--border); }
   .qgrid > div:nth-child(-n+2) { border-top: none; }
   .qgrid .q { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: .78rem; font-weight: 650; text-transform: uppercase; letter-spacing: .07em; color: var(--accent); background: var(--surface); display: flex; align-items: center; }
@@ -237,7 +270,7 @@
 <div class="wrap">
   <div class="eyebrow">TEFAQ · Expression orale · Section B</div>
   <h1>Convaincre un ami</h1>
-  <p class="lede">You won't know the topic before the exam, but the shape of the ten minutes never changes. This trainer holds the phrases that survive any topic, organized by the move they make.</p>
+  <p class="lede">You won't know the topic before the exam, but the shape of the ten minutes never changes. This trainer holds the phrases that survive any topic, organized by the move they make. Hover any French phrase for its English.</p>
 
   <div class="timeline" aria-label="Structure of the ten-minute exchange">
     <div class="tl-bar">
@@ -265,16 +298,16 @@
     <h2>1 · Greetings and news</h2>
     <p>Open warmly and take a genuine interest before pitching anything. Register is scored: this must sound like <em>tu</em>, not <em>vous</em>.</p>
     <ul class="phrases">
-      <li><span class="fr">Salut ! Comment ça va ?</span></li>
-      <li><span class="fr">Ça fait longtemps ! Quoi de neuf ?</span></li>
-      <li><span class="fr">Ça fait un bail !</span> <span class="gloss">it's been ages</span> <span class="chip qc">QC</span></li>
-      <li><span class="fr">Je suis vraiment content(e) de t'entendre.</span></li>
-      <li><span class="fr">Qu'est-ce que tu deviens ?</span> <span class="gloss">what have you been up to?</span></li>
+      <li><span class="fr" data-en="Hi! How's it going?">Salut ! Comment ça va ?</span></li>
+      <li><span class="fr" data-en="It's been a while! What's new?">Ça fait longtemps ! Quoi de neuf ?</span></li>
+      <li><span class="fr" data-en="It's been ages!">Ça fait un bail !</span> <span class="gloss">it's been ages</span> <span class="chip qc">QC</span></li>
+      <li><span class="fr" data-en="I'm really glad to hear from you.">Je suis vraiment content(e) de t'entendre.</span></li>
+      <li><span class="fr" data-en="What have you been up to?">Qu'est-ce que tu deviens ?</span> <span class="gloss">what have you been up to?</span></li>
     </ul>
     <h3>Give your own news fast, then move on</h3>
     <ul class="phrases">
-      <li><span class="fr">Moi, ça va super bien, je suis en pleine forme.</span></li>
-      <li><span class="fr">Ça va pas pire !</span> <span class="gloss">not bad</span> <span class="chip qc">QC</span></li>
+      <li><span class="fr" data-en="Me? Doing great — in top shape.">Moi, ça va super bien, je suis en pleine forme.</span></li>
+      <li><span class="fr" data-en="Not bad at all!">Ça va pas pire !</span> <span class="gloss">not bad</span> <span class="chip qc">QC</span></li>
     </ul>
   </section>
 
@@ -283,13 +316,13 @@
     <h2>2 · The pivot into the document</h2>
     <p>One rehearsed move. The guide asks for an original transition that links the ad to the friend's life — fill the blank with whatever lands on the table.</p>
     <ul class="phrases">
-      <li><span class="fr">Au fait, tu sais quoi ? J'ai trouvé quelque chose qui va te plaire.</span></li>
-      <li><span class="fr">Justement, je voulais te parler de quelque chose.</span></li>
-      <li><span class="fr">Tu ne devineras jamais ce que j'ai vu ce matin !</span></li>
-      <li><span class="fr">J'ai pensé à toi tout de suite quand j'ai vu cette annonce.</span></li>
-      <li><span class="fr">Tu te souviens qu'on parlait de… ? Eh bien, écoute ça !</span></li>
+      <li><span class="fr" data-en="By the way, you know what? I found something you're going to like.">Au fait, tu sais quoi ? J'ai trouvé quelque chose qui va te plaire.</span></li>
+      <li><span class="fr" data-en="Actually, I've been meaning to talk to you about something.">Justement, je voulais te parler de quelque chose.</span></li>
+      <li><span class="fr" data-en="You'll never guess what I saw this morning!">Tu ne devineras jamais ce que j'ai vu ce matin !</span></li>
+      <li><span class="fr" data-en="I thought of you right away when I saw this ad.">J'ai pensé à toi tout de suite quand j'ai vu cette annonce.</span></li>
+      <li><span class="fr" data-en="Remember how we were talking about…? Well, listen to this!">Tu te souviens qu'on parlait de… ? Eh bien, écoute ça !</span></li>
     </ul>
-    <p>The last frame is the strongest: invent a shared memory that fits the topic (<span class="fr">on a toujours dit qu'on voulait voyager / se remettre au sport / apprendre à cuisiner</span>).</p>
+    <p>The last frame is the strongest: invent a shared memory that fits the topic (<span class="fr" data-en="we always said we wanted to travel / get back into sports / learn to cook">on a toujours dit qu'on voulait voyager / se remettre au sport / apprendre à cuisiner</span>).</p>
   </section>
 
   <section>
@@ -297,14 +330,14 @@
     <h2>3 · Presenting the document</h2>
     <p>Answer six questions in your own words — never read the ad aloud. One frame per question:</p>
     <div class="qgrid">
-      <div class="q">What?</div><div class="a"><span class="fr">Il s'agit d'un(e)… / C'est une annonce pour…</span></div>
-      <div class="q">When?</div><div class="a"><span class="fr">Ça commence… / Ça dure de … à … / C'est prévu pour…</span></div>
-      <div class="q">Where?</div><div class="a"><span class="fr">Ça se passe à… / C'est tout près de chez nous.</span></div>
-      <div class="q">Who?</div><div class="a"><span class="fr">C'est ouvert à tout le monde. / On peut y aller ensemble.</span></div>
-      <div class="q">How?</div><div class="a"><span class="fr">Il suffit de s'inscrire sur le site. / On n'a qu'à appeler.</span></div>
-      <div class="q">Why?</div><div class="a"><span class="fr">Ce qui est génial, c'est que… / Ça va nous permettre de…</span></div>
+      <div class="q">What?</div><div class="a"><span class="fr" data-en="It's a… / It's an ad for…">Il s'agit d'un(e)… / C'est une annonce pour…</span></div>
+      <div class="q">When?</div><div class="a"><span class="fr" data-en="It starts… / It runs from … to … / It's scheduled for…">Ça commence… / Ça dure de … à … / C'est prévu pour…</span></div>
+      <div class="q">Where?</div><div class="a"><span class="fr" data-en="It takes place in… / It's really close to where we live.">Ça se passe à… / C'est tout près de chez nous.</span></div>
+      <div class="q">Who?</div><div class="a"><span class="fr" data-en="It's open to everyone. / We could go together.">C'est ouvert à tout le monde. / On peut y aller ensemble.</span></div>
+      <div class="q">How?</div><div class="a"><span class="fr" data-en="You just sign up on the website. / We only have to call.">Il suffit de s'inscrire sur le site. / On n'a qu'à appeler.</span></div>
+      <div class="q">Why?</div><div class="a"><span class="fr" data-en="What's great is that… / It's going to let us…">Ce qui est génial, c'est que… / Ça va nous permettre de…</span></div>
     </div>
-    <p>Sweep the included items in one sentence rather than a read-out list: <span class="fr">Et le meilleur, c'est que tout est compris : le transport, les repas, l'hébergement…</span></p>
+    <p>Sweep the included items in one sentence rather than a read-out list: <span class="fr" data-en="And the best part is that everything's included: transport, meals, accommodation…">Et le meilleur, c'est que tout est compris : le transport, les repas, l'hébergement…</span></p>
   </section>
 
   <section>
@@ -312,24 +345,24 @@
     <h2>4 · Selling it</h2>
     <p>Benefit frames that fit any activity:</p>
     <ul class="phrases">
-      <li><span class="fr">Ça va te permettre de…</span> <span class="gloss">+ infinitive: rencontrer du monde, apprendre quelque chose de nouveau…</span></li>
-      <li><span class="fr">C'est l'occasion parfaite pour…</span></li>
-      <li><span class="fr">C'est une occasion en or !</span> <span class="gloss">a golden opportunity</span></li>
-      <li><span class="fr">Ça te ferait tellement de bien.</span></li>
-      <li><span class="fr">En plus, ça ne coûte presque rien.</span></li>
-      <li><span class="fr">Franchement, on n'a rien à perdre.</span></li>
+      <li><span class="fr" data-en="It's going to let you…">Ça va te permettre de…</span> <span class="gloss">+ infinitive: rencontrer du monde, apprendre quelque chose de nouveau…</span></li>
+      <li><span class="fr" data-en="It's the perfect opportunity to…">C'est l'occasion parfaite pour…</span></li>
+      <li><span class="fr" data-en="It's a golden opportunity!">C'est une occasion en or !</span> <span class="gloss">a golden opportunity</span></li>
+      <li><span class="fr" data-en="It would do you so much good.">Ça te ferait tellement de bien.</span></li>
+      <li><span class="fr" data-en="Plus, it costs next to nothing.">En plus, ça ne coûte presque rien.</span></li>
+      <li><span class="fr" data-en="Honestly, we've got nothing to lose.">Franchement, on n'a rien à perdre.</span></li>
     </ul>
     <h3>Personalize at least one argument</h3>
     <ul class="phrases">
-      <li><span class="fr">Toi qui adores…, tu vas être servi(e) !</span> <span class="gloss">you of all people, who love…</span></li>
-      <li><span class="fr">Tu m'as dit que tu voulais… : c'est exactement ça !</span></li>
-      <li><span class="fr">Comme tu cherches un nouveau travail, ce serait parfait pour ton CV.</span></li>
+      <li><span class="fr" data-en="You of all people, who love…, you're in for a treat!">Toi qui adores…, tu vas être servi(e) !</span> <span class="gloss">you of all people, who love…</span></li>
+      <li><span class="fr" data-en="You told me you wanted to… — this is exactly that!">Tu m'as dit que tu voulais… : c'est exactement ça !</span></li>
+      <li><span class="fr" data-en="Since you're looking for a new job, it would be perfect for your CV.">Comme tu cherches un nouveau travail, ce serait parfait pour ton CV.</span></li>
     </ul>
     <h3>Show enthusiasm out loud — conviction is scored</h3>
     <ul class="phrases">
-      <li><span class="fr">C'est génial, non ?</span></li>
-      <li><span class="fr">J'ai trop hâte !</span> <span class="gloss">I can't wait</span> <span class="chip qc">QC</span></li>
-      <li><span class="fr">Ça va être le fun !</span> <span class="chip qc">QC</span></li>
+      <li><span class="fr" data-en="It's great, right?">C'est génial, non ?</span></li>
+      <li><span class="fr" data-en="I can't wait!">J'ai trop hâte !</span> <span class="gloss">I can't wait</span> <span class="chip qc">QC</span></li>
+      <li><span class="fr" data-en="It's going to be fun!">Ça va être le fun !</span> <span class="chip qc">QC</span></li>
     </ul>
   </section>
 
@@ -338,10 +371,10 @@
     <h2>5 · Handing over the floor</h2>
     <p>Invite a reaction — you need the friend to start objecting so the debate can happen.</p>
     <ul class="phrases">
-      <li><span class="fr">Alors, qu'est-ce que t'en penses ?</span></li>
-      <li><span class="fr">Ça te dit ?</span> <span class="gloss">are you up for it?</span></li>
-      <li><span class="fr">Tu viens avec moi ?</span></li>
-      <li><span class="fr">Ça te tente ?</span> <span class="chip qc">QC</span></li>
+      <li><span class="fr" data-en="So, what do you think?">Alors, qu'est-ce que t'en penses ?</span></li>
+      <li><span class="fr" data-en="Are you up for it?">Ça te dit ?</span> <span class="gloss">are you up for it?</span></li>
+      <li><span class="fr" data-en="Will you come with me?">Tu viens avec moi ?</span></li>
+      <li><span class="fr" data-en="Does that tempt you?">Ça te tente ?</span> <span class="chip qc">QC</span></li>
     </ul>
   </section>
 
@@ -354,40 +387,40 @@
         <div class="beat-name"><span class="beat-num">1</span> Acknowledge</div>
         <div class="beat-why">never bulldoze the friend</div>
         <ul class="phrases">
-          <li><span class="fr">Je comprends, mais…</span></li>
-          <li><span class="fr">C'est vrai, pourtant…</span></li>
-          <li><span class="fr">Tu as raison sur ce point, par contre…</span></li>
-          <li><span class="fr">Je vois ce que tu veux dire.</span></li>
+          <li><span class="fr" data-en="I understand, but…">Je comprends, mais…</span></li>
+          <li><span class="fr" data-en="That's true, and yet…">C'est vrai, pourtant…</span></li>
+          <li><span class="fr" data-en="You're right about that; on the other hand…">Tu as raison sur ce point, par contre…</span></li>
+          <li><span class="fr" data-en="I see what you mean.">Je vois ce que tu veux dire.</span></li>
         </ul>
       </div>
       <div class="beat">
         <div class="beat-name"><span class="beat-num">2</span> Counter</div>
         <div class="beat-why">when the objection is simply wrong</div>
         <ul class="phrases">
-          <li><span class="fr">Justement !</span> <span class="gloss">that's exactly why</span></li>
-          <li><span class="fr">Au contraire !</span></li>
-          <li><span class="fr">Détrompe-toi !</span> <span class="gloss">you've got it wrong</span></li>
-          <li><span class="fr">Ne dis pas ça !</span></li>
+          <li><span class="fr" data-en="That's exactly why!">Justement !</span> <span class="gloss">that's exactly why</span></li>
+          <li><span class="fr" data-en="On the contrary!">Au contraire !</span></li>
+          <li><span class="fr" data-en="You've got it wrong!">Détrompe-toi !</span> <span class="gloss">you've got it wrong</span></li>
+          <li><span class="fr" data-en="Don't say that!">Ne dis pas ça !</span></li>
         </ul>
       </div>
       <div class="beat">
         <div class="beat-name"><span class="beat-num">3</span> Reassure &amp; solve</div>
         <div class="beat-why">attribute facts to the ad when unsure</div>
         <ul class="phrases">
-          <li><span class="fr">Ne t'inquiète pas. / Ne t'en fais pas.</span></li>
-          <li><span class="fr">Fais-moi confiance.</span></li>
-          <li><span class="fr">D'après l'annonce, … est inclus.</span></li>
-          <li><span class="fr">Si tu veux, je peux appeler pour vérifier.</span></li>
-          <li><span class="fr">On peut commencer par… / On n'est pas obligé de…</span></li>
+          <li><span class="fr" data-en="Don't worry. / Don't fret about it.">Ne t'inquiète pas. / Ne t'en fais pas.</span></li>
+          <li><span class="fr" data-en="Trust me.">Fais-moi confiance.</span></li>
+          <li><span class="fr" data-en="According to the ad, … is included.">D'après l'annonce, … est inclus.</span></li>
+          <li><span class="fr" data-en="If you want, I can call to check.">Si tu veux, je peux appeler pour vérifier.</span></li>
+          <li><span class="fr" data-en="We can start with… / We don't have to…">On peut commencer par… / On n'est pas obligé de…</span></li>
         </ul>
       </div>
       <div class="beat">
         <div class="beat-name"><span class="beat-num">4</span> Check</div>
         <div class="beat-why">before moving on</div>
         <ul class="phrases">
-          <li><span class="fr">Alors, ça te rassure ?</span></li>
-          <li><span class="fr">C'est mieux comme ça, non ?</span></li>
-          <li><span class="fr">Tu vois, il n'y a aucun problème !</span></li>
+          <li><span class="fr" data-en="So, does that reassure you?">Alors, ça te rassure ?</span></li>
+          <li><span class="fr" data-en="That's better, isn't it?">C'est mieux comme ça, non ?</span></li>
+          <li><span class="fr" data-en="See, there's no problem at all!">Tu vois, il n'y a aucun problème !</span></li>
         </ul>
       </div>
     </div>
@@ -412,7 +445,7 @@
       <div class="beat-reminder ui" aria-hidden="true">
         <span>1 · acknowledge</span><span>2 · counter</span><span>3 · reassure &amp; solve</span><span>4 · check</span>
       </div>
-      <p class="escape">The escape hatch when nothing fits: <span class="fr">Écoute, essaie une seule fois avec moi. Si tu n'aimes pas ça, je ne t'en parle plus, promis !</span> A trial offer answers almost any objection.</p>
+      <p class="escape">The escape hatch when nothing fits: <span class="fr" data-en="Listen, try it just once with me. If you don't like it, I'll never bring it up again, promise!">Écoute, essaie une seule fois avec moi. Si tu n'aimes pas ça, je ne t'en parle plus, promis !</span> A trial offer answers almost any objection.</p>
     </div>
   </section>
 
@@ -422,16 +455,16 @@
     <p>Ideas must chain with logical connectors, and informal fillers buy planning time without sounding hesitant.</p>
     <h3>Connectors for informal speech</h3>
     <div class="cloud">
-      <span>d'abord</span><span>ensuite</span><span>en plus</span><span>d'ailleurs</span><span>par contre</span><span>de toute façon</span><span>du coup</span><span>bref</span><span>franchement</span>
+      <span data-en="first">d'abord</span><span data-en="then / next">ensuite</span><span data-en="on top of that">en plus</span><span data-en="besides">d'ailleurs</span><span data-en="on the other hand">par contre</span><span data-en="anyway / in any case">de toute façon</span><span data-en="so / as a result">du coup</span><span data-en="in short">bref</span><span data-en="frankly">franchement</span>
     </div>
     <h3>Fillers that sound natural while you think</h3>
     <ul class="phrases">
-      <li><span class="fr">Écoute…</span></li>
-      <li><span class="fr">Attends, laisse-moi t'expliquer.</span></li>
-      <li><span class="fr">Tu sais,…</span></li>
-      <li><span class="fr">En fait,…</span></li>
-      <li><span class="fr">Bon, alors…</span></li>
-      <li><span class="fr">Comment dire…</span></li>
+      <li><span class="fr" data-en="Listen…">Écoute…</span></li>
+      <li><span class="fr" data-en="Wait, let me explain.">Attends, laisse-moi t'expliquer.</span></li>
+      <li><span class="fr" data-en="You know,…">Tu sais,…</span></li>
+      <li><span class="fr" data-en="Actually,…">En fait,…</span></li>
+      <li><span class="fr" data-en="Right, so…">Bon, alors…</span></li>
+      <li><span class="fr" data-en="How should I put it…">Comment dire…</span></li>
     </ul>
   </section>
 
@@ -440,11 +473,11 @@
     <h2>8 · Closing</h2>
     <p>Reaffirm your conviction, land a concrete next step, and say goodbye warmly. Never end on the friend's last objection.</p>
     <ul class="phrases">
-      <li><span class="fr">Alors, c'est décidé ? On s'inscrit ensemble ?</span></li>
-      <li><span class="fr">Je t'envoie le lien ce soir et je t'appelle demain pour confirmer.</span></li>
-      <li><span class="fr">Réfléchis-y, mais je suis sûr(e) que tu vas adorer.</span></li>
-      <li><span class="fr">Tu ne le regretteras pas !</span></li>
-      <li><span class="fr">Je suis vraiment content(e) qu'on fasse ça ensemble. À demain !</span></li>
+      <li><span class="fr" data-en="So, is it decided? Shall we sign up together?">Alors, c'est décidé ? On s'inscrit ensemble ?</span></li>
+      <li><span class="fr" data-en="I'll send you the link tonight and call you tomorrow to confirm.">Je t'envoie le lien ce soir et je t'appelle demain pour confirmer.</span></li>
+      <li><span class="fr" data-en="Think it over, but I'm sure you're going to love it.">Réfléchis-y, mais je suis sûr(e) que tu vas adorer.</span></li>
+      <li><span class="fr" data-en="You won't regret it!">Tu ne le regretteras pas !</span></li>
+      <li><span class="fr" data-en="I'm really glad we're doing this together. See you tomorrow!">Je suis vraiment content(e) qu'on fasse ça ensemble. À demain !</span></li>
     </ul>
   </section>
 
@@ -453,9 +486,9 @@
     <h2>9 · The expert stance</h2>
     <p>For any activity, <strong>you have already done it</strong>, or someone close to you has. Decide this before you speak and hold it for ten minutes — it gives every reassurance a source.</p>
     <ul class="phrases">
-      <li><span class="fr">Je l'ai déjà fait, c'était incroyable.</span></li>
-      <li><span class="fr">Ma cousine a participé l'année dernière, elle m'en parle encore !</span></li>
-      <li><span class="fr">Je connais bien l'organisatrice, elle est très sérieuse.</span></li>
+      <li><span class="fr" data-en="I've done it before — it was incredible.">Je l'ai déjà fait, c'était incroyable.</span></li>
+      <li><span class="fr" data-en="My cousin took part last year — she still talks about it!">Ma cousine a participé l'année dernière, elle m'en parle encore !</span></li>
+      <li><span class="fr" data-en="I know the organizer well; she's very reliable.">Je connais bien l'organisatrice, elle est très sérieuse.</span></li>
     </ul>
   </section>
 
@@ -513,16 +546,16 @@
 
   // Objection simulator
   var FAMILIES = [
-    { family: "Money", complaint: "C'est trop cher, je n'ai pas les moyens en ce moment.", solution: "Je comprends, mais regarde tout ce qui est compris ! Il y a des rabais pour les inscriptions en groupe, et on peut sûrement payer en plusieurs fois — je vais vérifier. Alors, ça te rassure ?" },
-    { family: "Time", complaint: "Je n'ai pas le temps, je travaille beaucoup ces temps-ci.", solution: "Justement, c'est flexible : on peut choisir la durée et les horaires. Même les fins de semaine, c'est possible. C'est mieux comme ça, non ?" },
-    { family: "Skill", complaint: "Je ne sais pas faire ça, je n'ai aucune expérience.", solution: "Ne dis pas ça ! Les débutants sont acceptés et il y a une formation au début. Et je serai là pour t'aider. Tu vois, il n'y a aucun problème !" },
-    { family: "Fitness", complaint: "Je ne suis pas en forme, tu le sais bien.", solution: "Ne t'inquiète pas, il y a des activités pour tous les niveaux, on ira à notre rythme. Alors, ça te rassure ?" },
-    { family: "Safety", complaint: "C'est dangereux, tu n'écoutes pas les nouvelles ?", solution: "Au contraire ! Il y a une équipe sur place et on est encadrés du début à la fin. Fais-moi confiance. C'est mieux comme ça, non ?" },
-    { family: "Comfort", complaint: "Ça ne sera pas confortable du tout…", solution: "C'est vrai, ce n'est pas un hôtel cinq étoiles, pourtant c'est correct — et c'est ça qui rend l'expérience authentique ! Tu vois ?" },
-    { family: "Distance", complaint: "C'est trop loin, et c'est compliqué d'y aller.", solution: "Détrompe-toi ! Le transport est prévu, on n'a rien à organiser. Je m'occupe de tout ! Alors, qu'est-ce que t'en penses ?" },
-    { family: "Company", complaint: "Je ne connaîtrai personne là-bas.", solution: "Tu me connais, moi ! Et c'est en petits groupes, tu vas te faire des amis facilement. Ça te rassure ?" },
-    { family: "Language", complaint: "J'ai peur de ne pas pouvoir communiquer, je ne parle pas la langue.", solution: "Justement, il y a des cours au début, et je t'aiderai à traduire. Tu apprends vite ! Il n'y a aucun problème." },
-    { family: "Interest", complaint: "Honnêtement, ça ne m'intéresse pas vraiment.", solution: "Attends ! Toi qui aimes les nouvelles expériences, tu vas adorer. Essaie une seule fois avec moi — si tu n'aimes pas ça, je ne t'en parle plus, promis !" }
+    { family: "Money", complaint: "C'est trop cher, je n'ai pas les moyens en ce moment.", complaint_en: "It's too expensive; I can't afford it right now.", solution: "Je comprends, mais regarde tout ce qui est compris ! Il y a des rabais pour les inscriptions en groupe, et on peut sûrement payer en plusieurs fois — je vais vérifier. Alors, ça te rassure ?", solution_en: "I get it, but look at everything that's included! There are discounts for group sign-ups, and we can surely pay in instalments — I'll check. So, does that reassure you?" },
+    { family: "Time", complaint: "Je n'ai pas le temps, je travaille beaucoup ces temps-ci.", complaint_en: "I don't have time; I've been working a lot lately.", solution: "Justement, c'est flexible : on peut choisir la durée et les horaires. Même les fins de semaine, c'est possible. C'est mieux comme ça, non ?", solution_en: "That's exactly the point — it's flexible: we can choose the length and the schedule. Even weekends work. That's better, isn't it?" },
+    { family: "Skill", complaint: "Je ne sais pas faire ça, je n'ai aucune expérience.", complaint_en: "I don't know how to do that; I have no experience.", solution: "Ne dis pas ça ! Les débutants sont acceptés et il y a une formation au début. Et je serai là pour t'aider. Tu vois, il n'y a aucun problème !", solution_en: "Don't say that! Beginners are welcome and there's training at the start. And I'll be there to help you. See, there's no problem at all!" },
+    { family: "Fitness", complaint: "Je ne suis pas en forme, tu le sais bien.", complaint_en: "I'm not in shape — you know that.", solution: "Ne t'inquiète pas, il y a des activités pour tous les niveaux, on ira à notre rythme. Alors, ça te rassure ?", solution_en: "Don't worry, there are activities for every level; we'll go at our own pace. So, does that reassure you?" },
+    { family: "Safety", complaint: "C'est dangereux, tu n'écoutes pas les nouvelles ?", complaint_en: "It's dangerous — don't you watch the news?", solution: "Au contraire ! Il y a une équipe sur place et on est encadrés du début à la fin. Fais-moi confiance. C'est mieux comme ça, non ?", solution_en: "On the contrary! There's a team on site and we're supervised from start to finish. Trust me. That's better, isn't it?" },
+    { family: "Comfort", complaint: "Ça ne sera pas confortable du tout…", complaint_en: "It won't be comfortable at all…", solution: "C'est vrai, ce n'est pas un hôtel cinq étoiles, pourtant c'est correct — et c'est ça qui rend l'expérience authentique ! Tu vois ?", solution_en: "True, it's not a five-star hotel, yet it's perfectly decent — and that's what makes the experience authentic! See?" },
+    { family: "Distance", complaint: "C'est trop loin, et c'est compliqué d'y aller.", complaint_en: "It's too far, and getting there is complicated.", solution: "Détrompe-toi ! Le transport est prévu, on n'a rien à organiser. Je m'occupe de tout ! Alors, qu'est-ce que t'en penses ?", solution_en: "You've got it wrong! Transport is arranged; we have nothing to organize. I'll take care of everything! So, what do you think?" },
+    { family: "Company", complaint: "Je ne connaîtrai personne là-bas.", complaint_en: "I won't know anyone there.", solution: "Tu me connais, moi ! Et c'est en petits groupes, tu vas te faire des amis facilement. Ça te rassure ?", solution_en: "You know me! And it's in small groups; you'll make friends easily. Does that reassure you?" },
+    { family: "Language", complaint: "J'ai peur de ne pas pouvoir communiquer, je ne parle pas la langue.", complaint_en: "I'm afraid I won't be able to communicate; I don't speak the language.", solution: "Justement, il y a des cours au début, et je t'aiderai à traduire. Tu apprends vite ! Il n'y a aucun problème.", solution_en: "That's exactly why there are lessons at the start, and I'll help you translate. You learn fast! There's no problem." },
+    { family: "Interest", complaint: "Honnêtement, ça ne m'intéresse pas vraiment.", complaint_en: "Honestly, it doesn't really interest me.", solution: "Attends ! Toi qui aimes les nouvelles expériences, tu vas adorer. Essaie une seule fois avec moi — si tu n'aimes pas ça, je ne t'en parle plus, promis !", solution_en: "Wait! You, who love new experiences — you're going to love this. Try it just once with me; if you don't like it, I'll never bring it up again, promise!" }
   ];
 
   var deck = [];
@@ -542,9 +575,10 @@
     return a;
   }
 
-  function bubble(kind, tag, text) {
+  function bubble(kind, tag, text, en) {
     var b = document.createElement("div");
     b.className = "bubble " + kind;
+    if (en) b.setAttribute("data-en", en);
     var t = document.createElement("span");
     t.className = "bubble-tag";
     t.textContent = tag;
@@ -559,7 +593,7 @@
     current = deck.pop();
     dealt++;
     chat.innerHTML = "";
-    chat.appendChild(bubble("friend", "Ton ami(e)", current.complaint));
+    chat.appendChild(bubble("friend", "Ton ami(e)", current.complaint, current.complaint_en));
     familyEl.textContent = current.family;
     familyEl.classList.add("show");
     revealBtn.hidden = false;
@@ -570,7 +604,7 @@
 
   function reveal() {
     if (!current) return;
-    chat.appendChild(bubble("you", "Toi", current.solution));
+    chat.appendChild(bubble("you", "Toi", current.solution, current.solution_en));
     revealBtn.disabled = true;
   }
 
