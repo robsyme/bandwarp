@@ -1,3 +1,6 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Convaincre un ami</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&display=swap">
 <style>
@@ -122,6 +125,8 @@
   button.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
   button.toggled { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
   .toolbar .hint { font-size: .85rem; color: var(--muted); font-style: italic; }
+  /* narrow screens: the wrapped toolbar would permanently eat viewport height */
+  @media (max-width: 640px) { .toolbar { position: static; } }
 
   /* --- sections --- */
   section { margin-top: 44px; }
@@ -154,9 +159,10 @@
   }
   .chip.qc { background: var(--qc-bg); color: var(--qc-ink); }
 
-  /* --- hover translations --- */
+  /* --- hover / tap translations --- */
   [data-en] { position: relative; }
-  [data-en]:hover::after {
+  [data-en]:hover::after,
+  [data-en].show-en::after {
     content: attr(data-en);
     position: absolute;
     left: 0;
@@ -180,7 +186,20 @@
   }
   .bubble.you[data-en]:hover::after { left: auto; right: 0; }
   /* practice mode hides French — don't leak it back through the tooltip */
-  body.practice .fr:not(.peek):hover::after { content: none; }
+  body.practice .fr:not(.peek):hover::after,
+  body.practice .fr:not(.peek).show-en::after { content: none; }
+  /* small screens: a floating tooltip overflows — pin it as a bottom sheet */
+  @media (max-width: 640px), (pointer: coarse) {
+    [data-en]:hover::after, [data-en].show-en::after,
+    .bubble.you[data-en]:hover::after, .bubble.you[data-en].show-en::after {
+      position: fixed;
+      left: 12px; right: 12px; bottom: 12px; top: auto;
+      width: auto; max-width: none;
+      font-size: .9rem;
+      padding: 10px 14px;
+      z-index: 40;
+    }
+  }
 
   /* practice mode */
   body.practice .fr { filter: blur(7px); background: var(--blur-veil); cursor: pointer; }
@@ -273,7 +292,7 @@
 <div class="wrap">
   <div class="eyebrow">TEFAQ · Expression orale · Section B</div>
   <h1>Convaincre un ami</h1>
-  <p class="lede">You won't know the topic before the exam, but the shape of the ten minutes never changes. This trainer holds the phrases that survive any topic, organized by the move they make. Hover any French phrase for its English.</p>
+  <p class="lede">You won't know the topic before the exam, but the shape of the ten minutes never changes. This trainer holds the phrases that survive any topic, organized by the move they make. Hover — or tap — any French phrase for its English.</p>
 
   <div class="timeline" aria-label="Structure of the ten-minute exchange">
     <div class="tl-bar">
@@ -504,11 +523,24 @@
       <li><span class="fr" data-en="a placement / an immersion course">un stage (d'immersion)</span> <span class="gloss">a placement</span></li>
       <li><span class="fr" data-en="a stay / a trip">un séjour</span> <span class="gloss">a stay, trip</span></li>
       <li><span class="fr" data-en="volunteering">le bénévolat</span> <span class="gloss">volunteering</span></li>
+      <li><span class="fr" data-en="a volunteer">un(e) bénévole</span> <span class="gloss">a volunteer</span></li>
+      <li><span class="fr" data-en="a community project">un projet communautaire</span> <span class="gloss">a community project</span></li>
       <li><span class="fr" data-en="a host family">une famille d'accueil</span> <span class="gloss">a host family</span></li>
       <li><span class="fr" data-en="accommodation / lodging">l'hébergement</span> <span class="gloss">accommodation</span></li>
       <li><span class="fr" data-en="covered / taken care of">pris en charge</span> <span class="gloss">covered, taken care of</span></li>
       <li><span class="fr" data-en="an outing / a day trip">une excursion</span> <span class="gloss">an outing</span></li>
       <li><span class="fr" data-en="a flyer / a leaflet">un dépliant / un prospectus</span> <span class="gloss">a flyer</span></li>
+    </ul>
+    <h3>What you'd do there</h3>
+    <ul class="phrases vocab">
+      <li><span class="fr" data-en="to teach">enseigner</span> <span class="gloss">to teach</span></li>
+      <li><span class="fr" data-en="homework help">l'aide aux devoirs</span> <span class="gloss">homework help</span></li>
+      <li><span class="fr" data-en="recycling">le recyclage</span> <span class="gloss">recycling</span></li>
+      <li><span class="fr" data-en="tree planting">la plantation d'arbres</span> <span class="gloss">tree planting</span></li>
+      <li><span class="fr" data-en="to mix cement (the guide's favourite example)">faire du ciment</span> <span class="gloss">to mix cement</span></li>
+      <li><span class="fr" data-en="a worksite / a (building) project">un chantier</span> <span class="gloss">a worksite</span></li>
+      <li><span class="fr" data-en="an orphanage">un orphelinat</span> <span class="gloss">an orphanage</span></li>
+      <li><span class="fr" data-en="manual work / DIY">les travaux manuels</span> <span class="gloss">manual work</span></li>
     </ul>
     <h3>Selling it</h3>
     <ul class="phrases vocab">
@@ -518,19 +550,26 @@
       <li><span class="fr" data-en="a discount">un rabais</span> <span class="gloss">a discount</span> <span class="chip qc">QC</span></li>
       <li><span class="fr" data-en="all-inclusive">tout inclus</span> <span class="gloss">all-inclusive</span></li>
       <li><span class="fr" data-en="staying with locals (not a hotel)">chez l'habitant</span> <span class="gloss">staying with locals</span></li>
+      <li><span class="fr" data-en="hospitable / welcoming">hospitalier(ère)</span> <span class="gloss">hospitable</span></li>
       <li><span class="fr" data-en="to recharge / take time for yourself">se ressourcer</span> <span class="gloss">to recharge</span></li>
       <li><span class="fr" data-en="to be hooked / bitten by the (travel) bug">avoir la piqûre (du voyage)</span> <span class="gloss">to be bitten by the bug</span> <span class="chip qc">QC</span></li>
+      <li><span class="fr" data-en="bilingual / trilingual">bilingue / trilingue</span> <span class="gloss">bilingual / trilingual</span></li>
     </ul>
     <h3>Objection material</h3>
     <ul class="phrases vocab">
       <li><span class="fr" data-en="paperwork / formalities (visas, vaccines…)">les formalités</span> <span class="gloss">paperwork</span></li>
+      <li><span class="fr" data-en="the (administrative) steps">les démarches</span> <span class="gloss">the admin steps</span></li>
       <li><span class="fr" data-en="a vaccine">un vaccin</span> <span class="gloss">a vaccine</span></li>
+      <li><span class="fr" data-en="expired (passport, permit…)">expiré(e)</span> <span class="gloss">expired</span></li>
       <li><span class="fr" data-en="a grant / a subsidy">une subvention</span> <span class="gloss">a grant</span></li>
       <li><span class="fr" data-en="supervised / guided">encadré(e)</span> <span class="gloss">supervised</span></li>
+      <li><span class="fr" data-en="a local team on site">une équipe (locale) sur place</span> <span class="gloss">a team on site</span></li>
       <li><span class="fr" data-en="to look after (our) safety">veiller à la sécurité</span> <span class="gloss">to look after safety</span></li>
+      <li><span class="fr" data-en="adjusted / flexible schedules">les horaires aménagés</span> <span class="gloss">adjusted schedules</span></li>
       <li><span class="fr" data-en="to compensate (someone) / make it up to them">dédommager</span> <span class="gloss">to compensate</span></li>
-      <li><span class="fr" data-en="manual work / DIY">les travaux manuels</span> <span class="gloss">manual work</span></li>
       <li><span class="fr" data-en="to do (someone) a favour">rendre service</span> <span class="gloss">to do a favour</span></li>
+      <li><span class="fr" data-en="for the good cause">pour la bonne cause</span> <span class="gloss">for the good cause</span></li>
+      <li><span class="fr" data-en="every work deserves pay (proverb — the friend's favourite objection)">Tout travail mérite salaire.</span> <span class="gloss">proverb: all work deserves pay</span></li>
     </ul>
   </section>
 
@@ -577,6 +616,18 @@
   document.addEventListener("click", function (e) {
     var fr = e.target.closest(".fr");
     if (fr) togglePeek(fr);
+  });
+
+  // Tap-to-show translations (touch devices have no hover). In practice
+  // mode, taps on blurred .fr phrases keep their peek behaviour instead.
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-en]");
+    document.querySelectorAll("[data-en].show-en").forEach(function (el) {
+      if (el !== t) el.classList.remove("show-en");
+    });
+    if (!t) return;
+    if (practiceOn && t.classList.contains("fr")) return;
+    t.classList.toggle("show-en");
   });
   document.addEventListener("keydown", function (e) {
     if ((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("fr")) {

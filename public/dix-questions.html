@@ -1,3 +1,6 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dix questions</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&display=swap">
 <style>
@@ -125,6 +128,8 @@
   button.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
   button.toggled { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
   .toolbar .hint { font-size: .85rem; color: var(--muted); font-style: italic; }
+  /* narrow screens: the wrapped toolbar would permanently eat viewport height */
+  @media (max-width: 640px) { .toolbar { position: static; } }
 
   /* --- sections --- */
   section { margin-top: 44px; }
@@ -160,9 +165,10 @@
   .chip.clar { background: var(--amber-bg); color: var(--amber-ink); }
   .chip.avoid { background: var(--surface-2); color: var(--muted); }
 
-  /* --- hover translations --- */
+  /* --- hover / tap translations --- */
   [data-en] { position: relative; }
-  [data-en]:hover::after {
+  [data-en]:hover::after,
+  [data-en].show-en::after {
     content: attr(data-en);
     position: absolute;
     left: 0;
@@ -185,7 +191,19 @@
     z-index: 30;
   }
   /* practice mode hides French — don't leak it back through the tooltip */
-  body.practice .fr:not(.peek):hover::after { content: none; }
+  body.practice .fr:not(.peek):hover::after,
+  body.practice .fr:not(.peek).show-en::after { content: none; }
+  /* small screens: a floating tooltip overflows — pin it as a bottom sheet */
+  @media (max-width: 640px), (pointer: coarse) {
+    [data-en]:hover::after, [data-en].show-en::after {
+      position: fixed;
+      left: 12px; right: 12px; bottom: 12px; top: auto;
+      width: auto; max-width: none;
+      font-size: .9rem;
+      padding: 10px 14px;
+      z-index: 40;
+    }
+  }
 
   /* practice mode (blurs the phrase bank, never the ads or the answer key) */
   body.practice .fr { filter: blur(7px); background: var(--blur-veil); cursor: pointer; }
@@ -316,7 +334,7 @@
 <div class="wrap">
   <div class="eyebrow">TEFAQ · Expression orale · Section A</div>
   <h1>Dix questions</h1>
-  <p class="lede">Five minutes, a formal phone call, about ten questions. The ad you'll be handed is tiny and vague on purpose — which means the questions can be prepared before you ever see it. Hover any French phrase for its English.</p>
+  <p class="lede">Five minutes, a formal phone call, about ten questions. The ad you'll be handed is tiny and vague on purpose — which means the questions can be prepared before you ever see it. Hover — or tap — any French phrase for its English.</p>
 
   <div class="timeline" aria-label="Structure of the five-minute call">
     <div class="tl-bar">
@@ -520,31 +538,59 @@
       <li><span class="fr" data-en="information (the formal word)">des renseignements</span> <span class="gloss">information (formal)</span></li>
       <li><span class="fr" data-en="the rate / the price">le tarif</span> <span class="gloss">the rate, price</span></li>
       <li><span class="fr" data-en="fees / costs">les frais</span> <span class="gloss">fees, costs</span></li>
+      <li><span class="fr" data-en="the (exact) amount">le montant</span> <span class="gloss">the amount</span></li>
       <li><span class="fr" data-en="free of charge">gratuit(e)</span> <span class="gloss">free of charge</span></li>
       <li><span class="fr" data-en="included">compris / inclus</span> <span class="gloss">included</span></li>
       <li><span class="fr" data-en="provided / supplied">fourni(e)</span> <span class="gloss">provided</span></li>
       <li><span class="fr" data-en="the deadline">la date limite</span> <span class="gloss">the deadline</span></li>
+      <li><span class="fr" data-en="to book / a booking">réserver / une réservation</span> <span class="gloss">to book / a booking</span></li>
     </ul>
-    <h3>Jobs &amp; services</h3>
+    <h3>Jobs &amp; castings</h3>
     <ul class="phrases vocab">
       <li><span class="fr" data-en="pay / remuneration">la rémunération</span> <span class="gloss">pay</span></li>
       <li><span class="fr" data-en="the salary">le salaire</span> <span class="gloss">the salary</span></li>
+      <li><span class="fr" data-en="paid / remunerated">rémunéré(e)</span> <span class="gloss">paid</span></li>
       <li><span class="fr" data-en="the hours / the schedule">les horaires</span> <span class="gloss">the hours</span></li>
       <li><span class="fr" data-en="a job interview">une entrevue</span> <span class="gloss">an interview</span> <span class="chip clar">QC</span></li>
       <li><span class="fr" data-en="to apply (for a job)">poser sa candidature</span> <span class="gloss">to apply</span></li>
+      <li><span class="fr" data-en="required experience">l'expérience requise</span> <span class="gloss">required experience</span></li>
       <li><span class="fr" data-en="a beginner">un(e) débutant(e)</span> <span class="gloss">a beginner</span></li>
-      <li><span class="fr" data-en="an estimate / a quote">une estimation</span> <span class="gloss">an estimate, quote</span></li>
-      <li><span class="fr" data-en="a move (moving house)">un déménagement</span> <span class="gloss">a (house) move</span></li>
+      <li><span class="fr" data-en="an audition">une audition</span> <span class="gloss">an audition</span></li>
+      <li><span class="fr" data-en="an extra (film, TV)">un(e) figurant(e)</span> <span class="gloss">an extra (film)</span></li>
+      <li><span class="fr" data-en="the film shoot">le tournage</span> <span class="gloss">the film shoot</span></li>
     </ul>
-    <h3>Sales, rentals &amp; housing</h3>
+    <h3>Activities &amp; courses</h3>
     <ul class="phrases vocab">
-      <li><span class="fr" data-en="delivery">la livraison</span> <span class="gloss">delivery</span></li>
+      <li><span class="fr" data-en="a course / a placement">un stage</span> <span class="gloss">a course, placement</span></li>
+      <li><span class="fr" data-en="training">une formation</span> <span class="gloss">training</span></li>
+      <li><span class="fr" data-en="to sign up / registration">s'inscrire / l'inscription</span> <span class="gloss">to sign up / registration</span></li>
+      <li><span class="fr" data-en="the level (beginner, advanced…)">le niveau</span> <span class="gloss">the level</span></li>
+      <li><span class="fr" data-en="the equipment / the gear">le matériel</span> <span class="gloss">the equipment, gear</span></li>
+      <li><span class="fr" data-en="an itinerary / a route">un itinéraire</span> <span class="gloss">an itinerary, route</span></li>
+      <li><span class="fr" data-en="a hike">une randonnée</span> <span class="gloss">a hike</span></li>
+      <li><span class="fr" data-en="a guide">un(e) guide</span> <span class="gloss">a guide</span></li>
+    </ul>
+    <h3>Sales &amp; rentals</h3>
+    <ul class="phrases vocab">
+      <li><span class="fr" data-en="secondhand / a bargain to grab">d'occasion / une occasion à saisir</span> <span class="gloss">secondhand / a bargain</span></li>
+      <li><span class="fr" data-en="in good condition">en bon état</span> <span class="gloss">in good condition</span></li>
       <li><span class="fr" data-en="negotiable">négociable</span> <span class="gloss">negotiable</span></li>
+      <li><span class="fr" data-en="delivery">la livraison</span> <span class="gloss">delivery</span></li>
+      <li><span class="fr" data-en="rental / renting">la location</span> <span class="gloss">rental</span></li>
       <li><span class="fr" data-en="insurance">l'assurance</span> <span class="gloss">insurance</span></li>
       <li><span class="fr" data-en="unlimited mileage">le kilométrage illimité</span> <span class="gloss">unlimited mileage</span></li>
+      <li><span class="fr" data-en="the documents to provide">les documents à fournir</span> <span class="gloss">documents to provide</span></li>
+    </ul>
+    <h3>Housing &amp; services</h3>
+    <ul class="phrases vocab">
       <li><span class="fr" data-en="the rent (what you pay monthly)">le loyer</span> <span class="gloss">the rent</span></li>
       <li><span class="fr" data-en="furnished">meublé(e)</span> <span class="gloss">furnished</span></li>
+      <li><span class="fr" data-en="heating">le chauffage</span> <span class="gloss">heating</span></li>
+      <li><span class="fr" data-en="the neighbourhood">le quartier</span> <span class="gloss">the neighbourhood</span></li>
       <li><span class="fr" data-en="a one-bedroom apartment (Québec size code: rooms + ½ for the bathroom)">un 3½</span> <span class="gloss">a one-bedroom apartment</span> <span class="chip clar">QC</span></li>
+      <li><span class="fr" data-en="a move (moving house)">un déménagement</span> <span class="gloss">a (house) move</span></li>
+      <li><span class="fr" data-en="an estimate / a quote">une estimation</span> <span class="gloss">an estimate, quote</span></li>
+      <li><span class="fr" data-en="in the home / at home (services)">à domicile</span> <span class="gloss">in the home</span></li>
       <li><span class="fr" data-en="the weekend">la fin de semaine</span> <span class="gloss">the weekend</span> <span class="chip clar">QC</span></li>
     </ul>
   </section>
@@ -592,6 +638,18 @@
   document.addEventListener("click", function (e) {
     var fr = e.target.closest(".fr");
     if (fr) togglePeek(fr);
+  });
+
+  // Tap-to-show translations (touch devices have no hover). In practice
+  // mode, taps on blurred .fr phrases keep their peek behaviour instead.
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-en]");
+    document.querySelectorAll("[data-en].show-en").forEach(function (el) {
+      if (el !== t) el.classList.remove("show-en");
+    });
+    if (!t) return;
+    if (practiceOn && t.classList.contains("fr")) return;
+    t.classList.toggle("show-en");
   });
   document.addEventListener("keydown", function (e) {
     if ((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("fr")) {
