@@ -1,0 +1,580 @@
+<title>Convaincre un ami</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&display=swap">
+<style>
+  :root {
+    --bg: #F5F6F2;
+    --surface: #FDFDFB;
+    --surface-2: #ECEEE7;
+    --ink: #1B2130;
+    --muted: #5B6373;
+    --accent: #2745AE;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #DDE3F6;
+    --friend-bubble: #E9EAE3;
+    --friend-ink: #2A3040;
+    --qc-ink: #9A6A15;
+    --qc-bg: #F4E8CB;
+    --border: #DCDED4;
+    --shadow: 0 1px 2px rgba(27,33,48,.06), 0 4px 16px rgba(27,33,48,.05);
+    --blur-veil: rgba(91,99,115,.14);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14171F;
+      --surface: #1C2130;
+      --surface-2: #232939;
+      --ink: #E9EBF2;
+      --muted: #99A1B4;
+      --accent: #97ACF4;
+      --accent-ink: #101733;
+      --accent-soft: #2A3550;
+      --friend-bubble: #262C3C;
+      --friend-ink: #DDE1EC;
+      --qc-ink: #E4BE7A;
+      --qc-bg: #33301F;
+      --border: #2C3242;
+      --shadow: 0 1px 2px rgba(0,0,0,.35), 0 4px 18px rgba(0,0,0,.28);
+      --blur-veil: rgba(153,161,180,.13);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14171F;
+    --surface: #1C2130;
+    --surface-2: #232939;
+    --ink: #E9EBF2;
+    --muted: #99A1B4;
+    --accent: #97ACF4;
+    --accent-ink: #101733;
+    --accent-soft: #2A3550;
+    --friend-bubble: #262C3C;
+    --friend-ink: #DDE1EC;
+    --qc-ink: #E4BE7A;
+    --qc-bg: #33301F;
+    --border: #2C3242;
+    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 4px 18px rgba(0,0,0,.28);
+    --blur-veil: rgba(153,161,180,.13);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Newsreader", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.55;
+    margin: 0;
+    padding: 0 20px 96px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+
+  h1, h2, h3, .ui {
+    font-family: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  }
+  h1 { font-size: clamp(2.1rem, 6vw, 3rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.05; margin: .3em 0 .35em; text-wrap: balance; }
+  h2 { font-size: 1.35rem; font-weight: 650; letter-spacing: -.01em; margin: 0 0 .35em; text-wrap: balance; }
+  h3 { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin: 1.4em 0 .5em; }
+
+  .eyebrow {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: .74rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .14em;
+    color: var(--accent);
+    margin-top: 48px;
+  }
+  .lede { font-size: 1.08rem; color: var(--muted); max-width: 58ch; margin: 0 0 28px; }
+
+  /* --- timeline hero --- */
+  .timeline { margin: 8px 0 10px; }
+  .tl-bar { display: flex; gap: 4px; height: 14px; border-radius: 7px; overflow: hidden; }
+  .tl-seg { border-radius: 4px; }
+  .tl-seg.intro { flex: 15; background: var(--accent-soft); }
+  .tl-seg.dev   { flex: 65; background: var(--accent); }
+  .tl-seg.concl { flex: 20; background: var(--accent-soft); }
+  .tl-labels { display: flex; gap: 4px; margin-top: 7px; font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: .72rem; letter-spacing: .04em; color: var(--muted); }
+  .tl-labels span { text-transform: uppercase; }
+  .tl-labels .l-intro { flex: 15; min-width: 88px; }
+  .tl-labels .l-dev   { flex: 65; }
+  .tl-labels .l-concl { flex: 20; text-align: right; min-width: 96px; }
+  .tl-note { font-size: .92rem; color: var(--muted); margin: 14px 0 0; }
+
+  /* --- sticky toolbar --- */
+  .toolbar {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: var(--bg);
+    padding: 12px 0;
+    margin: 26px 0 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .toolbar .spacer { flex: 1; }
+  button {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: .85rem; font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); }
+  button:focus-visible, .fr:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+  button.toggled { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+  .toolbar .hint { font-size: .85rem; color: var(--muted); font-style: italic; }
+
+  /* --- sections --- */
+  section { margin-top: 44px; }
+  .stamp {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  section > p { color: var(--muted); font-size: .98rem; max-width: 62ch; margin: .4em 0 1em; }
+  section > p strong { color: var(--ink); }
+
+  ul.phrases { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  ul.phrases li {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    padding: 9px 12px;
+    border-radius: 10px;
+  }
+  ul.phrases li:nth-child(odd) { background: var(--surface); }
+  .fr {
+    font-style: italic; font-weight: 500; font-size: 1.06rem;
+    border-radius: 6px;
+    transition: filter .18s ease;
+  }
+  .gloss { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: .8rem; color: var(--muted); }
+  .chip {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: .66rem; font-weight: 700; letter-spacing: .08em;
+    padding: 2px 8px; border-radius: 999px;
+  }
+  .chip.qc { background: var(--qc-bg); color: var(--qc-ink); }
+
+  /* practice mode */
+  body.practice .fr { filter: blur(7px); background: var(--blur-veil); cursor: pointer; }
+  body.practice .fr.peek { filter: none; background: transparent; }
+
+  /* --- six questions grid --- */
+  .qgrid { display: grid; grid-template-columns: max-content 1fr; gap: 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .qgrid > div { padding: 10px 14px; border-top: 1px solid var(--border); }
+  .qgrid > div:nth-child(-n+2) { border-top: none; }
+  .qgrid .q { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: .78rem; font-weight: 650; text-transform: uppercase; letter-spacing: .07em; color: var(--accent); background: var(--surface); display: flex; align-items: center; }
+  .qgrid .a { background: var(--surface); }
+  @media (max-width: 480px) { .qgrid { grid-template-columns: 1fr; } .qgrid .q { border-top: 1px solid var(--border); padding-bottom: 2px; } .qgrid > div:nth-child(2) { border-top: none; } }
+
+  /* --- four beats --- */
+  .beats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  @media (max-width: 560px) { .beats { grid-template-columns: 1fr; } }
+  .beat { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .beat .beat-name { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 650; font-size: .95rem; display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+  .beat .beat-num { color: var(--accent); font-size: .78rem; font-weight: 700; }
+  .beat .beat-why { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: .78rem; color: var(--muted); margin-bottom: 8px; }
+  .beat ul.phrases li { padding: 5px 8px; }
+  .beat ul.phrases li:nth-child(odd) { background: var(--surface-2); }
+  .beat .fr { font-size: 1rem; }
+
+  /* --- drill --- */
+  .drill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 22px 22px 18px;
+    box-shadow: var(--shadow);
+  }
+  .drill-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+  .drill-head h2 { margin: 0; }
+  .drill-family {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: .72rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--ink);
+    padding: 3px 10px; border-radius: 999px;
+    visibility: hidden;
+  }
+  .drill-family.show { visibility: visible; }
+  .chat { min-height: 150px; display: flex; flex-direction: column; gap: 12px; padding: 14px 0 6px; }
+  .bubble {
+    max-width: 85%;
+    padding: 11px 15px;
+    border-radius: 18px;
+    font-style: italic; font-weight: 500; font-size: 1.05rem;
+    line-height: 1.45;
+    animation: pop .25s ease;
+  }
+  .bubble.friend { align-self: flex-start; background: var(--friend-bubble); color: var(--friend-ink); border-bottom-left-radius: 5px; }
+  .bubble.you { align-self: flex-end; background: var(--accent); color: var(--accent-ink); border-bottom-right-radius: 5px; }
+  .bubble-tag { display: block; font-family: "Bricolage Grotesque", system-ui, sans-serif; font-style: normal; font-size: .66rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; opacity: .65; margin-bottom: 3px; }
+  .chat .placeholder { align-self: center; color: var(--muted); font-size: .95rem; font-style: italic; padding: 34px 0; }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .bubble { animation: none; } .fr { transition: none; } }
+  .drill-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; border-top: 1px solid var(--border); padding-top: 14px; }
+  .drill-controls .count { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: .8rem; color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+  .beat-reminder { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .beat-reminder span {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: .72rem; font-weight: 600;
+    color: var(--muted);
+    border: 1px dashed var(--border);
+    border-radius: 999px; padding: 3px 10px;
+  }
+  .escape { font-size: .95rem; color: var(--muted); margin-top: 16px; max-width: 62ch; }
+  .escape .fr { color: var(--ink); }
+
+  /* connectors */
+  .cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cloud span {
+    font-style: italic; font-weight: 500; font-size: 1rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; padding: 5px 14px;
+  }
+
+  footer { margin-top: 64px; font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: .78rem; color: var(--muted); border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">TEFAQ · Expression orale · Section B</div>
+  <h1>Convaincre un ami</h1>
+  <p class="lede">You won't know the topic before the exam, but the shape of the ten minutes never changes. This trainer holds the phrases that survive any topic, organized by the move they make.</p>
+
+  <div class="timeline" aria-label="Structure of the ten-minute exchange">
+    <div class="tl-bar">
+      <div class="tl-seg intro"></div>
+      <div class="tl-seg dev"></div>
+      <div class="tl-seg concl"></div>
+    </div>
+    <div class="tl-labels">
+      <span class="l-intro">Intro · 1–2 min</span>
+      <span class="l-dev">Développement · 6–7 min</span>
+      <span class="l-concl">Conclusion · 1–2 min</span>
+    </div>
+  </div>
+  <p class="tl-note">Greet → pivot → present the document → argue against a resistant friend → close with conviction. The friend's objections come from ten predictable families; prepare one response pattern per family and you're ready for anything.</p>
+
+  <div class="toolbar ui">
+    <button id="practiceBtn" aria-pressed="false">Practice mode: hide French</button>
+    <span class="hint" id="practiceHint"></span>
+    <span class="spacer"></span>
+    <button onclick="document.getElementById('drill').scrollIntoView({behavior:'smooth'})">Objection drill ↓</button>
+  </div>
+
+  <section>
+    <div class="stamp">≈ 0:00 – 0:30</div>
+    <h2>1 · Greetings and news</h2>
+    <p>Open warmly and take a genuine interest before pitching anything. Register is scored: this must sound like <em>tu</em>, not <em>vous</em>.</p>
+    <ul class="phrases">
+      <li><span class="fr">Salut ! Comment ça va ?</span></li>
+      <li><span class="fr">Ça fait longtemps ! Quoi de neuf ?</span></li>
+      <li><span class="fr">Ça fait un bail !</span> <span class="gloss">it's been ages</span> <span class="chip qc">QC</span></li>
+      <li><span class="fr">Je suis vraiment content(e) de t'entendre.</span></li>
+      <li><span class="fr">Qu'est-ce que tu deviens ?</span> <span class="gloss">what have you been up to?</span></li>
+    </ul>
+    <h3>Give your own news fast, then move on</h3>
+    <ul class="phrases">
+      <li><span class="fr">Moi, ça va super bien, je suis en pleine forme.</span></li>
+      <li><span class="fr">Ça va pas pire !</span> <span class="gloss">not bad</span> <span class="chip qc">QC</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="stamp">≈ 0:30 – 1:00</div>
+    <h2>2 · The pivot into the document</h2>
+    <p>One rehearsed move. The guide asks for an original transition that links the ad to the friend's life — fill the blank with whatever lands on the table.</p>
+    <ul class="phrases">
+      <li><span class="fr">Au fait, tu sais quoi ? J'ai trouvé quelque chose qui va te plaire.</span></li>
+      <li><span class="fr">Justement, je voulais te parler de quelque chose.</span></li>
+      <li><span class="fr">Tu ne devineras jamais ce que j'ai vu ce matin !</span></li>
+      <li><span class="fr">J'ai pensé à toi tout de suite quand j'ai vu cette annonce.</span></li>
+      <li><span class="fr">Tu te souviens qu'on parlait de… ? Eh bien, écoute ça !</span></li>
+    </ul>
+    <p>The last frame is the strongest: invent a shared memory that fits the topic (<span class="fr">on a toujours dit qu'on voulait voyager / se remettre au sport / apprendre à cuisiner</span>).</p>
+  </section>
+
+  <section>
+    <div class="stamp">≈ 1:00 – 2:00</div>
+    <h2>3 · Presenting the document</h2>
+    <p>Answer six questions in your own words — never read the ad aloud. One frame per question:</p>
+    <div class="qgrid">
+      <div class="q">What?</div><div class="a"><span class="fr">Il s'agit d'un(e)… / C'est une annonce pour…</span></div>
+      <div class="q">When?</div><div class="a"><span class="fr">Ça commence… / Ça dure de … à … / C'est prévu pour…</span></div>
+      <div class="q">Where?</div><div class="a"><span class="fr">Ça se passe à… / C'est tout près de chez nous.</span></div>
+      <div class="q">Who?</div><div class="a"><span class="fr">C'est ouvert à tout le monde. / On peut y aller ensemble.</span></div>
+      <div class="q">How?</div><div class="a"><span class="fr">Il suffit de s'inscrire sur le site. / On n'a qu'à appeler.</span></div>
+      <div class="q">Why?</div><div class="a"><span class="fr">Ce qui est génial, c'est que… / Ça va nous permettre de…</span></div>
+    </div>
+    <p>Sweep the included items in one sentence rather than a read-out list: <span class="fr">Et le meilleur, c'est que tout est compris : le transport, les repas, l'hébergement…</span></p>
+  </section>
+
+  <section>
+    <div class="stamp">Développement</div>
+    <h2>4 · Selling it</h2>
+    <p>Benefit frames that fit any activity:</p>
+    <ul class="phrases">
+      <li><span class="fr">Ça va te permettre de…</span> <span class="gloss">+ infinitive: rencontrer du monde, apprendre quelque chose de nouveau…</span></li>
+      <li><span class="fr">C'est l'occasion parfaite pour…</span></li>
+      <li><span class="fr">C'est une occasion en or !</span> <span class="gloss">a golden opportunity</span></li>
+      <li><span class="fr">Ça te ferait tellement de bien.</span></li>
+      <li><span class="fr">En plus, ça ne coûte presque rien.</span></li>
+      <li><span class="fr">Franchement, on n'a rien à perdre.</span></li>
+    </ul>
+    <h3>Personalize at least one argument</h3>
+    <ul class="phrases">
+      <li><span class="fr">Toi qui adores…, tu vas être servi(e) !</span> <span class="gloss">you of all people, who love…</span></li>
+      <li><span class="fr">Tu m'as dit que tu voulais… : c'est exactement ça !</span></li>
+      <li><span class="fr">Comme tu cherches un nouveau travail, ce serait parfait pour ton CV.</span></li>
+    </ul>
+    <h3>Show enthusiasm out loud — conviction is scored</h3>
+    <ul class="phrases">
+      <li><span class="fr">C'est génial, non ?</span></li>
+      <li><span class="fr">J'ai trop hâte !</span> <span class="gloss">I can't wait</span> <span class="chip qc">QC</span></li>
+      <li><span class="fr">Ça va être le fun !</span> <span class="chip qc">QC</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="stamp">Développement</div>
+    <h2>5 · Handing over the floor</h2>
+    <p>Invite a reaction — you need the friend to start objecting so the debate can happen.</p>
+    <ul class="phrases">
+      <li><span class="fr">Alors, qu'est-ce que t'en penses ?</span></li>
+      <li><span class="fr">Ça te dit ?</span> <span class="gloss">are you up for it?</span></li>
+      <li><span class="fr">Tu viens avec moi ?</span></li>
+      <li><span class="fr">Ça te tente ?</span> <span class="chip qc">QC</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="stamp">The heart of the ten minutes</div>
+    <h2>6 · The objection cycle</h2>
+    <p>Every objection gets the same four-beat treatment. One or two automatic phrases per beat and you can survive objections you've never rehearsed.</p>
+    <div class="beats">
+      <div class="beat">
+        <div class="beat-name"><span class="beat-num">1</span> Acknowledge</div>
+        <div class="beat-why">never bulldoze the friend</div>
+        <ul class="phrases">
+          <li><span class="fr">Je comprends, mais…</span></li>
+          <li><span class="fr">C'est vrai, pourtant…</span></li>
+          <li><span class="fr">Tu as raison sur ce point, par contre…</span></li>
+          <li><span class="fr">Je vois ce que tu veux dire.</span></li>
+        </ul>
+      </div>
+      <div class="beat">
+        <div class="beat-name"><span class="beat-num">2</span> Counter</div>
+        <div class="beat-why">when the objection is simply wrong</div>
+        <ul class="phrases">
+          <li><span class="fr">Justement !</span> <span class="gloss">that's exactly why</span></li>
+          <li><span class="fr">Au contraire !</span></li>
+          <li><span class="fr">Détrompe-toi !</span> <span class="gloss">you've got it wrong</span></li>
+          <li><span class="fr">Ne dis pas ça !</span></li>
+        </ul>
+      </div>
+      <div class="beat">
+        <div class="beat-name"><span class="beat-num">3</span> Reassure &amp; solve</div>
+        <div class="beat-why">attribute facts to the ad when unsure</div>
+        <ul class="phrases">
+          <li><span class="fr">Ne t'inquiète pas. / Ne t'en fais pas.</span></li>
+          <li><span class="fr">Fais-moi confiance.</span></li>
+          <li><span class="fr">D'après l'annonce, … est inclus.</span></li>
+          <li><span class="fr">Si tu veux, je peux appeler pour vérifier.</span></li>
+          <li><span class="fr">On peut commencer par… / On n'est pas obligé de…</span></li>
+        </ul>
+      </div>
+      <div class="beat">
+        <div class="beat-name"><span class="beat-num">4</span> Check</div>
+        <div class="beat-why">before moving on</div>
+        <ul class="phrases">
+          <li><span class="fr">Alors, ça te rassure ?</span></li>
+          <li><span class="fr">C'est mieux comme ça, non ?</span></li>
+          <li><span class="fr">Tu vois, il n'y a aucun problème !</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="drill">
+    <div class="stamp">Practice</div>
+    <div class="drill">
+      <div class="drill-head">
+        <h2>The objection simulator</h2>
+        <span class="drill-family" id="drillFamily"></span>
+      </div>
+      <p>Deal an objection, answer it out loud through the four beats, then compare with a model response. Ten families, shuffled — one full pass covers every kind of resistance the examiner can play.</p>
+      <div class="chat" id="chat" aria-live="polite">
+        <div class="placeholder">Your friend is thinking of an excuse…</div>
+      </div>
+      <div class="drill-controls">
+        <button class="primary" id="dealBtn">Deal an objection</button>
+        <button id="revealBtn" hidden>Show a model response</button>
+        <span class="count" id="deckCount"></span>
+      </div>
+      <div class="beat-reminder ui" aria-hidden="true">
+        <span>1 · acknowledge</span><span>2 · counter</span><span>3 · reassure &amp; solve</span><span>4 · check</span>
+      </div>
+      <p class="escape">The escape hatch when nothing fits: <span class="fr">Écoute, essaie une seule fois avec moi. Si tu n'aimes pas ça, je ne t'en parle plus, promis !</span> A trial offer answers almost any objection.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="stamp">Développement</div>
+    <h2>7 · Keeping the flow</h2>
+    <p>Ideas must chain with logical connectors, and informal fillers buy planning time without sounding hesitant.</p>
+    <h3>Connectors for informal speech</h3>
+    <div class="cloud">
+      <span>d'abord</span><span>ensuite</span><span>en plus</span><span>d'ailleurs</span><span>par contre</span><span>de toute façon</span><span>du coup</span><span>bref</span><span>franchement</span>
+    </div>
+    <h3>Fillers that sound natural while you think</h3>
+    <ul class="phrases">
+      <li><span class="fr">Écoute…</span></li>
+      <li><span class="fr">Attends, laisse-moi t'expliquer.</span></li>
+      <li><span class="fr">Tu sais,…</span></li>
+      <li><span class="fr">En fait,…</span></li>
+      <li><span class="fr">Bon, alors…</span></li>
+      <li><span class="fr">Comment dire…</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="stamp">≈ 8:00 – 10:00</div>
+    <h2>8 · Closing</h2>
+    <p>Reaffirm your conviction, land a concrete next step, and say goodbye warmly. Never end on the friend's last objection.</p>
+    <ul class="phrases">
+      <li><span class="fr">Alors, c'est décidé ? On s'inscrit ensemble ?</span></li>
+      <li><span class="fr">Je t'envoie le lien ce soir et je t'appelle demain pour confirmer.</span></li>
+      <li><span class="fr">Réfléchis-y, mais je suis sûr(e) que tu vas adorer.</span></li>
+      <li><span class="fr">Tu ne le regretteras pas !</span></li>
+      <li><span class="fr">Je suis vraiment content(e) qu'on fasse ça ensemble. À demain !</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="stamp">Stance</div>
+    <h2>9 · The expert stance</h2>
+    <p>For any activity, <strong>you have already done it</strong>, or someone close to you has. Decide this before you speak and hold it for ten minutes — it gives every reassurance a source.</p>
+    <ul class="phrases">
+      <li><span class="fr">Je l'ai déjà fait, c'était incroyable.</span></li>
+      <li><span class="fr">Ma cousine a participé l'année dernière, elle m'en parle encore !</span></li>
+      <li><span class="fr">Je connais bien l'organisatrice, elle est très sérieuse.</span></li>
+    </ul>
+  </section>
+
+  <footer>Built from the structure of the official TEFAQ guide, pages 38–41. QC marks Québec-flavoured informal register. Frames to recombine, never a script to memorize.</footer>
+</div>
+
+<script>
+(function () {
+  // French typography: non-breaking space before tall punctuation in French text
+  var NBSP = " ";
+  function fixTypography(root) {
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    var node;
+    while ((node = walker.nextNode())) {
+      node.nodeValue = node.nodeValue.replace(/ ([?!:;»])/g, NBSP + "$1").replace(/'/g, "’");
+    }
+  }
+  document.querySelectorAll(".fr").forEach(fixTypography);
+
+  // Practice mode: blur French, tap to peek
+  var practiceBtn = document.getElementById("practiceBtn");
+  var practiceHint = document.getElementById("practiceHint");
+  var practiceOn = false;
+  try { practiceOn = localStorage.getItem("practice") === "1"; } catch (e) {}
+
+  function applyPractice() {
+    document.body.classList.toggle("practice", practiceOn);
+    practiceBtn.classList.toggle("toggled", practiceOn);
+    practiceBtn.setAttribute("aria-pressed", String(practiceOn));
+    practiceBtn.textContent = practiceOn ? "Practice mode: on" : "Practice mode: hide French";
+    practiceHint.textContent = practiceOn ? "Tap a blurred phrase to check yourself." : "";
+    document.querySelectorAll(".fr").forEach(function (el) {
+      el.classList.remove("peek");
+      if (practiceOn) { el.setAttribute("tabindex", "0"); el.setAttribute("role", "button"); }
+      else { el.removeAttribute("tabindex"); el.removeAttribute("role"); }
+    });
+  }
+  practiceBtn.addEventListener("click", function () {
+    practiceOn = !practiceOn;
+    try { localStorage.setItem("practice", practiceOn ? "1" : "0"); } catch (e) {}
+    applyPractice();
+  });
+  function togglePeek(el) { if (practiceOn) el.classList.toggle("peek"); }
+  document.addEventListener("click", function (e) {
+    var fr = e.target.closest(".fr");
+    if (fr) togglePeek(fr);
+  });
+  document.addEventListener("keydown", function (e) {
+    if ((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("fr")) {
+      e.preventDefault();
+      togglePeek(e.target);
+    }
+  });
+  applyPractice();
+
+  // Objection simulator
+  var FAMILIES = [
+    { family: "Money", complaint: "C'est trop cher, je n'ai pas les moyens en ce moment.", solution: "Je comprends, mais regarde tout ce qui est compris ! Il y a des rabais pour les inscriptions en groupe, et on peut sûrement payer en plusieurs fois — je vais vérifier. Alors, ça te rassure ?" },
+    { family: "Time", complaint: "Je n'ai pas le temps, je travaille beaucoup ces temps-ci.", solution: "Justement, c'est flexible : on peut choisir la durée et les horaires. Même les fins de semaine, c'est possible. C'est mieux comme ça, non ?" },
+    { family: "Skill", complaint: "Je ne sais pas faire ça, je n'ai aucune expérience.", solution: "Ne dis pas ça ! Les débutants sont acceptés et il y a une formation au début. Et je serai là pour t'aider. Tu vois, il n'y a aucun problème !" },
+    { family: "Fitness", complaint: "Je ne suis pas en forme, tu le sais bien.", solution: "Ne t'inquiète pas, il y a des activités pour tous les niveaux, on ira à notre rythme. Alors, ça te rassure ?" },
+    { family: "Safety", complaint: "C'est dangereux, tu n'écoutes pas les nouvelles ?", solution: "Au contraire ! Il y a une équipe sur place et on est encadrés du début à la fin. Fais-moi confiance. C'est mieux comme ça, non ?" },
+    { family: "Comfort", complaint: "Ça ne sera pas confortable du tout…", solution: "C'est vrai, ce n'est pas un hôtel cinq étoiles, pourtant c'est correct — et c'est ça qui rend l'expérience authentique ! Tu vois ?" },
+    { family: "Distance", complaint: "C'est trop loin, et c'est compliqué d'y aller.", solution: "Détrompe-toi ! Le transport est prévu, on n'a rien à organiser. Je m'occupe de tout ! Alors, qu'est-ce que t'en penses ?" },
+    { family: "Company", complaint: "Je ne connaîtrai personne là-bas.", solution: "Tu me connais, moi ! Et c'est en petits groupes, tu vas te faire des amis facilement. Ça te rassure ?" },
+    { family: "Language", complaint: "J'ai peur de ne pas pouvoir communiquer, je ne parle pas la langue.", solution: "Justement, il y a des cours au début, et je t'aiderai à traduire. Tu apprends vite ! Il n'y a aucun problème." },
+    { family: "Interest", complaint: "Honnêtement, ça ne m'intéresse pas vraiment.", solution: "Attends ! Toi qui aimes les nouvelles expériences, tu vas adorer. Essaie une seule fois avec moi — si tu n'aimes pas ça, je ne t'en parle plus, promis !" }
+  ];
+
+  var deck = [];
+  var dealt = 0;
+  var current = null;
+  var chat = document.getElementById("chat");
+  var dealBtn = document.getElementById("dealBtn");
+  var revealBtn = document.getElementById("revealBtn");
+  var familyEl = document.getElementById("drillFamily");
+  var countEl = document.getElementById("deckCount");
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function bubble(kind, tag, text) {
+    var b = document.createElement("div");
+    b.className = "bubble " + kind;
+    var t = document.createElement("span");
+    t.className = "bubble-tag";
+    t.textContent = tag;
+    b.appendChild(t);
+    b.appendChild(document.createTextNode(text));
+    fixTypography(b);
+    return b;
+  }
+
+  function deal() {
+    if (deck.length === 0) { deck = shuffle(FAMILIES.slice()); dealt = 0; }
+    current = deck.pop();
+    dealt++;
+    chat.innerHTML = "";
+    chat.appendChild(bubble("friend", "Ton ami(e)", current.complaint));
+    familyEl.textContent = current.family;
+    familyEl.classList.add("show");
+    revealBtn.hidden = false;
+    revealBtn.disabled = false;
+    dealBtn.textContent = "Next objection";
+    countEl.textContent = dealt + " / " + FAMILIES.length + " this pass";
+  }
+
+  function reveal() {
+    if (!current) return;
+    chat.appendChild(bubble("you", "Toi", current.solution));
+    revealBtn.disabled = true;
+  }
+
+  dealBtn.addEventListener("click", deal);
+  revealBtn.addEventListener("click", reveal);
+})();
+</script>
