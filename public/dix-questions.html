@@ -294,6 +294,9 @@
   .drill-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; border-top: 1px solid var(--border); padding-top: 14px; }
   .drill-controls .count { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: .8rem; color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
 
+  /* --- vocab word bank --- */
+  ul.phrases.vocab { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 2px 16px; }
+
   /* --- the one-hour plan --- */
   .plan {
     background: var(--surface);
@@ -505,6 +508,45 @@
         <span class="count" id="deckCount"></span>
       </div>
     </div>
+  </section>
+
+  <section>
+    <div class="stamp">Word bank</div>
+    <h2>7 · Vocab the ads keep using</h2>
+    <p>The words real exam ads and answers are built from. In practice mode they blur like everything else, so this list doubles as a recall drill.</p>
+    <h3>In any ad</h3>
+    <ul class="phrases vocab">
+      <li><span class="fr" data-en="an ad / a listing">une annonce</span> <span class="gloss">an ad</span></li>
+      <li><span class="fr" data-en="information (the formal word)">des renseignements</span> <span class="gloss">information (formal)</span></li>
+      <li><span class="fr" data-en="the rate / the price">le tarif</span> <span class="gloss">the rate, price</span></li>
+      <li><span class="fr" data-en="fees / costs">les frais</span> <span class="gloss">fees, costs</span></li>
+      <li><span class="fr" data-en="free of charge">gratuit(e)</span> <span class="gloss">free of charge</span></li>
+      <li><span class="fr" data-en="included">compris / inclus</span> <span class="gloss">included</span></li>
+      <li><span class="fr" data-en="provided / supplied">fourni(e)</span> <span class="gloss">provided</span></li>
+      <li><span class="fr" data-en="the deadline">la date limite</span> <span class="gloss">the deadline</span></li>
+    </ul>
+    <h3>Jobs &amp; services</h3>
+    <ul class="phrases vocab">
+      <li><span class="fr" data-en="pay / remuneration">la rémunération</span> <span class="gloss">pay</span></li>
+      <li><span class="fr" data-en="the salary">le salaire</span> <span class="gloss">the salary</span></li>
+      <li><span class="fr" data-en="the hours / the schedule">les horaires</span> <span class="gloss">the hours</span></li>
+      <li><span class="fr" data-en="a job interview">une entrevue</span> <span class="gloss">an interview</span> <span class="chip clar">QC</span></li>
+      <li><span class="fr" data-en="to apply (for a job)">poser sa candidature</span> <span class="gloss">to apply</span></li>
+      <li><span class="fr" data-en="a beginner">un(e) débutant(e)</span> <span class="gloss">a beginner</span></li>
+      <li><span class="fr" data-en="an estimate / a quote">une estimation</span> <span class="gloss">an estimate, quote</span></li>
+      <li><span class="fr" data-en="a move (moving house)">un déménagement</span> <span class="gloss">a (house) move</span></li>
+    </ul>
+    <h3>Sales, rentals &amp; housing</h3>
+    <ul class="phrases vocab">
+      <li><span class="fr" data-en="delivery">la livraison</span> <span class="gloss">delivery</span></li>
+      <li><span class="fr" data-en="negotiable">négociable</span> <span class="gloss">negotiable</span></li>
+      <li><span class="fr" data-en="insurance">l'assurance</span> <span class="gloss">insurance</span></li>
+      <li><span class="fr" data-en="unlimited mileage">le kilométrage illimité</span> <span class="gloss">unlimited mileage</span></li>
+      <li><span class="fr" data-en="the rent (what you pay monthly)">le loyer</span> <span class="gloss">the rent</span></li>
+      <li><span class="fr" data-en="furnished">meublé(e)</span> <span class="gloss">furnished</span></li>
+      <li><span class="fr" data-en="a one-bedroom apartment (Québec size code: rooms + ½ for the bathroom)">un 3½</span> <span class="gloss">a one-bedroom apartment</span> <span class="chip clar">QC</span></li>
+      <li><span class="fr" data-en="the weekend">la fin de semaine</span> <span class="gloss">the weekend</span> <span class="chip clar">QC</span></li>
+    </ul>
   </section>
 
   <footer>Built from the official TEF oral expression sample booklet (Le français des affaires, CCI Paris Île-de-France) and TEFAQ guide pages 33–37. Frames to recombine, never a script to memorize — except the opening and closing, which you should absolutely memorize.</footer>
