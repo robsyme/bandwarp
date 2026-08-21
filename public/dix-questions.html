@@ -1,0 +1,805 @@
+<title>Dix questions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&display=swap">
+<style>
+  :root {
+    --bg: #F4F6F4;
+    --surface: #FCFDFC;
+    --surface-2: #EAEEEA;
+    --ink: #1B2420;
+    --muted: #5B6863;
+    --accent: #17685B;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #D7E7E1;
+    --ad-paper: #FBF8F0;
+    --ad-ink: #2A2A22;
+    --ad-border: #C9C2AC;
+    --amber-ink: #9A6A15;
+    --amber-bg: #F4E8CB;
+    --border: #D9DED9;
+    --shadow: 0 1px 2px rgba(27,36,32,.06), 0 4px 16px rgba(27,36,32,.05);
+    --blur-veil: rgba(91,104,99,.14);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #131816;
+      --surface: #1B211E;
+      --surface-2: #222A26;
+      --ink: #E7EDEA;
+      --muted: #97A49E;
+      --accent: #6FC7B4;
+      --accent-ink: #0B211C;
+      --accent-soft: #24423B;
+      --ad-paper: #23211A;
+      --ad-ink: #E8E2D0;
+      --ad-border: #4A453A;
+      --amber-ink: #E4BE7A;
+      --amber-bg: #332F1F;
+      --border: #2A322E;
+      --shadow: 0 1px 2px rgba(0,0,0,.35), 0 4px 18px rgba(0,0,0,.28);
+      --blur-veil: rgba(151,164,158,.13);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #131816;
+    --surface: #1B211E;
+    --surface-2: #222A26;
+    --ink: #E7EDEA;
+    --muted: #97A49E;
+    --accent: #6FC7B4;
+    --accent-ink: #0B211C;
+    --accent-soft: #24423B;
+    --ad-paper: #23211A;
+    --ad-ink: #E8E2D0;
+    --ad-border: #4A453A;
+    --amber-ink: #E4BE7A;
+    --amber-bg: #332F1F;
+    --border: #2A322E;
+    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 4px 18px rgba(0,0,0,.28);
+    --blur-veil: rgba(151,164,158,.13);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Newsreader", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.55;
+    margin: 0;
+    padding: 0 20px 96px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+
+  h1, h2, h3, .ui {
+    font-family: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  }
+  h1 { font-size: clamp(2.1rem, 6vw, 3rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.05; margin: .3em 0 .35em; text-wrap: balance; }
+  h2 { font-size: 1.35rem; font-weight: 650; letter-spacing: -.01em; margin: 0 0 .35em; text-wrap: balance; }
+  h3 { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin: 1.4em 0 .5em; }
+
+  .eyebrow {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: .74rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .14em;
+    color: var(--accent);
+    margin-top: 48px;
+  }
+  .lede { font-size: 1.08rem; color: var(--muted); max-width: 58ch; margin: 0 0 28px; }
+
+  /* --- timeline hero --- */
+  .timeline { margin: 8px 0 10px; }
+  .tl-bar { display: flex; gap: 4px; height: 14px; border-radius: 7px; overflow: hidden; }
+  .tl-seg { border-radius: 4px; }
+  .tl-seg.open  { flex: 7;  background: var(--accent-soft); }
+  .tl-seg.qs    { flex: 86; background: var(--accent); }
+  .tl-seg.close { flex: 7;  background: var(--accent-soft); }
+  .tl-labels { display: flex; gap: 4px; margin-top: 7px; font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: .72rem; letter-spacing: .04em; color: var(--muted); }
+  .tl-labels span { text-transform: uppercase; }
+  .tl-labels .l-open  { flex: 7; min-width: 110px; }
+  .tl-labels .l-qs    { flex: 86; text-align: center; }
+  .tl-labels .l-close { flex: 7; text-align: right; min-width: 96px; }
+  .tl-note { font-size: .92rem; color: var(--muted); margin: 14px 0 0; }
+
+  /* --- sticky toolbar --- */
+  .toolbar {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: var(--bg);
+    padding: 12px 0;
+    margin: 26px 0 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .toolbar .spacer { flex: 1; }
+  button {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: .85rem; font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); }
+  button:focus-visible, .fr:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+  button.toggled { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+  .toolbar .hint { font-size: .85rem; color: var(--muted); font-style: italic; }
+
+  /* --- sections --- */
+  section { margin-top: 44px; }
+  .stamp {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  section > p { color: var(--muted); font-size: .98rem; max-width: 62ch; margin: .4em 0 1em; }
+  section > p strong { color: var(--ink); }
+
+  ul.phrases { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  ul.phrases li {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    padding: 9px 12px;
+    border-radius: 10px;
+  }
+  ul.phrases li:nth-child(odd) { background: var(--surface); }
+  .fr, .frx {
+    font-style: italic; font-weight: 500; font-size: 1.06rem;
+    border-radius: 6px;
+    transition: filter .18s ease;
+  }
+  .gloss { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: .8rem; color: var(--muted); }
+  .chip {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: .66rem; font-weight: 700; letter-spacing: .08em;
+    padding: 2px 8px; border-radius: 999px;
+    white-space: nowrap;
+  }
+  .chip.cat { background: var(--accent-soft); color: var(--ink); }
+  .chip.clar { background: var(--amber-bg); color: var(--amber-ink); }
+  .chip.avoid { background: var(--surface-2); color: var(--muted); }
+
+  /* --- hover translations --- */
+  [data-en] { position: relative; }
+  [data-en]:hover::after {
+    content: attr(data-en);
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 6px);
+    width: max-content;
+    max-width: min(46ch, 78vw);
+    background: var(--ink);
+    color: var(--bg);
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: .78rem;
+    letter-spacing: 0;
+    text-transform: none;
+    line-height: 1.4;
+    padding: 6px 10px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    pointer-events: none;
+    z-index: 30;
+  }
+  /* practice mode hides French — don't leak it back through the tooltip */
+  body.practice .fr:not(.peek):hover::after { content: none; }
+
+  /* practice mode (blurs the phrase bank, never the ads or the answer key) */
+  body.practice .fr { filter: blur(7px); background: var(--blur-veil); cursor: pointer; }
+  body.practice .fr.peek { filter: none; background: transparent; }
+
+  /* --- the question map --- */
+  .qmap { display: grid; grid-template-columns: max-content 1fr; border: 1px solid var(--border); border-radius: 12px; }
+  .qmap > div { padding: 10px 14px; border-top: 1px solid var(--border); background: var(--surface); }
+  .qmap > div:nth-child(-n+2) { border-top: none; }
+  .qmap > div:first-child { border-top-left-radius: 12px; }
+  .qmap > div:nth-child(2) { border-top-right-radius: 12px; }
+  .qmap > div:nth-last-child(2) { border-bottom-left-radius: 12px; }
+  .qmap > div:last-child { border-bottom-right-radius: 12px; }
+  .qmap .k { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: .76rem; font-weight: 650; text-transform: uppercase; letter-spacing: .07em; color: var(--accent); display: flex; align-items: first baseline; gap: 8px; padding-top: 14px; }
+  .qmap .k .n { color: var(--muted); font-weight: 700; font-size: .72rem; }
+  .qmap .v .fr { display: block; }
+  .qmap .v .alt { display: block; margin-top: 3px; }
+  .qmap .v .alt .fr { font-size: .95rem; color: var(--muted); }
+  @media (max-width: 520px) { .qmap { grid-template-columns: 1fr; } .qmap .k { border-top: 1px solid var(--border); padding-bottom: 0; } .qmap > div:nth-child(2) { border-top: none; } }
+
+  /* --- vague-teaser table --- */
+  .teasers { display: grid; grid-template-columns: 1fr 1.4fr; border: 1px solid var(--border); border-radius: 12px; }
+  .teasers > div { padding: 10px 14px; border-top: 1px solid var(--border); background: var(--surface); }
+  .teasers > div:nth-child(-n+2) { border-top: none; }
+  .teasers > div:first-child { border-top-left-radius: 12px; }
+  .teasers > div:nth-child(2) { border-top-right-radius: 12px; }
+  .teasers > div:nth-last-child(2) { border-bottom-left-radius: 12px; }
+  .teasers > div:last-child { border-bottom-right-radius: 12px; }
+  .teasers .t .frx { font-size: .98rem; }
+  .teasers .t { display: flex; align-items: first baseline; }
+  .teasers .hdr { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: .72rem; font-weight: 650; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); background: var(--surface-2); }
+  mark.vague { background: transparent; color: inherit; border-bottom: 2px dotted var(--amber-ink); }
+  @media (max-width: 520px) { .teasers { grid-template-columns: 1fr; } .teasers .hdr { display: none; } .teasers .t { border-top: 1px solid var(--border); } .teasers .t:first-child { border-top: none; } .teasers > div.a2 { border-top: none; padding-top: 0; } }
+
+  /* --- forms table rows --- */
+  ul.forms { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  ul.forms li { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 9px 12px; border-radius: 10px; }
+  ul.forms li:nth-child(odd) { background: var(--surface); }
+
+  /* --- drill / ad simulator --- */
+  .drill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 22px 22px 18px;
+    box-shadow: var(--shadow);
+  }
+  .drill-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+  .drill-head h2 { margin: 0; }
+  .drill-family {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: .72rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--ink);
+    padding: 3px 10px; border-radius: 999px;
+    visibility: hidden;
+  }
+  .drill-family.show { visibility: visible; }
+  .stage { min-height: 170px; padding: 14px 0 6px; display: flex; flex-direction: column; gap: 16px; }
+  .stage .placeholder { align-self: center; color: var(--muted); font-size: .95rem; font-style: italic; padding: 44px 0; }
+
+  .ad-card {
+    align-self: center;
+    width: min(420px, 100%);
+    background: var(--ad-paper);
+    color: var(--ad-ink);
+    border: 1px solid var(--ad-border);
+    outline: 3px double var(--ad-border);
+    outline-offset: -7px;
+    padding: 22px 24px 16px;
+    animation: pop .25s ease;
+  }
+  .ad-card .ad-head {
+    font-weight: 700; font-size: 1.25rem; line-height: 1.2;
+    text-align: center; margin-bottom: 10px;
+    font-style: normal;
+    text-wrap: balance;
+  }
+  .ad-card .ad-line { display: block; font-size: 1rem; font-style: normal; margin: 4px 0; }
+  .ad-card .ad-contact {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: .82rem; font-weight: 600; letter-spacing: .04em;
+    text-align: center; margin-top: 12px; padding-top: 10px;
+    border-top: 1px solid var(--ad-border);
+  }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .ad-card, .modelqs { animation: none; } .fr, .frx { transition: none; } }
+
+  .modelqs { animation: pop .25s ease; }
+  .modelqs ol { list-style: none; counter-reset: q; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .modelqs ol li {
+    counter-increment: q;
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    padding: 8px 12px; border-radius: 10px;
+  }
+  .modelqs ol li:nth-child(odd) { background: var(--surface-2); }
+  .modelqs ol li::before {
+    content: counter(q);
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-size: .72rem; font-weight: 700; color: var(--muted);
+    min-width: 1.2em; text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .modelqs .frx { font-size: 1.02rem; }
+  .modelqs .note { font-size: .9rem; color: var(--muted); font-style: italic; margin: 10px 0 0; }
+
+  .drill-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; border-top: 1px solid var(--border); padding-top: 14px; }
+  .drill-controls .count { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: .8rem; color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+
+  /* --- the one-hour plan --- */
+  .plan {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 14px;
+    padding: 16px 20px;
+    box-shadow: var(--shadow);
+  }
+  .plan ol { margin: 8px 0 4px; padding-left: 1.2em; }
+  .plan li { margin: 7px 0; }
+  .plan li .mins { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: .74rem; font-weight: 700; color: var(--accent); letter-spacing: .05em; text-transform: uppercase; margin-right: 6px; }
+
+  footer { margin-top: 64px; font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: .78rem; color: var(--muted); border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">TEFAQ · Expression orale · Section A</div>
+  <h1>Dix questions</h1>
+  <p class="lede">Five minutes, a formal phone call, about ten questions. The ad you'll be handed is tiny and vague on purpose — which means the questions can be prepared before you ever see it. Hover any French phrase for its English.</p>
+
+  <div class="timeline" aria-label="Structure of the five-minute call">
+    <div class="tl-bar">
+      <div class="tl-seg open"></div>
+      <div class="tl-seg qs"></div>
+      <div class="tl-seg close"></div>
+    </div>
+    <div class="tl-labels">
+      <span class="l-open">Ouverture · 20 s</span>
+      <span class="l-qs">Une dizaine de questions · ≈ 4 min</span>
+      <span class="l-close">Clôture · 15 s</span>
+    </div>
+  </div>
+  <p class="tl-note">Real exam ads run 15–30 words: a caregiver job with "attractive pay, variable hours", furniture for sale at "very interesting prices", hikes for "all levels". Almost everything you'd want to know is missing — so one fixed map of question categories covers any topic, and every vague teaser is bait for a clarifying question, which the rubric scores explicitly.</p>
+
+  <div class="toolbar ui">
+    <button id="practiceBtn" aria-pressed="false">Practice mode: hide French</button>
+    <span class="hint" id="practiceHint"></span>
+    <span class="spacer"></span>
+    <button onclick="document.getElementById('drill').scrollIntoView({behavior:'smooth'})">Ad simulator ↓</button>
+  </div>
+
+  <section>
+    <div class="stamp">Short on time?</div>
+    <div class="plan">
+      <h2>The one-hour plan</h2>
+      <p>Where the marks are, in order of return on effort:</p>
+      <ol>
+        <li><span class="mins">15 min</span>The opening and closing, word for word. They're the only part of the exam you can reuse verbatim, they frame the whole call, and they're graded register.</li>
+        <li><span class="mins">25 min</span>The ten-category question map below — one polished question per category. It covers any ad the examiner can hand you.</li>
+        <li><span class="mins">10 min</span>The clarifier reflex: spot the vague teaser, make it precise. "Faire préciser ou clarifier" is a named assessment criterion.</li>
+        <li><span class="mins">10 min</span>One timed pass of the ad simulator, out loud, standing up.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <div class="stamp">≈ 0:00 – 0:20 · verbatim</div>
+    <h2>1 · The opening</h2>
+    <p>Twenty seconds, memorized whole. You're calling a stranger about their ad — <em>vous</em> throughout.</p>
+    <ul class="phrases">
+      <li><span class="fr" data-en="Hello Madam / Sir.">Bonjour Madame / Monsieur.</span></li>
+      <li><span class="fr" data-en="I'm calling about your ad for…">Je vous appelle au sujet de votre annonce pour…</span></li>
+      <li><span class="fr" data-en="I'm very interested.">Je suis très intéressé(e).</span></li>
+      <li><span class="fr" data-en="Would you have a few minutes to answer my questions?">Est-ce que vous auriez quelques minutes pour répondre à mes questions ?</span></li>
+    </ul>
+    <p>Then straight into question one. The intro is scaffolding, not what's scored — don't spend a minute on it.</p>
+  </section>
+
+  <section>
+    <div class="stamp">The core asset</div>
+    <h2>2 · The universal question map</h2>
+    <p>Ten categories in a logical order — order is scored. Availability always opens, next step always closes; the middle bends to the ad. One polished question per category and you have ten questions for any topic before the exam even starts.</p>
+    <div class="qmap">
+      <div class="k"><span class="n">1</span>Availability</div>
+      <div class="v">
+        <span class="fr" data-en="Is your ad still current?">Est-ce que votre annonce est toujours d'actualité ?</span>
+        <span class="alt"><span class="fr" data-en="Are you still looking for someone?">Est-ce que vous cherchez toujours quelqu'un ?</span></span>
+      </div>
+      <div class="k"><span class="n">2</span>What, exactly</div>
+      <div class="v">
+        <span class="fr" data-en="What is it exactly? / What does the work involve exactly?">De quoi s'agit-il exactement ? / En quoi consiste le travail exactement ?</span>
+        <span class="alt"><span class="fr" data-en="Could you tell me more about…?">Pourriez-vous m'en dire plus sur… ?</span></span>
+      </div>
+      <div class="k"><span class="n">3</span>When</div>
+      <div class="v">
+        <span class="fr" data-en="When does it start? / What are the exact dates?">Quand est-ce que ça commence ? / Quelles sont les dates exactes ?</span>
+        <span class="alt"><span class="fr" data-en="What are the hours, concretely?">Quels sont les horaires, concrètement ?</span></span>
+      </div>
+      <div class="k"><span class="n">4</span>How long</div>
+      <div class="v">
+        <span class="fr" data-en="How long does it last?">Combien de temps ça dure ?</span>
+        <span class="alt"><span class="fr" data-en="How many hours per week?">Combien d'heures par semaine ?</span></span>
+      </div>
+      <div class="k"><span class="n">5</span>Where</div>
+      <div class="v">
+        <span class="fr" data-en="Where does it take place? / At what address?">Où est-ce que ça se passe ? / À quelle adresse ?</span>
+        <span class="alt"><span class="fr" data-en="Is it reachable by public transit?">Est-ce que c'est accessible en transport en commun ?</span></span>
+      </div>
+      <div class="k"><span class="n">6</span>Price / pay</div>
+      <div class="v">
+        <span class="fr" data-en="How much does it cost? / What is the salary, exactly?">Combien ça coûte ? / Quel est le salaire, exactement ?</span>
+        <span class="alt"><span class="fr" data-en="Are there any extra fees?">Est-ce qu'il y a des frais supplémentaires ?</span></span>
+      </div>
+      <div class="k"><span class="n">7</span>What's included</div>
+      <div class="v">
+        <span class="fr" data-en="What is included in the price?">Qu'est-ce qui est compris dans le prix ?</span>
+        <span class="alt"><span class="fr" data-en="Is the equipment provided?">Est-ce que le matériel est fourni ?</span></span>
+      </div>
+      <div class="k"><span class="n">8</span>Conditions</div>
+      <div class="v">
+        <span class="fr" data-en="Do you need experience? / Are beginners accepted?">Faut-il avoir de l'expérience ? / Est-ce que les débutants sont acceptés ?</span>
+        <span class="alt"><span class="fr" data-en="What documents must I provide?">Quels documents dois-je fournir ?</span></span>
+      </div>
+      <div class="k"><span class="n">9</span>Signing up</div>
+      <div class="v">
+        <span class="fr" data-en="How can I register? / How do I apply?">Comment puis-je m'inscrire ? / Comment poser ma candidature ?</span>
+      </div>
+      <div class="k"><span class="n">10</span>Next step</div>
+      <div class="v">
+        <span class="fr" data-en="What is the next step?">Quelle est la prochaine étape ?</span>
+        <span class="alt"><span class="fr" data-en="When could I start? / Could I come by to see you?">Quand est-ce que je pourrais commencer ? / Est-ce que je peux passer vous voir ?</span></span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stamp">The clarifier reflex</div>
+    <h2>3 · Make the vague precise</h2>
+    <p>Exam ads bait you with teasers — dotted-underlined below, straight from real prompts. Turning one into a pointed question is the single easiest way to show you can "faire préciser". Aim for two or three per call.</p>
+    <div class="teasers">
+      <div class="hdr">The ad says</div>
+      <div class="hdr">You ask</div>
+      <div class="t"><span class="frx" data-en="Attractive pay"><mark class="vague">Rémunération attractive</mark></span></div>
+      <div><span class="frx" data-en="What is the salary, exactly? Is it paid by the hour?">Quel est le salaire, exactement ? C'est payé à l'heure ?</span></div>
+      <div class="t"><span class="frx" data-en="Variable / flexible hours"><mark class="vague">Horaires variables</mark></span></div>
+      <div><span class="frx" data-en="What does that mean concretely? How many hours per week?">Ça veut dire quoi, concrètement ? Combien d'heures par semaine ?</span></div>
+      <div class="t"><span class="frx" data-en="Very interesting prices / unbeatable rates"><mark class="vague">Prix très intéressants</mark></span></div>
+      <div><span class="frx" data-en="How much does … cost, exactly?">Combien coûte…, exactement ?</span></div>
+      <div class="t"><span class="frx" data-en="Several dates offered"><mark class="vague">Plusieurs dates proposées</mark></span></div>
+      <div><span class="frx" data-en="What are the exact dates?">Quelles sont les dates exactes ?</span></div>
+      <div class="t"><span class="frx" data-en="All levels"><mark class="vague">Tous les niveaux</mark></span></div>
+      <div><span class="frx" data-en="Is it really suitable for beginners?">Est-ce que c'est vraiment adapté aux débutants ?</span></div>
+      <div class="t"><span class="frx" data-en="Accommodation covered"><mark class="vague">Hébergement pris en charge</mark></span></div>
+      <div><span class="frx" data-en="What exactly is included? Meals too?">Qu'est-ce qui est compris, exactement ? Les repas aussi ?</span></div>
+      <div class="t"><span class="frx" data-en="Training provided"><mark class="vague">Formation assurée</mark></span></div>
+      <div><span class="frx" data-en="What does the training consist of? How long does it last?">En quoi consiste la formation ? Combien de temps dure-t-elle ?</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stamp">It's a conversation, not a list</div>
+    <h2>4 · React, then continue</h2>
+    <p>A short reaction before each new question turns an interrogation into an exchange — and natural reactions are on the grading grid. Cheap to learn, used ten times per call.</p>
+    <ul class="phrases">
+      <li><span class="fr" data-en="Okay, I see.">D'accord, je vois.</span></li>
+      <li><span class="fr" data-en="Very good. / Perfect!">Très bien. / Parfait !</span></li>
+      <li><span class="fr" data-en="Oh really? That's good to know.">Ah bon ? C'est bon à savoir.</span></li>
+      <li><span class="fr" data-en="So, if I understand correctly,…">Donc, si je comprends bien,…</span></li>
+      <li><span class="fr" data-en="And what about…?">Et pour…, comment ça se passe ?</span></li>
+    </ul>
+    <h3>Repair — asking is normal and costs nothing</h3>
+    <ul class="phrases">
+      <li><span class="fr" data-en="Sorry, could you repeat more slowly?">Pardon, pouvez-vous répéter plus lentement ?</span></li>
+      <li><span class="fr" data-en="Did you say fifteen or fifty?">Vous avez dit quinze ou cinquante ?</span></li>
+      <li><span class="fr" data-en="How is that spelled?">Comment ça s'écrit ?</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="stamp">Variety is scored</div>
+    <h2>5 · Three ways to ask the same thing</h2>
+    <p>The rubric rewards varied interrogative forms. The efficient policy at this level: <strong>est-ce que</strong> and question words as your workhorse, plus two or three polite frames dropped in during the call. Skip plain intonation questions — too informal for Section A.</p>
+    <ul class="forms">
+      <li><span class="chip avoid">avoid</span> <span class="frx" data-en="How much is it? (too casual for a formal call)">Ça coûte combien ?</span></li>
+      <li><span class="chip cat">workhorse</span> <span class="frx" data-en="How much does it cost?">Combien est-ce que ça coûte ?</span></li>
+      <li><span class="chip clar">2–3 per call</span> <span class="frx" data-en="Could you tell me how much it costs?">Pourriez-vous me dire combien ça coûte ?</span></li>
+      <li><span class="chip clar">2–3 per call</span> <span class="frx" data-en="I would like to know whether…">J'aimerais savoir si…</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="stamp">≈ 4:40 – 5:00 · verbatim</div>
+    <h2>6 · The closing</h2>
+    <p>Fifteen seconds, memorized whole. Land it confidently instead of trailing off — a clean close is free marks.</p>
+    <ul class="phrases">
+      <li><span class="fr" data-en="Perfect, I have all the information I need.">Parfait, j'ai toutes les informations qu'il me faut.</span></li>
+      <li><span class="fr" data-en="Thank you very much for your time.">Je vous remercie beaucoup pour votre temps.</span></li>
+      <li><span class="fr" data-en="I'll call you back tomorrow to confirm.">Je vous rappelle demain pour confirmer.</span></li>
+      <li><span class="fr" data-en="Have a good day, goodbye!">Bonne journée, au revoir !</span></li>
+    </ul>
+  </section>
+
+  <section id="drill">
+    <div class="stamp">Practice</div>
+    <div class="drill">
+      <div class="drill-head">
+        <h2>The ad simulator</h2>
+        <span class="drill-family" id="drillFamily"></span>
+      </div>
+      <p>Deal an ad, set a four-minute timer, and ask your ten questions out loud — availability first, next step last, and pounce on the dotted-underlined teasers. Then compare with a model set. Eight ads across the families seen in real exams: jobs, sales, trips, courses, rentals, housing, services.</p>
+      <div class="stage" id="stage" aria-live="polite">
+        <div class="placeholder">Somewhere, a very vague ad is waiting for your call…</div>
+      </div>
+      <div class="drill-controls">
+        <button class="primary" id="dealBtn">Deal an ad</button>
+        <button id="revealBtn" hidden>Show ten model questions</button>
+        <span class="count" id="deckCount"></span>
+      </div>
+    </div>
+  </section>
+
+  <footer>Built from the official TEF oral expression sample booklet (Le français des affaires, CCI Paris Île-de-France) and TEFAQ guide pages 33–37. Frames to recombine, never a script to memorize — except the opening and closing, which you should absolutely memorize.</footer>
+</div>
+
+<script>
+(function () {
+  // French typography: non-breaking space before tall punctuation, proper apostrophes
+  var NBSP = " ";
+  function fixTypography(root) {
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    var node;
+    while ((node = walker.nextNode())) {
+      node.nodeValue = node.nodeValue.replace(/ ([?!:;»])/g, NBSP + "$1").replace(/'/g, "’");
+    }
+  }
+  document.querySelectorAll(".fr, .frx").forEach(fixTypography);
+
+  // Practice mode: blur the phrase bank, tap to peek (ads and answer keys stay visible)
+  var practiceBtn = document.getElementById("practiceBtn");
+  var practiceHint = document.getElementById("practiceHint");
+  var practiceOn = false;
+  try { practiceOn = localStorage.getItem("practice-a") === "1"; } catch (e) {}
+
+  function applyPractice() {
+    document.body.classList.toggle("practice", practiceOn);
+    practiceBtn.classList.toggle("toggled", practiceOn);
+    practiceBtn.setAttribute("aria-pressed", String(practiceOn));
+    practiceBtn.textContent = practiceOn ? "Practice mode: on" : "Practice mode: hide French";
+    practiceHint.textContent = practiceOn ? "Tap a blurred phrase to check yourself." : "";
+    document.querySelectorAll(".fr").forEach(function (el) {
+      el.classList.remove("peek");
+      if (practiceOn) { el.setAttribute("tabindex", "0"); el.setAttribute("role", "button"); }
+      else { el.removeAttribute("tabindex"); el.removeAttribute("role"); }
+    });
+  }
+  practiceBtn.addEventListener("click", function () {
+    practiceOn = !practiceOn;
+    try { localStorage.setItem("practice-a", practiceOn ? "1" : "0"); } catch (e) {}
+    applyPractice();
+  });
+  function togglePeek(el) { if (practiceOn) el.classList.toggle("peek"); }
+  document.addEventListener("click", function (e) {
+    var fr = e.target.closest(".fr");
+    if (fr) togglePeek(fr);
+  });
+  document.addEventListener("keydown", function (e) {
+    if ((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("fr")) {
+      e.preventDefault();
+      togglePeek(e.target);
+    }
+  });
+  applyPractice();
+
+  // Ad simulator. Vague teasers are wrapped in <mark class="vague"> in the line HTML.
+  // Categories: the ten-question map; "clarifier" marks a teaser-pouncing question.
+  var ADS = [
+    {
+      family: "Emploi", head: "URGENT !",
+      lines: [
+        { html: "Recherche personne pour s'occuper d'une dame âgée à domicile.", en: "Looking for someone to care for an elderly lady at home." },
+        { html: "<mark class='vague'>Rémunération attractive</mark>. <mark class='vague'>Horaires variables</mark>.", en: "Attractive pay. Variable hours." }
+      ],
+      contact: "Tél. : 812 – 255 325",
+      questions: [
+        { cat: "availability", fr: "Bonjour, est-ce que vous cherchez toujours quelqu'un pour ce poste ?", en: "Hello, are you still looking for someone for this position?" },
+        { cat: "what", fr: "En quoi consiste le travail exactement ? Il faut cuisiner, faire le ménage ?", en: "What does the job involve exactly? Cooking, housework?" },
+        { cat: "clarifier", clar: true, fr: "Vous dites « rémunération attractive » : quel est le salaire, exactement ?", en: "You say \"attractive pay\": what is the salary, exactly?" },
+        { cat: "clarifier", clar: true, fr: "Et les horaires variables, ça veut dire quoi concrètement ? Combien d'heures par semaine ?", en: "And variable hours — what does that mean concretely? How many hours per week?" },
+        { cat: "where", fr: "Où habite cette dame ? Est-ce que c'est accessible en autobus ?", en: "Where does the lady live? Is it reachable by bus?" },
+        { cat: "conditions", fr: "Faut-il avoir de l'expérience ou une formation particulière ?", en: "Do you need experience or specific training?" },
+        { cat: "when", fr: "Quand est-ce que je pourrais commencer ?", en: "When could I start?" },
+        { cat: "sign-up", fr: "Comment puis-je poser ma candidature ?", en: "How do I apply?" },
+        { cat: "next step", fr: "Quelle est la prochaine étape ? Est-ce qu'il y a une entrevue ?", en: "What's the next step? Is there an interview?" }
+      ]
+    },
+    {
+      family: "Vente", head: "Meubles à vendre — Occasion à saisir",
+      lines: [
+        { html: "Cause départ à l'étranger, vends meubles à <mark class='vague'>prix très intéressants</mark>…", en: "Moving abroad — selling furniture at very interesting prices…" }
+      ],
+      contact: "Téléphonez vite au 514 543 2124",
+      questions: [
+        { cat: "availability", fr: "Bonjour, est-ce que les meubles sont toujours à vendre ?", en: "Hello, is the furniture still for sale?" },
+        { cat: "what", fr: "Quels meubles vendez-vous exactement ?", en: "What furniture are you selling exactly?" },
+        { cat: "conditions", fr: "Est-ce que les meubles sont en bon état ? Ils ont quel âge ?", en: "Is the furniture in good condition? How old is it?" },
+        { cat: "clarifier", clar: true, fr: "Vous parlez de prix très intéressants : combien coûte le sofa, par exemple ?", en: "You mention very interesting prices: how much is the sofa, for example?" },
+        { cat: "price", fr: "Est-ce que les prix sont négociables si j'achète plusieurs meubles ?", en: "Are the prices negotiable if I buy several pieces?" },
+        { cat: "where", fr: "Où est-ce que je peux voir les meubles ? À quelle adresse ?", en: "Where can I see the furniture? At what address?" },
+        { cat: "when", fr: "Quand est-ce que je peux passer les voir ?", en: "When can I come by to see it?" },
+        { cat: "included", fr: "Est-ce que vous pouvez livrer, ou faut-il que je m'occupe du transport ?", en: "Can you deliver, or do I handle transport?" },
+        { cat: "next step", fr: "Parfait. Est-ce que je peux venir samedi matin ?", en: "Perfect. Can I come Saturday morning?" }
+      ]
+    },
+    {
+      family: "Loisirs", head: "Rando Loisirs",
+      lines: [
+        { html: "Itinéraires de 3 à 5 jours. <mark class='vague'>Tous les niveaux</mark> de difficulté.", en: "3-to-5-day itineraries. All difficulty levels." },
+        { html: "Groupes de 8 à 12 personnes accompagnées d'un guide. <mark class='vague'>Hébergement pris en charge</mark>.", en: "Groups of 8–12 with a guide. Accommodation covered." }
+      ],
+      contact: "Infos et réservations : 0800 30 210 210",
+      questions: [
+        { cat: "availability", fr: "Bonjour, est-ce qu'il reste des places pour les prochaines randonnées ?", en: "Hello, are there still spots for the upcoming hikes?" },
+        { cat: "when", fr: "Quelles sont les prochaines dates ?", en: "What are the next dates?" },
+        { cat: "where", fr: "Où est-ce que les randonnées ont lieu ?", en: "Where do the hikes take place?" },
+        { cat: "price", fr: "Combien ça coûte pour un itinéraire de trois jours ?", en: "How much does a three-day itinerary cost?" },
+        { cat: "clarifier", clar: true, fr: "L'hébergement est pris en charge, mais est-ce que les repas sont compris aussi ?", en: "Accommodation is covered, but are meals included too?" },
+        { cat: "clarifier", clar: true, fr: "C'est pour tous les niveaux : est-ce que c'est vraiment adapté aux débutants ?", en: "It's for all levels: is it really suitable for beginners?" },
+        { cat: "included", fr: "Faut-il apporter son propre matériel ?", en: "Do you have to bring your own gear?" },
+        { cat: "sign-up", fr: "Comment puis-je réserver ?", en: "How can I book?" },
+        { cat: "next step", fr: "Quelle est la date limite pour s'inscrire ?", en: "What's the registration deadline?" }
+      ]
+    },
+    {
+      family: "Emploi", head: "Spectacle",
+      lines: [
+        { html: "La Compagnie Ciné-Art recherche des acteurs figurants, hommes et femmes, pour jouer dans une comédie musicale.", en: "The Ciné-Art Company is looking for extras, men and women, for a musical." },
+        { html: "<mark class='vague'>Plusieurs dates proposées</mark>. <mark class='vague'>Rémunération sous forme de cadeaux</mark>.", en: "Several dates offered. Payment in the form of gifts." }
+      ],
+      contact: "Tél. : 451 – 943 38 35",
+      questions: [
+        { cat: "availability", fr: "Bonjour, est-ce que vous recherchez toujours des figurants ?", en: "Hello, are you still looking for extras?" },
+        { cat: "what", fr: "En quoi consiste le rôle exactement ? Est-ce qu'il faut chanter ou danser ?", en: "What does the role involve exactly? Do you have to sing or dance?" },
+        { cat: "clarifier", clar: true, fr: "Vous proposez plusieurs dates : quelles sont les dates exactes ?", en: "You offer several dates: what are the exact dates?" },
+        { cat: "clarifier", clar: true, fr: "La rémunération sous forme de cadeaux, qu'est-ce que ça veut dire concrètement ?", en: "Payment in the form of gifts — what does that mean concretely?" },
+        { cat: "where", fr: "Où auront lieu les représentations ?", en: "Where will the performances take place?" },
+        { cat: "conditions", fr: "Faut-il avoir de l'expérience ? À partir de quel âge acceptez-vous les candidats ?", en: "Do you need experience? From what age do you accept candidates?" },
+        { cat: "how long", fr: "Combien de temps durent les répétitions ?", en: "How long are the rehearsals?" },
+        { cat: "sign-up", fr: "Est-ce qu'il y a une audition ? Comment puis-je m'inscrire ?", en: "Is there an audition? How do I sign up?" },
+        { cat: "next step", fr: "Quelle est la prochaine étape ?", en: "What's the next step?" }
+      ]
+    },
+    {
+      family: "Cours", head: "MEDIA Langues",
+      lines: [
+        { html: "Toutes langues. Cours en ligne. <mark class='vague'>Horaires flexibles</mark>. <mark class='vague'>Tarifs imbattables</mark> !", en: "All languages. Online courses. Flexible hours. Unbeatable rates!" },
+        { html: "Formules : survie (15 jours), long terme (3 mois), à la carte.", en: "Packages: survival (15 days), long-term (3 months), à la carte." }
+      ],
+      contact: "www.medialangues.com",
+      questions: [
+        { cat: "availability", fr: "Bonjour, est-ce que je peux encore m'inscrire pour la prochaine session ?", en: "Hello, can I still register for the next session?" },
+        { cat: "what", fr: "Est-ce que les cours sont individuels ou en groupe ?", en: "Are the courses one-on-one or in groups?" },
+        { cat: "clarifier", clar: true, fr: "Vous parlez de tarifs imbattables : combien coûte la formule de trois mois ?", en: "You mention unbeatable rates: how much is the three-month package?" },
+        { cat: "clarifier", clar: true, fr: "Les horaires sont flexibles : est-ce qu'il y a des cours le soir ?", en: "The hours are flexible: are there evening classes?" },
+        { cat: "how long", fr: "Combien d'heures de cours par semaine ?", en: "How many hours of class per week?" },
+        { cat: "conditions", fr: "Est-ce que les professeurs sont des locuteurs natifs ?", en: "Are the teachers native speakers?" },
+        { cat: "conditions", fr: "Est-ce qu'il y a un test de niveau avant de commencer ?", en: "Is there a placement test before starting?" },
+        { cat: "included", fr: "Est-ce que le matériel est compris dans le prix ?", en: "Are the materials included in the price?" },
+        { cat: "next step", fr: "Parfait. Quand commence la prochaine session ?", en: "Perfect. When does the next session start?" }
+      ]
+    },
+    {
+      family: "Location", head: "Autos Éco — Location de voitures",
+      lines: [
+        { html: "Grand choix de véhicules à <mark class='vague'>petits prix</mark>. <mark class='vague'>Assurance incluse</mark>.", en: "Wide choice of vehicles at low prices. Insurance included." },
+        { html: "Réservez vite !", en: "Book fast!" }
+      ],
+      contact: "Tél. : 514 – 733 90 22",
+      questions: [
+        { cat: "availability", fr: "Bonjour, est-ce que vous avez une voiture disponible pour la fin de semaine prochaine ?", en: "Hello, do you have a car available for next weekend?" },
+        { cat: "what", fr: "Quels types de véhicules proposez-vous ?", en: "What types of vehicles do you offer?" },
+        { cat: "clarifier", clar: true, fr: "Vous parlez de petits prix : quel est le tarif pour une journée ? Et pour une semaine ?", en: "You mention low prices: what's the rate for one day? And for a week?" },
+        { cat: "clarifier", clar: true, fr: "L'assurance est incluse, mais qu'est-ce qu'elle couvre exactement ?", en: "Insurance is included, but what exactly does it cover?" },
+        { cat: "included", fr: "Est-ce que le kilométrage est illimité ?", en: "Is the mileage unlimited?" },
+        { cat: "conditions", fr: "Quels documents faut-il fournir ? Est-ce qu'il faut une carte de crédit ?", en: "What documents are required? Do you need a credit card?" },
+        { cat: "where", fr: "Où est-ce que je peux prendre la voiture ? Est-ce qu'on peut la rendre ailleurs ?", en: "Where do I pick up the car? Can you return it elsewhere?" },
+        { cat: "when", fr: "À quelle heure ouvrez-vous le samedi ?", en: "What time do you open on Saturday?" },
+        { cat: "next step", fr: "Parfait, comment est-ce que je peux réserver ?", en: "Perfect — how can I book?" }
+      ]
+    },
+    {
+      family: "Logement", head: "À louer",
+      lines: [
+        { html: "Grand 3½ lumineux, près du métro. <mark class='vague'>Libre bientôt</mark>.", en: "Large, bright one-bedroom (3½), near the metro. Free soon." },
+        { html: "<mark class='vague'>Prix à discuter</mark>.", en: "Price to be discussed." }
+      ],
+      contact: "Tél. : 438 – 555 01 87",
+      questions: [
+        { cat: "availability", fr: "Bonjour, est-ce que l'appartement est toujours à louer ?", en: "Hello, is the apartment still for rent?" },
+        { cat: "clarifier", clar: true, fr: "Le prix est à discuter : quel est le loyer demandé ?", en: "The price is to be discussed: what rent are you asking?" },
+        { cat: "clarifier", clar: true, fr: "« Libre bientôt », ça veut dire quand exactement ?", en: "\"Free soon\" — when exactly does that mean?" },
+        { cat: "included", fr: "Est-ce que le chauffage et l'électricité sont compris dans le loyer ?", en: "Are heating and electricity included in the rent?" },
+        { cat: "what", fr: "Est-ce que l'appartement est meublé ? À quel étage se trouve-t-il ?", en: "Is the apartment furnished? What floor is it on?" },
+        { cat: "where", fr: "Dans quel quartier exactement ? Quelle est la station de métro la plus proche ?", en: "In which neighbourhood exactly? What's the nearest metro station?" },
+        { cat: "conditions", fr: "Est-ce que les animaux sont acceptés ?", en: "Are pets allowed?" },
+        { cat: "when", fr: "Quand est-ce que je pourrais visiter ?", en: "When could I visit?" },
+        { cat: "next step", fr: "Quels documents faut-il pour le dossier ?", en: "What documents are needed for the application?" }
+      ]
+    },
+    {
+      family: "Service", head: "Déménagement Économique !",
+      lines: [
+        { html: "Équipe expérimentée, camion fourni, <mark class='vague'>prix imbattables</mark>.", en: "Experienced team, truck provided, unbeatable prices." },
+        { html: "<mark class='vague'>Estimation gratuite</mark>.", en: "Free estimate." }
+      ],
+      contact: "Tél. : 450 – 555 62 40",
+      questions: [
+        { cat: "availability", fr: "Bonjour, est-ce que vous êtes disponibles le premier juillet ?", en: "Hello, are you available on July 1st (Québec's moving day)?" },
+        { cat: "what", fr: "Qu'est-ce qui est compris dans le service ? Est-ce que vous emballez les boîtes aussi ?", en: "What's included in the service? Do you pack the boxes too?" },
+        { cat: "clarifier", clar: true, fr: "Vous dites « prix imbattables » : combien ça coûte pour un 3½, environ ?", en: "You say \"unbeatable prices\": roughly how much for a one-bedroom?" },
+        { cat: "price", fr: "Est-ce que vous facturez à l'heure ou un prix fixe ?", en: "Do you charge by the hour or a flat rate?" },
+        { cat: "what", fr: "Combien de déménageurs seront présents ?", en: "How many movers will be there?" },
+        { cat: "conditions", fr: "Est-ce que vous êtes assurés si un meuble est brisé ?", en: "Are you insured if a piece of furniture gets broken?" },
+        { cat: "clarifier", clar: true, fr: "Comment se passe l'estimation gratuite ? Faut-il que vous veniez chez moi ?", en: "How does the free estimate work? Do you need to come to my place?" },
+        { cat: "when", fr: "À quelle heure pouvez-vous commencer le matin ?", en: "What time can you start in the morning?" },
+        { cat: "next step", fr: "Parfait, comment est-ce que je peux réserver ?", en: "Perfect — how can I book?" }
+      ]
+    }
+  ];
+
+  var deck = [];
+  var dealt = 0;
+  var current = null;
+  var stage = document.getElementById("stage");
+  var dealBtn = document.getElementById("dealBtn");
+  var revealBtn = document.getElementById("revealBtn");
+  var familyEl = document.getElementById("drillFamily");
+  var countEl = document.getElementById("deckCount");
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function renderAd(ad) {
+    var card = document.createElement("div");
+    card.className = "ad-card";
+    var head = document.createElement("div");
+    head.className = "ad-head";
+    head.textContent = ad.head;
+    card.appendChild(head);
+    ad.lines.forEach(function (line) {
+      var el = document.createElement("span");
+      el.className = "ad-line";
+      el.setAttribute("data-en", line.en);
+      el.innerHTML = line.html;
+      card.appendChild(el);
+    });
+    var contact = document.createElement("div");
+    contact.className = "ad-contact";
+    contact.textContent = ad.contact;
+    card.appendChild(contact);
+    fixTypography(card);
+    return card;
+  }
+
+  function renderQuestions(ad) {
+    var box = document.createElement("div");
+    box.className = "modelqs";
+    var ol = document.createElement("ol");
+    ad.questions.forEach(function (q) {
+      var li = document.createElement("li");
+      var chip = document.createElement("span");
+      chip.className = "chip " + (q.clar ? "clar" : "cat");
+      chip.textContent = q.cat;
+      var fr = document.createElement("span");
+      fr.className = "frx";
+      fr.setAttribute("data-en", q.en);
+      fr.textContent = q.fr;
+      li.appendChild(chip);
+      li.appendChild(fr);
+      ol.appendChild(li);
+    });
+    box.appendChild(ol);
+    var note = document.createElement("p");
+    note.className = "note";
+    note.textContent = "Notice how little is ad-specific: availability opens, next step closes, and the amber clarifiers pounce on the teasers. Everything else is the universal map wearing this ad's vocabulary.";
+    box.appendChild(note);
+    fixTypography(ol);
+    return box;
+  }
+
+  function deal() {
+    if (deck.length === 0) { deck = shuffle(ADS.slice()); dealt = 0; }
+    current = deck.pop();
+    dealt++;
+    stage.innerHTML = "";
+    stage.appendChild(renderAd(current));
+    familyEl.textContent = current.family;
+    familyEl.classList.add("show");
+    revealBtn.hidden = false;
+    revealBtn.disabled = false;
+    dealBtn.textContent = "Next ad";
+    countEl.textContent = dealt + " / " + ADS.length + " this pass";
+  }
+
+  function reveal() {
+    if (!current) return;
+    stage.appendChild(renderQuestions(current));
+    revealBtn.disabled = true;
+  }
+
+  dealBtn.addEventListener("click", deal);
+  revealBtn.addEventListener("click", reveal);
+})();
+</script>
